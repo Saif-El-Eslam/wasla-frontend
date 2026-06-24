@@ -24,7 +24,7 @@ export function FormTextarea<T extends FieldValues>({
   const error = name.split('.').reduce<any>((acc, key) => acc?.[key], errors);
 
   return (
-    <div>
+    <div className="min-w-0">
       {label ? <label className="text-sm font-medium text-muted-foreground">{label}</label> : null}
       <textarea
         {...register(name)}

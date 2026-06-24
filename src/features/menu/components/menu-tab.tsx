@@ -286,7 +286,11 @@ export function MenuTab({
       api.createCategory(effectiveBranchId, categoryPayload(values)),
     onSuccess: ({ category }, values) => {
       const patch = categoryCachePatch(values);
-      addCachedCategory(queryClient, effectiveBranchId, { ...category, ...patch, items: category.items ?? [] });
+      addCachedCategory(queryClient, effectiveBranchId, {
+        ...category,
+        ...patch,
+        items: category.items ?? [],
+      });
       resetCategoryForm();
       setFormMode(null);
     },
@@ -316,7 +320,9 @@ export function MenuTab({
     mutationFn: ({ categoryId, active }: { categoryId: string; active: boolean }) =>
       api.updateCategory(effectiveBranchId, categoryId, { active }),
     onSuccess: ({ category }, variables) => {
-      replaceCachedCategory(queryClient, effectiveBranchId, variables.categoryId, { active: category.active });
+      replaceCachedCategory(queryClient, effectiveBranchId, variables.categoryId, {
+        active: category.active,
+      });
     },
   });
 
@@ -363,7 +369,7 @@ export function MenuTab({
         .map((tag) => tag.trim())
         .filter(Boolean),
       calories: values.calories,
-      };
+    };
   };
 
   const itemCachePatch = (values: ItemFormValues): Partial<MenuItem> => {
@@ -405,10 +411,16 @@ export function MenuTab({
     },
     onSuccess: ({ item }, values) => {
       if (editingItemContext) {
-        replaceCachedItem(queryClient, effectiveBranchId, editingItemContext.categoryId, editingItemContext.itemId, {
-          ...item,
-          ...itemCachePatch(values),
-        });
+        replaceCachedItem(
+          queryClient,
+          effectiveBranchId,
+          editingItemContext.categoryId,
+          editingItemContext.itemId,
+          {
+            ...item,
+            ...itemCachePatch(values),
+          },
+        );
       }
       resetItemForm();
       setFormMode(null);
@@ -564,6 +576,7 @@ export function MenuTab({
                   title={editingCategoryId ? t('editCategory') : t('addCategory')}
                   closeLabel={commonT('close')}
                   onClose={closeForm}
+                  panelClassName="sm:max-w-xl xl:max-w-2xl"
                 >
                   <form
                     onSubmit={categoryForm.handleSubmit((values) =>
@@ -610,17 +623,13 @@ export function MenuTab({
                       </label> */}
                     </div>
                     <div className="flex mt-4 gap-2 justify-end">
-                      {editingCategoryId ? (
-                        <button
-                          type="button"
-                          className="ms-2 inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 text-sm font-bold text-red-700 transition hover:bg-red-100"
-                          onClick={() => deleteCategoryMutation.mutate(editingCategoryId)}
-                          disabled={deleteCategoryMutation.isPending}
-                        >
-                          <Trash2 className="size-4" />
-                          {t('deleteCategory')}
-                        </button>
-                      ) : null}
+                      <button
+                        type="button"
+                        className="ms-2 inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 text-sm font-bold text-red-700 transition hover:bg-red-100"
+                        onClick={closeForm}
+                      >
+                        {commonT('cancel')}
+                      </button>
                       <PrimaryButton
                         type="submit"
                         disabled={createCategoryMutation.isPending || saveCategoryMutation.isPending}
@@ -647,6 +656,7 @@ export function MenuTab({
                   title={editingItemContext ? t('editItem') : t('addItem')}
                   closeLabel={commonT('close')}
                   onClose={closeForm}
+                  panelClassName="sm:max-w-4xl xl:max-w-5xl"
                 >
                   <form
                     onSubmit={itemForm.handleSubmit((values) =>
@@ -655,21 +665,23 @@ export function MenuTab({
                         : createItemMutation.mutate(values),
                     )}
                   >
-                    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        <FormSelect
-                          name="categoryId"
-                          register={itemForm.register}
-                          errors={itemForm.formState.errors}
-                          disabled={Boolean(editingItemContext)}
-                          className="h-11 rounded-xl border border-border px-3 outline-none focus:border-primary sm:col-span-2"
-                        >
-                          {menu.categories.map((category) => (
-                            <option key={category.id} value={category.id}>
-                              {textForLocale(category.name, locale)}
-                            </option>
-                          ))}
-                        </FormSelect>
+                    <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(280px,360px)] xl:items-start">
+                      <div className="grid min-w-0 gap-3 sm:grid-cols-2">
+                        <div className="sm:col-span-2">
+                          <FormSelect
+                            name="categoryId"
+                            register={itemForm.register}
+                            errors={itemForm.formState.errors}
+                            disabled={Boolean(editingItemContext)}
+                          >
+                            {menu.categories.map((category) => (
+                              <option key={category.id} value={category.id}>
+                                {textForLocale(category.name, locale)}
+                              </option>
+                            ))}
+                          </FormSelect>
+                        </div>
+
                         <FormInput
                           name="name.en"
                           register={itemForm.register}
@@ -694,20 +706,23 @@ export function MenuTab({
                           errors={itemForm.formState.errors}
                           placeholder={t('descriptionInArabic')}
                         />
-                        <FormInput
-                          name="imageUrl"
-                          type="url"
-                          register={itemForm.register}
-                          errors={itemForm.formState.errors}
-                          placeholder={t('imageUrl')}
-                          className="h-11 rounded-xl border border-border px-3 outline-none focus:border-primary sm:col-span-2"
-                        />
-                        <FormInput
-                          name="tags"
-                          register={itemForm.register}
-                          errors={itemForm.formState.errors}
-                          placeholder={t('tagsSeparated')}
-                        />
+                        <div className="sm:col-span-2">
+                          <FormInput
+                            name="imageUrl"
+                            type="url"
+                            register={itemForm.register}
+                            errors={itemForm.formState.errors}
+                            placeholder={t('imageUrl')}
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <FormInput
+                            name="tags"
+                            register={itemForm.register}
+                            errors={itemForm.formState.errors}
+                            placeholder={t('tagsSeparated')}
+                          />
+                        </div>
                         <FormInput
                           name="calories"
                           type="number"
@@ -716,13 +731,13 @@ export function MenuTab({
                           placeholder={t('calories')}
                           inputMode="numeric"
                         />
-                        <label className="flex h-11 items-center gap-2 rounded-xl border border-border bg-white px-3 text-sm font-bold">
+                        <label className="flex h-11 min-w-0 items-center gap-2 rounded-xl border border-border bg-white px-3 text-sm font-bold">
                           <input type="checkbox" {...itemForm.register('available')} />
-                          {t('available')}
+                          <span className="truncate">{t('available')}</span>
                         </label>
                       </div>
-                      <div className="rounded-2xl border border-border bg-stone-50 p-3">
-                        <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0 rounded-2xl border border-border bg-stone-50 p-3">
+                        <div className="flex flex-row gap-3 items-center justify-between">
                           <div>
                             <p className="text-sm font-bold text-stone-900">{t('multiLabeledPrices')}</p>
                             <p className="text-xs text-muted-foreground">{t('multiLabeledPricesBody')}</p>
@@ -762,13 +777,16 @@ export function MenuTab({
                         ) : (
                           <div className="mt-3 space-y-2">
                             {priceFields.map((price, index) => (
-                              <div key={price.id} className="grid grid-cols-[1fr_1fr_auto] gap-2">
+                              <div
+                                key={price.id}
+                                className="grid gap-2 rounded-xl border border-border bg-white p-2 grid-cols-[minmax(3rem,1fr)_minmax(3rem,1fr)_2.5rem] sm:items-start"
+                              >
                                 <FormInput
                                   name={`prices.${index}.label`}
                                   register={itemForm.register}
                                   errors={itemForm.formState.errors}
                                   placeholder={t('label')}
-                                  className="h-10 rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary"
+                                  className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary"
                                 />
                                 <FormInput
                                   name={`prices.${index}.price`}
@@ -776,19 +794,21 @@ export function MenuTab({
                                   errors={itemForm.formState.errors}
                                   placeholder={t('price')}
                                   inputMode="decimal"
-                                  className="h-10 rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary"
+                                  className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary"
                                 />
-                                <IconButton
-                                  label={t('removePrice')}
-                                  onClick={() => removePrice(index)}
-                                  disabled={priceFields.length === 1}
-                                >
-                                  <X className="size-4" />
-                                </IconButton>
+                                <div className="flex justify-end sm:block">
+                                  <IconButton
+                                    label={t('removePrice')}
+                                    onClick={() => removePrice(index)}
+                                    disabled={priceFields.length === 1}
+                                  >
+                                    <X className="size-4" />
+                                  </IconButton>
+                                </div>
                               </div>
                             ))}
                             <button
-                              className="h-10 rounded-xl border border-border bg-white px-3 text-sm font-bold text-stone-700 transition hover:border-primary hover:text-primary disabled:opacity-50"
+                              className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm font-bold text-stone-700 transition hover:border-primary hover:text-primary disabled:opacity-50 sm:w-auto"
                               onClick={() => appendPrice({ label: '', price: '' })}
                               disabled={priceFields.length >= 5}
                               type="button"
@@ -799,7 +819,14 @@ export function MenuTab({
                         )}
                       </div>
                     </div>
-                    <div className="mt-4 flex flex-wrap items-center gap-2">
+                    <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+                      <button
+                        type="button"
+                        className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 text-sm font-bold text-red-700 transition hover:bg-red-100"
+                        onClick={closeForm}
+                      >
+                        {commonT('cancel')}
+                      </button>
                       <PrimaryButton
                         type="submit"
                         disabled={createItemMutation.isPending || saveItemMutation.isPending}
@@ -807,17 +834,6 @@ export function MenuTab({
                         <CheckCircle2 className="size-4" />
                         {editingItemContext ? t('saveItem') : t('createItem')}
                       </PrimaryButton>
-                      {editingItemContext ? (
-                        <button
-                          type="button"
-                          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 text-sm font-bold text-red-700 transition hover:bg-red-100"
-                          onClick={() => deleteItemMutation.mutate(editingItemContext)}
-                          disabled={deleteItemMutation.isPending}
-                        >
-                          <Trash2 className="size-4" />
-                          {t('deleteItem')}
-                        </button>
-                      ) : null}
                     </div>
                     {createItemMutation.error ? (
                       <p className="mt-2 text-sm text-red-700">{readError(createItemMutation.error)}</p>
