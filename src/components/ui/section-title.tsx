@@ -2,10 +2,12 @@
 
 export function SectionTitle({
   eyebrow,
+  icon,
   title,
   children,
 }: {
   eyebrow?: string;
+  icon?: React.ReactNode;
   title: string;
   children?: React.ReactNode;
 }) {
@@ -15,7 +17,10 @@ export function SectionTitle({
         {eyebrow ? (
           <p className="text-xs font-bold uppercase tracking-normal text-primary">{eyebrow}</p>
         ) : null}
-        <h2 className="mt-1 text-xl font-bold text-stone-950">{title}</h2>
+        <div className="flex items-center gap-2">
+          {icon ? <div>{icon}</div> : null}
+          <h2 className="text-md font-bold text-stone-950">{title}</h2>
+        </div>
       </div>
       {children}
     </div>

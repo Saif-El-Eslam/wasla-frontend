@@ -60,6 +60,7 @@
     "menu": "Menu",
     "qr": "QR",
     "branches": "Branches",
+    "branch": "Branch",
     "analytics": "Analytics",
     "settings": "Settings",
     "publicPreview": "Public preview",
@@ -294,6 +295,8 @@
     "deleteTeamWarning": "Are you sure you want to delete this team?",
     "deleteUserWarning": "Are you sure you want to delete this user?",
     "hide": "Hide",
-    "show": "Show"
+    "show": "Show",
+    "extractionUsageSummary": "Extraction usage summary",
+    "loading": "Loading..."
   }
 }

@@ -60,6 +60,7 @@
     "menu": "القائمة",
     "qr": "QR",
     "branches": "الفروع",
+    "branch": "الفرع",
     "analytics": "التحليلات",
     "settings": "الإعدادات",
     "publicPreview": "معاينة القائمة",
@@ -294,6 +295,8 @@
     "deleteTeamWarning": "هل انت متاكد من حذف هذا الفريق؟",
     "deleteUserWarning": "هل انت متاكد من حذف هذا المستخدم؟",
     "hide": "اخفاء",
-    "show": "اظهار"
+    "show": "اظهار",
+    "extractionUsageSummary": "ملخص استخراج القائمة",
+    "loading": "جار التحميل..."
   }
 }

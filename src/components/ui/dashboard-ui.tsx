@@ -1,5 +1,11 @@
 export type { DashboardTab, PriceDraft } from '@/features/dashboard/types/dashboard-types';
-export { formatMoney, getBranchStats, itemPriceText, localized, slugify } from '@/features/dashboard/utils/dashboard-utils';
+export {
+  formatMoney,
+  getBranchStats,
+  itemPriceText,
+  localized,
+  slugify,
+} from '@/features/dashboard/utils/dashboard-utils';
 export { Badge } from './badge';
 export { BranchSelect } from './branch-select';
 export { Card } from './card';
@@ -9,6 +15,8 @@ export { EmptyState } from './empty-state';
 export { FormPanel } from './form-panel';
 export { IconButton } from './icon-button';
 export { PrimaryButton } from './primary-button';
+export { SecondaryButton } from './secondary-button';
+
 export { QRMock } from './qr-mock';
 export { SectionTitle } from './section-title';
 export { TabLoader } from './tab-loader';

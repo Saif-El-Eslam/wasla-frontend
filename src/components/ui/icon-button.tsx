@@ -5,15 +5,20 @@ export function IconButton({
   children,
   onClick,
   disabled,
+  className,
 }: {
   label: string;
   children: React.ReactNode;
-  onClick?: () => void;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
   disabled?: boolean;
+  className?: string;
 }) {
   return (
     <button
-      className="flex size-10 items-center justify-center rounded-xl border border-border bg-white text-stone-600 transition hover:border-primary hover:text-primary disabled:opacity-50"
+      className={
+        className ||
+        'flex size-10 items-center justify-center rounded-xl border border-border bg-white text-stone-600 transition hover:border-primary hover:text-primary disabled:opacity-50'
+      }
       title={label}
       aria-label={label}
       onClick={onClick}

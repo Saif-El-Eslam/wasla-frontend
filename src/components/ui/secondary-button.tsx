@@ -16,7 +16,11 @@ export function SecondaryButton({
   return (
     <button
       type={type}
-      className={`h-11 rounded-xl border border-border bg-white px-4 text-sm font-bold transition hover:brightness-95 disabled:opacity-55 ${className}`}
+      className={
+        className
+          ? className
+          : 'h-11 rounded-xl border border-border bg-white px-4 text-sm font-bold transition hover:brightness-95 disabled:opacity-55'
+      }
       onClick={onClick}
       disabled={disabled}
     >

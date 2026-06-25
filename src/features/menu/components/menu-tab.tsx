@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Building2, CheckCircle2, Plus, UtensilsCrossed } from 'lucide-react';
+import { Building2, Menu as MenuIcon, CheckCircle2, GitBranch, Plus, UtensilsCrossed } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { api, type Menu, type MenuCategory, type MenuItem } from '@/lib/api';
 import {
@@ -447,21 +447,13 @@ export function MenuTab({
 
   return (
     <div className="space-y-5">
-      <SectionTitle eyebrow={t('branchRequired')} title={t('menuEditor')}>
-        <BranchSelect
-          branches={branches}
-          value={effectiveBranchId}
-          onChange={setLocalBranchId}
-          locale={locale}
-        />
-      </SectionTitle>
       {menuQuery.isLoading ? (
         <TabLoader label={t('loadingWorkspace')} />
       ) : !menu ? (
         <>
           <Card>
-            <div className="grid gap-4 lg:grid-cols-[1fr_360px] lg:items-center">
-              <div>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <Badge tone="amber">{t('noMenu')}</Badge>
                   <p className="text-sm font-bold text-stone-900">
@@ -471,7 +463,14 @@ export function MenuTab({
                 <h3 className="mt-3 text-xl font-black text-stone-950">{t('branchHasNoMenu')}</h3>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">{t('createMenuBeforeContent')}</p>
               </div>
-              <div className="grid gap-2">
+              <div className="flex flex-col w-full gap-2 justify-start sm:w-auto sm:justify-end">
+                <BranchSelect
+                  branches={branches}
+                  value={effectiveBranchId}
+                  onChange={setLocalBranchId}
+                  locale={locale}
+                />
+
                 <PrimaryButton onClick={() => setFormMode('menu')} disabled={createMenuMutation.isPending}>
                   <Plus className="size-4" />
                   {t('addMenu')}
@@ -518,67 +517,78 @@ export function MenuTab({
         </>
       ) : (
         <>
-          <Card>
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-              <div>
+          <Card className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <div className="mb-3 flex items-center gap-2 text-xs font-medium text-stone-500">
+                  <GitBranch className="size-3.5" />
+                  <span>{t('branch') || 'Branch'}</span>
+                </div>
+
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge tone={menu.publishedAt ? 'green' : 'muted'}>
+                  <h3 className="text-base font-bold text-stone-950">
+                    {textForLocale(branch?.name, locale) || 'Main Branch'}
+                  </h3>
+
+                  <Badge tone="teal">{branch?.isMain ? 'main' : t('branch') || 'branch'}</Badge>
+
+                  <Badge tone={menu.publishedAt ? 'teal' : 'muted'}>
                     {menu.publishedAt ? t('published') : t('draft')}
                   </Badge>
-                  <Badge tone="teal">{t('categories', { count: menu.categories.length })}</Badge>
                 </div>
-                <h3 className="mt-2 text-2xl font-black text-stone-950">
-                  {textForLocale(menu.name, locale)}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {t('itemsInBranch', {
-                    items: menu.categories.reduce((sum, category) => sum + category.items.length, 0),
-                    branch: branch ? textForLocale(branch.name, locale) : t('selectedBranch'),
-                  })}
-                </p>
+
+                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone-500">
+                  <span>{t('categories', { count: menu.categories.length })}</span>
+
+                  <span className="text-stone-300">•</span>
+
+                  <span className="font-medium text-stone-700">{textForLocale(menu.name, locale)}</span>
+
+                  <span className="text-stone-300">•</span>
+
+                  <span>
+                    {t('itemsInBranch', {
+                      items: menu.categories.reduce((sum, category) => sum + category.items.length, 0),
+                      branch: branch ? textForLocale(branch.name, locale) : t('selectedBranch'),
+                    })}
+                  </span>
+                </div>
               </div>
-              <PrimaryButton onClick={() => publishMutation.mutate()} loading={publishMutation.isPending}>
-                <CheckCircle2 className="size-4" />
-                {menu.publishedAt ? t('unpublish') : t('publish')}
-              </PrimaryButton>
+
+              <div className="flex flex-col w-full gap-2 justify-start sm:w-auto sm:justify-end">
+                <BranchSelect
+                  branches={branches}
+                  value={effectiveBranchId}
+                  onChange={setLocalBranchId}
+                  locale={locale}
+                />
+
+                <button
+                  type="button"
+                  onClick={() => publishMutation.mutate()}
+                  disabled={publishMutation.isPending}
+                  className="inline-flex shrink-0 items-center justify-center rounded-full bg-teal-600 px-5 py-2 text-sm font-bold text-white shadow-md shadow-teal-600/25 transition-colors hover:bg-teal-700 disabled:pointer-events-none disabled:opacity-60"
+                >
+                  {publishMutation.isPending
+                    ? t('loading') || 'Loading...'
+                    : menu.publishedAt
+                      ? t('unpublish')
+                      : t('publish')}
+                </button>
+              </div>
             </div>
           </Card>
           <MenuExtractionPanel branchId={effectiveBranchId} menu={menu} locale={locale} />
 
           <div className="space-y-3">
-            <MenuCategorySection
-              categories={menu.categories}
-              locale={locale}
-              formMode={formMode}
-              editingCategoryId={editingCategoryId}
-              categoryForm={categoryForm}
-              onOpenCreateCategoryForm={openCreateCategoryForm}
-              onCloseCategoryForm={closeForm}
-              onSubmitCategoryForm={(values) =>
-                editingCategoryId
-                  ? saveCategoryMutation.mutate(values)
-                  : createCategoryMutation.mutate(values)
-              }
-              onEditCategory={openEditCategoryForm}
-              onToggleCategory={(categoryId, active) => toggleCategoryMutation.mutate({ categoryId, active })}
-              onDeleteCategory={setCategoryToDelete}
-              createCategoryPending={createCategoryMutation.isPending}
-              saveCategoryPending={saveCategoryMutation.isPending}
-              toggleCategoryPending={toggleCategoryMutation.isPending}
-              deleteCategoryPending={deleteCategoryMutation.isPending}
-              error={
-                createCategoryMutation.error ?? saveCategoryMutation.error ?? deleteCategoryMutation.error
-              }
-            />
-
             <MenuItemsSection
               menu={menu}
               locale={locale}
               currency={currency}
               formMode={formMode}
               itemForm={itemForm}
-              onOpenCreateItemForm={openCreateItemForm}
               onCloseItemForm={closeForm}
+              onOpenCreateItemForm={openCreateItemForm}
               onSubmitItemForm={(values) =>
                 editingItemContext ? saveItemMutation.mutate(values) : createItemMutation.mutate(values)
               }
@@ -594,6 +604,21 @@ export function MenuTab({
               setItemToDelete={setItemToDelete}
               itemToDelete={itemToDelete}
               error={createItemMutation.error ?? saveItemMutation.error ?? deleteItemMutation.error}
+              categoryForm={categoryForm}
+              editingCategoryId={editingCategoryId}
+              toggleCategoryPending={toggleCategoryMutation.isPending}
+              onSubmitCategoryForm={(values) =>
+                editingCategoryId
+                  ? saveCategoryMutation.mutate(values)
+                  : createCategoryMutation.mutate(values)
+              }
+              onEditCategory={openEditCategoryForm}
+              onDeleteCategory={setCategoryToDelete}
+              onOpenCreateCategoryForm={openCreateCategoryForm}
+              onCloseCategoryForm={closeForm}
+              createCategoryPending={createCategoryMutation.isPending}
+              saveCategoryPending={saveCategoryMutation.isPending}
+              onToggleCategory={(categoryId, active) => toggleCategoryMutation.mutate({ categoryId, active })}
             />
           </div>
         </>
