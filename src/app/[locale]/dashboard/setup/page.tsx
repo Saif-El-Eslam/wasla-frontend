@@ -8,7 +8,11 @@ import { api, ApiError } from '@/lib/api';
 import { FormInput } from '@/components/ui/form-input';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { setupSchema, type SetupFormInput, type SetupFormValues } from '@/features/venue/schemas/setup.schema';
+import {
+  setupSchema,
+  type SetupFormInput,
+  type SetupFormValues,
+} from '@/features/venue/schemas/setup.schema';
 
 function slugify(value: string) {
   return value
@@ -92,6 +96,7 @@ export default function SetupPage() {
           onSubmit={handleSubmit(onSubmit)}
         >
           <FormInput
+            label={t('nameEn')}
             name="name.en"
             register={register}
             errors={errors}
@@ -99,6 +104,7 @@ export default function SetupPage() {
             className="h-11 rounded-md border border-border px-3"
           />
           <FormInput
+            label={t('nameAr')}
             name="name.ar"
             register={register}
             errors={errors}
@@ -107,6 +113,7 @@ export default function SetupPage() {
             className="h-11 rounded-md border border-border px-3"
           />
           <FormInput
+            label={t('branchNameEn')}
             name="branchName.en"
             register={register}
             errors={errors}
@@ -114,30 +121,35 @@ export default function SetupPage() {
             className="h-11 rounded-md border border-border px-3"
           />
           <FormInput
+            label={t('branchNameAr')}
             name="branchName.ar"
             register={register}
             errors={errors}
             placeholder={t('branchNameAr')}
-            dir="rtl"
             className="h-11 rounded-md border border-border px-3"
           />
           <FormInput
+            label={t('phone')}
             name="phone"
             type="tel"
+            dir={locale === 'ar' ? 'rtl' : 'ltr'}
             register={register}
             errors={errors}
             placeholder={t('phone')}
             className="h-11 rounded-md border border-border px-3"
           />
           <FormInput
+            label={t('whatsapp')}
             name="whatsapp"
             type="tel"
+            dir={locale === 'ar' ? 'rtl' : 'ltr'}
             register={register}
             errors={errors}
             placeholder={t('whatsapp')}
             className="h-11 rounded-md border border-border px-3"
           />
           <FormInput
+            label={t('addressEn')}
             name="address.en"
             register={register}
             errors={errors}
@@ -145,11 +157,11 @@ export default function SetupPage() {
             className="h-11 rounded-md border border-border px-3"
           />
           <FormInput
+            label={t('addressAr')}
             name="address.ar"
             register={register}
             errors={errors}
             placeholder={t('addressAr')}
-            dir="rtl"
             className="h-11 rounded-md border border-border px-3"
           />
 

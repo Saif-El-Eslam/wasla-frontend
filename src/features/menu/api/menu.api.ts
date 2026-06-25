@@ -1,13 +1,34 @@
-import { apiClient } from '@/lib/api/axios';
+import { apiClient, axiosClient } from '@/lib/api/axios';
 import type {
+  ApproveExtractionResponse,
   CreateCategoryInput,
   CreateItemInput,
   CreateMenuInput,
+  ExtractedMenu,
+  ExtractionJobResponse,
   Menu,
+  StartExtractionResponse,
   UpdateCategoryInput,
   UpdateItemInput,
   UpdateMenuInput,
 } from '@/lib/api/types';
+
+async function uploadExtraction(path: string, images: File[]) {
+  const formData = new FormData();
+
+  images.forEach((image) => formData.append('images', image));
+
+  const response = await axiosClient.request<{ success: true; data: StartExtractionResponse }>({
+    url: path,
+    method: 'POST',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  return response.data.data;
+}
 
 export const menuService = {
   branchMenu: (branchId: string) =>
@@ -85,4 +106,22 @@ export const menuService = {
         body: JSON.stringify({ available }),
       },
     ),
+  latestExtractionJob: (branchId: string) =>
+    apiClient<ExtractionJobResponse>(`/branches/${branchId}/menu/extractions/latest`),
+  extractionJob: (branchId: string, jobId: string) =>
+    apiClient<ExtractionJobResponse>(`/branches/${branchId}/menu/extractions/${jobId}`),
+  startExtraction: (branchId: string, images: File[]) =>
+    uploadExtraction(`/branches/${branchId}/menu/extractions`, images),
+  retryExtraction: (branchId: string, jobId: string, images: File[]) =>
+    uploadExtraction(`/branches/${branchId}/menu/extractions/${jobId}/retry`, images),
+  approveExtraction: (branchId: string, jobId: string, extractedMenu?: ExtractedMenu) =>
+    apiClient<ApproveExtractionResponse>(`/branches/${branchId}/menu/extractions/${jobId}/approve`, {
+      method: 'POST',
+      body: JSON.stringify(extractedMenu ? { extractedMenu } : {}),
+    }),
+  rejectExtraction: (branchId: string, jobId: string, reason?: string) =>
+    apiClient<ExtractionJobResponse>(`/branches/${branchId}/menu/extractions/${jobId}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    }),
 };

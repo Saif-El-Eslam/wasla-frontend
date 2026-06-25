@@ -2,7 +2,6 @@
 
 import {
   BarChart3,
-  Bell,
   Building2,
   Eye,
   LayoutDashboard,
@@ -55,9 +54,9 @@ export function DashboardShell({
   const t = useTranslations('dashboard');
 
   return (
-    <div className="min-h-dvh bg-[#f8fafa]" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-      <div className="flex min-h-dvh">
-        <aside className="hidden w-64 shrink-0 flex-col bg-[#042f2e] lg:flex">
+    <div className="h-dvh overflow-hidden bg-[#f8fafa]" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+      <div className="flex h-full min-h-0">
+        <aside className="hidden h-full w-64 shrink-0 flex-col bg-[#042f2e] lg:flex">
           <div className="flex items-center gap-3 px-5 py-6">
             <span className="flex size-10 items-center justify-center rounded-2xl bg-teal-500 text-lg font-black text-white shadow-lg">
               W
@@ -120,7 +119,7 @@ export function DashboardShell({
           </div>
         </aside>
 
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-30 border-b border-border bg-[#f8fafa]/90 px-4 py-3 backdrop-blur lg:hidden">
             <div className="flex items-center justify-between gap-3">
               <button
@@ -155,7 +154,7 @@ export function DashboardShell({
             </div>
           </header>
 
-          <main className="flex-1 overflow-y-auto px-4 pb-24 pt-4 sm:px-6 lg:px-8 lg:pb-8">
+          <main className="min-h-0 flex-1 overflow-y-auto px-4 pb-24 pt-4 sm:px-6 lg:px-8 lg:pb-8">
             <div className="mx-auto max-w-7xl">{children}</div>
           </main>
 

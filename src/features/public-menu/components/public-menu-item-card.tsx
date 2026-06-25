@@ -5,6 +5,7 @@ import { ImageIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { MenuItem } from '@/lib/api';
 import { textForLocale } from '@/lib/localized-text';
+import { ItemPrices } from '@/components/ui/item-prices';
 
 export function PublicMenuItemCard({
   item,
@@ -58,7 +59,9 @@ export function PublicMenuItemCard({
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center justify-between gap-3 border-t border-border pt-3 sm:min-w-36 sm:flex-col sm:items-end sm:border-t-0 sm:pt-0">
+      <ItemPrices prices={item.prices} currency={currency} noPriceText={t('noPrice')} />
+
+      {/* <div className="flex shrink-0 items-center justify-between gap-3 border-t border-border pt-3 sm:min-w-36 sm:flex-col sm:items-end sm:border-t-0 sm:pt-0">
         {prices.length > 1 ? (
           <div
             className="flex max-w-full overflow-hidden rounded-full border border-border bg-stone-50 p-1"
@@ -81,10 +84,10 @@ export function PublicMenuItemCard({
           </div>
         ) : null}
 
-        <p className="whitespace-nowrap text-lg font-black text-primary">
+        <p className="whitespace-nowrap text-lg font-black text-primary text-start">
           {selectedPrice ? `${selectedPrice.price} ${currency}` : t('noPrice')}
         </p>
-      </div>
+      </div> */}
     </article>
   );
 }

@@ -184,6 +184,95 @@ export type Menu = {
   analytics?: MenuAnalytics | null;
 };
 
+export type ExtractionJobStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'APPROVED' | 'REJECTED';
+
+export type ExtractedPrice = {
+  id?: string;
+  label: string;
+  price: number;
+  sortOrder?: number;
+};
+
+export type ExtractedItem = {
+  id?: string;
+  name: LocalizedText;
+  description?: LocalizedText;
+  price?: number;
+  prices?: ExtractedPrice[];
+  imageUrl?: string;
+  tags: string[];
+  calories?: number;
+  available: boolean;
+  sortOrder?: number;
+};
+
+export type ExtractedCategory = {
+  id?: string;
+  name: LocalizedText;
+  description?: LocalizedText;
+  imageUrl?: string;
+  active: boolean;
+  sortOrder?: number;
+  items: ExtractedItem[];
+};
+
+export type ExtractedMenu = {
+  menu: {
+    id?: string;
+    name: LocalizedText;
+    theme: 'CLASSIC' | 'MODERN' | 'MINIMAL';
+    showPrices: boolean;
+  };
+  categories: ExtractedCategory[];
+  warnings: string[];
+};
+
+export type ExtractionLimits = {
+  plan: string;
+  subscriptionStatus: string;
+  canExtract: boolean;
+  monthlyExtractions: number;
+  usedThisMonth: number;
+  remainingThisMonth: number;
+  maxImages: number;
+};
+
+export type ExtractionJob = {
+  id: string;
+  menuId: string;
+  branchId: string;
+  venueId: string;
+  requestedById: string | null;
+  status: ExtractionJobStatus;
+  modelProvider: string;
+  modelName: string;
+  imageCount: number;
+  rawModelResponse: string | null;
+  extractedMenu: ExtractedMenu | null;
+  confidenceScore: number | null;
+  warnings: string[];
+  errors: string[];
+  approvedAt: string | null;
+  rejectedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ExtractionJobResponse = {
+  job: ExtractionJob | null;
+  limits: ExtractionLimits;
+};
+
+export type StartExtractionResponse = ExtractionJobResponse & {
+  job: ExtractionJob;
+  menu: Menu;
+};
+
+export type ApproveExtractionResponse = {
+  job: ExtractionJob;
+  menu: Menu;
+};
+
 export type Venue = {
   id: string;
   ownerId: string | null;

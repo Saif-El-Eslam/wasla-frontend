@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import type { MenuItem } from '@/lib/api';
 import { IconButton, itemPriceText } from '@/components/ui/dashboard-ui';
 import { textForLocale } from '@/lib/localized-text';
+import { ItemPrices } from '@/components/ui/item-prices';
 
 export function PublicItemModal({
   item,
@@ -20,10 +21,7 @@ export function PublicItemModal({
   const t = useTranslations('dashboard');
 
   return (
-    <div
-      className="fixed inset-0 z-100 grid place-items-end bg-black/40 p-4 sm:place-items-center"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-100 grid bg-black/40 p-4 place-items-center" onClick={onClose}>
       <div
         className="w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl"
         onClick={(event) => event.stopPropagation()}
@@ -47,9 +45,7 @@ export function PublicItemModal({
               <X className="size-4" />
             </IconButton>
           </div>
-          <p className="mt-4 rounded-2xl bg-teal-50 px-4 py-3 text-sm font-black text-primary">
-            {itemPriceText(item, currency, t('noPrice'))}
-          </p>
+          <ItemPrices prices={item.prices} currency={currency} noPriceText={t('noPrice')} />
         </div>
       </div>
     </div>

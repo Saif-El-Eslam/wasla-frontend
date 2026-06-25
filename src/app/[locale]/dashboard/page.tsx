@@ -64,7 +64,7 @@ export default function DashboardPage() {
           <h1 className="mt-3 text-2xl font-black text-stone-950">{t('venueSetupRequired')}</h1>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">{t('venueSetupRequiredBody')}</p>
           <div className="mt-4">
-            <PrimaryButton onClick={() => router.push(`/${locale}/setup`)}>
+            <PrimaryButton onClick={() => router.push(`/${locale}/dashboard/setup`)}>
               <Plus className="size-4" />
               {t('setUpVenue')}
             </PrimaryButton>
@@ -90,7 +90,13 @@ export default function DashboardPage() {
         logoutPending={logoutMutation.isPending}
       >
         {activeTab === 'overview' ? <OverviewTab locale={locale} /> : null}
-        {activeTab === 'menu' ? <MenuTab initialBranchId={selectedMenuBranchId} locale={locale} currency={venue.data?.currency ?? 'EGP'} /> : null}
+        {activeTab === 'menu' ? (
+          <MenuTab
+            initialBranchId={selectedMenuBranchId}
+            locale={locale}
+            currency={venue.data?.currency ?? 'EGP'}
+          />
+        ) : null}
         {activeTab === 'qr' ? <QrTab initialBranchId={selectedQrBranchId} locale={locale} /> : null}
         {activeTab === 'branches' ? (
           <BranchesTab
@@ -109,10 +115,24 @@ export default function DashboardPage() {
             }}
           />
         ) : null}
-        {activeTab === 'analytics' ? <AnalyticsTab selectedBranchId={selectedAnalyticsBranchId} onBranchChange={setSelectedAnalyticsBranchId} locale={locale} /> : null}
+        {activeTab === 'analytics' ? (
+          <AnalyticsTab
+            selectedBranchId={selectedAnalyticsBranchId}
+            onBranchChange={setSelectedAnalyticsBranchId}
+            locale={locale}
+          />
+        ) : null}
         {activeTab === 'settings' ? <SettingsTab isAdmin={isAdmin} me={me} locale={locale} /> : null}
       </DashboardShell>
-      {publicPreviewOpen ? <PublicPreview venueName={venueName} branchId={previewBranchId} locale={locale} currency={venue.data?.currency ?? 'EGP'} onClose={() => setPublicPreviewOpen(false)} /> : null}
+      {publicPreviewOpen ? (
+        <PublicPreview
+          venueName={venueName}
+          branchId={previewBranchId}
+          locale={locale}
+          currency={venue.data?.currency ?? 'EGP'}
+          onClose={() => setPublicPreviewOpen(false)}
+        />
+      ) : null}
     </>
   );
 }

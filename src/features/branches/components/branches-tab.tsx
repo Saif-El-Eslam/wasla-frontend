@@ -14,14 +14,11 @@ import {
   Star,
   ToggleLeft,
   ToggleRight,
+  Trash2,
   UtensilsCrossed,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import {
-  api,
-  type BranchManagement,
-  type OpeningHours,
-} from '@/lib/api';
+import { api, type BranchManagement, type OpeningHours } from '@/lib/api';
 import {
   Badge,
   Card,
@@ -32,6 +29,7 @@ import {
   TabLoader,
   slugify,
 } from '@/components/ui/dashboard-ui';
+import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import {
   readError,
   toLocalized,
@@ -39,11 +37,20 @@ import {
   type LocalizedDraft,
 } from '@/features/dashboard/utils/dashboard-utils';
 import { useBranchManagement } from '@/features/venue/hooks/use-venue';
-import { addBranchToCaches, setMainBranchInCaches, updateBranchCaches } from '@/features/branches/cache/branch-cache';
+import {
+  addBranchToCaches,
+  removeBranchFromCaches,
+  setMainBranchInCaches,
+  updateBranchCaches,
+} from '@/features/branches/cache/branch-cache';
 import { textForLocale } from '@/lib/localized-text';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { branchSchema, type BranchFormInput, type BranchFormValues } from '@/features/branches/schemas/branch.schema';
+import {
+  branchSchema,
+  type BranchFormInput,
+  type BranchFormValues,
+} from '@/features/branches/schemas/branch.schema';
 import { FormInput } from '@/components/ui/form-input';
 
 function normalizeOpeningHours(openingHours: BranchManagement['openingHours']): OpeningHours | undefined {
@@ -93,6 +100,7 @@ export function BranchesTab({
     },
   });
   const [openActionsBranchId, setOpenActionsBranchId] = useState<string | null>(null);
+  const [deleteBranchId, setDeleteBranchId] = useState<string | null>(null);
   const filtered = branches.filter((branch) =>
     `${textForLocale(branch.name, locale)} ${branch.slug}`.toLowerCase().includes(search.toLowerCase()),
   );
@@ -252,6 +260,14 @@ export function BranchesTab({
   const toggleBranchMutation = useMutation({
     mutationFn: (branch: BranchManagement) => api.updateBranch(branch.id, { active: !branch.active }),
     onSuccess: (_result, branch) => updateBranchCaches(queryClient, branch.id, { active: !branch.active }),
+  });
+
+  const deleteBranchMutation = useMutation({
+    mutationFn: (branchId: string) => api.deleteBranch(branchId),
+    onSuccess: (_result, branchId) => {
+      removeBranchFromCaches(queryClient, branchId);
+      setDeleteBranchId(null);
+    },
   });
 
   if (branchesQuery.isLoading) {
@@ -466,6 +482,16 @@ export function BranchesTab({
                         )}
                         {branch.active ? t('deactivate') : t('activate')}
                       </button>
+                      <button
+                        className="flex h-10 w-full items-center gap-2 rounded-xl px-3 text-start text-sm font-bold text-stone-700 transition hover:bg-stone-50 hover:text-primary"
+                        onClick={() => {
+                          setOpenActionsBranchId(null);
+                          setDeleteBranchId(branch.id);
+                        }}
+                      >
+                        <Trash2 className="size-4 text-red-600" />
+                        {t('deleteBranch')}
+                      </button>
                       {!branch.isMain ? (
                         <button
                           className="flex h-10 w-full items-center gap-2 rounded-xl px-3 text-start text-sm font-bold text-stone-700 transition hover:bg-stone-50 hover:text-primary"
@@ -521,6 +547,18 @@ export function BranchesTab({
           );
         })}
       </div>
+      {deleteBranchId && (
+        <ConfirmationModal
+          open={!!deleteBranchId}
+          setOpen={(open) => !open && !deleteBranchMutation.isPending && setDeleteBranchId(null)}
+          title={t('deleteBranch')}
+          description={t('deleteBranchWarning')}
+          confirmText={t('delete')}
+          cancelText={t('cancel')}
+          confirmLoading={deleteBranchMutation.isPending}
+          onConfirm={() => deleteBranchMutation.mutate(deleteBranchId)}
+        />
+      )}
     </div>
   );
 }

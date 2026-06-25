@@ -17,6 +17,7 @@ export function localized(en: string, ar = en) {
 }
 
 export function readError(error: unknown) {
+  console.error(error);
   return error instanceof ApiError ? error.message : 'Something went wrong';
 }
 
@@ -26,7 +27,10 @@ export function toLocalized(draft: LocalizedDraft, fallback = 'Untitled'): Local
   return { en: en || ar || fallback, ar: ar || en || fallback };
 }
 
-export function toLocalizedDraft(value: LocalizedText | string | null | undefined, locale = 'en'): LocalizedDraft {
+export function toLocalizedDraft(
+  value: LocalizedText | string | null | undefined,
+  locale = 'en',
+): LocalizedDraft {
   if (typeof value === 'string') {
     return locale === 'ar' ? { en: '', ar: value } : { en: value, ar: '' };
   }
@@ -47,7 +51,7 @@ export function formatMoney(
 }
 
 export function itemPriceText(item: MenuItem, currency = 'EGP', noPriceLabel = 'No price') {
-  if (item.prices.length > 0) {
+  if (item.prices?.length > 0) {
     return item.prices
       .map((price) => `${price.label} ${formatMoney(price.price, currency, noPriceLabel)}`)
       .join(' - ');

@@ -2,37 +2,26 @@
 
 import { useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  Building2,
-  CheckCircle2,
-  Edit3,
-  ImageIcon,
-  Plus,
-  Trash2,
-  ToggleLeft,
-  ToggleRight,
-  UtensilsCrossed,
-  X,
-} from 'lucide-react';
+import { Building2, CheckCircle2, Plus, UtensilsCrossed } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { api, type MenuCategory, type MenuItem } from '@/lib/api';
+import { api, type Menu, type MenuCategory, type MenuItem } from '@/lib/api';
 import {
   Badge,
   BranchSelect,
   Card,
   EmptyState,
   FormPanel,
-  IconButton,
   PrimaryButton,
   SectionTitle,
   TabLoader,
-  cx,
-  itemPriceText,
 } from '@/components/ui/dashboard-ui';
 import { readError, toLocalized, type LocalizedDraft } from '@/features/dashboard/utils/dashboard-utils';
 import { FormInput } from '@/components/ui/form-input';
-import { FormSelect } from '@/components/ui/form-select';
-import { FormTextarea } from '@/components/ui/form-textarea';
+import { ConfirmationModal } from '@/components/ui/confirmation-modal';
+import { MenuExtractionPanel } from './menu-extraction-panel';
+import { MenuCategorySection } from './menu-category-section';
+import { MenuItemsSection } from './menu-items-section';
+import type { UseFormReturn } from 'react-hook-form';
 import { useBranchMenu, useBranchOptions } from '@/features/venue/hooks/use-venue';
 import {
   addCachedCategory,
@@ -46,7 +35,7 @@ import {
 } from '@/features/menu/cache/menu-cache';
 import { textForLocale } from '@/lib/localized-text';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import {
   categoryFormSchema,
   itemFormSchema,
@@ -114,6 +103,8 @@ export function MenuTab({
   const [editingItemContext, setEditingItemContext] = useState<{ categoryId: string; itemId: string } | null>(
     null,
   );
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<{ categoryId: string; itemId: string } | null>(null);
   const menuForm = useForm<MenuFormInput, unknown, MenuFormValues>({
     resolver: zodResolver(menuFormSchema),
     defaultValues: { name: emptyLocalizedDraft },
@@ -142,15 +133,6 @@ export function MenuTab({
       prices: [{ label: t('regular'), price: '' }],
     },
   });
-  const {
-    fields: priceFields,
-    append: appendPrice,
-    remove: removePrice,
-  } = useFieldArray({
-    control: itemForm.control,
-    name: 'prices',
-  });
-  const watchedPriceMode = itemForm.watch('priceMode');
   const effectiveCategoryId = menu?.categories.some(
     (category) => category.id === itemForm.watch('categoryId'),
   )
@@ -331,6 +313,7 @@ export function MenuTab({
     onSuccess: (_result, categoryId) => {
       removeCachedCategory(queryClient, effectiveBranchId, categoryId);
       closeForm();
+      setCategoryToDelete(null);
     },
   });
 
@@ -433,6 +416,7 @@ export function MenuTab({
     onSuccess: (_result, variables) => {
       removeCachedItem(queryClient, effectiveBranchId, variables.categoryId, variables.itemId);
       closeForm();
+      setItemToDelete(null);
     },
   });
 
@@ -471,65 +455,67 @@ export function MenuTab({
           locale={locale}
         />
       </SectionTitle>
-
       {menuQuery.isLoading ? (
         <TabLoader label={t('loadingWorkspace')} />
       ) : !menu ? (
-        <Card>
-          <div className="grid gap-4 lg:grid-cols-[1fr_360px] lg:items-center">
-            <div>
-              <div className="flex items-center gap-2">
-                <Badge tone="amber">{t('noMenu')}</Badge>
-                <p className="text-sm font-bold text-stone-900">
-                  {branch ? textForLocale(branch.name, locale) : t('selectedBranch')}
-                </p>
+        <>
+          <Card>
+            <div className="grid gap-4 lg:grid-cols-[1fr_360px] lg:items-center">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Badge tone="amber">{t('noMenu')}</Badge>
+                  <p className="text-sm font-bold text-stone-900">
+                    {branch ? textForLocale(branch.name, locale) : t('selectedBranch')}
+                  </p>
+                </div>
+                <h3 className="mt-3 text-xl font-black text-stone-950">{t('branchHasNoMenu')}</h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{t('createMenuBeforeContent')}</p>
               </div>
-              <h3 className="mt-3 text-xl font-black text-stone-950">{t('branchHasNoMenu')}</h3>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">{t('createMenuBeforeContent')}</p>
+              <div className="grid gap-2">
+                <PrimaryButton onClick={() => setFormMode('menu')} disabled={createMenuMutation.isPending}>
+                  <Plus className="size-4" />
+                  {t('addMenu')}
+                </PrimaryButton>
+                {createMenuMutation.error ? (
+                  <p className="text-sm text-red-700">{readError(createMenuMutation.error)}</p>
+                ) : null}
+              </div>
             </div>
-            <div className="grid gap-2">
-              <PrimaryButton onClick={() => setFormMode('menu')} disabled={createMenuMutation.isPending}>
-                <Plus className="size-4" />
-                {t('addMenu')}
-              </PrimaryButton>
-              {createMenuMutation.error ? (
-                <p className="text-sm text-red-700">{readError(createMenuMutation.error)}</p>
-              ) : null}
-            </div>
-          </div>
-          {formMode === 'menu' ? (
-            <div className="mt-4">
-              <FormPanel
-                title={t('createMenu')}
-                closeLabel={commonT('close')}
-                onClose={() => setFormMode(null)}
-              >
-                <form onSubmit={menuForm.handleSubmit((values) => createMenuMutation.mutate(values))}>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <FormInput
-                      name="name.en"
-                      register={menuForm.register}
-                      errors={menuForm.formState.errors}
-                      placeholder={t('menuNameInEnglish')}
-                    />
-                    <FormInput
-                      name="name.ar"
-                      register={menuForm.register}
-                      errors={menuForm.formState.errors}
-                      placeholder={t('menuNameInArabic')}
-                    />
-                  </div>
-                  <div className="mt-4">
-                    <PrimaryButton type="submit" disabled={createMenuMutation.isPending}>
-                      <CheckCircle2 className="size-4" />
-                      {t('createMenu')}
-                    </PrimaryButton>
-                  </div>
-                </form>
-              </FormPanel>
-            </div>
-          ) : null}
-        </Card>
+            {formMode === 'menu' ? (
+              <div className="mt-4">
+                <FormPanel
+                  title={t('createMenu')}
+                  closeLabel={commonT('close')}
+                  onClose={() => setFormMode(null)}
+                >
+                  <form onSubmit={menuForm.handleSubmit((values) => createMenuMutation.mutate(values))}>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <FormInput
+                        name="name.en"
+                        register={menuForm.register}
+                        errors={menuForm.formState.errors}
+                        placeholder={t('menuNameInEnglish')}
+                      />
+                      <FormInput
+                        name="name.ar"
+                        register={menuForm.register}
+                        errors={menuForm.formState.errors}
+                        placeholder={t('menuNameInArabic')}
+                      />
+                    </div>
+                    <div className="mt-4">
+                      <PrimaryButton type="submit" loading={createMenuMutation.isPending}>
+                        <CheckCircle2 className="size-4" />
+                        {t('createMenu')}
+                      </PrimaryButton>
+                    </div>
+                  </form>
+                </FormPanel>
+              </div>
+            ) : null}
+          </Card>
+          <MenuExtractionPanel branchId={effectiveBranchId} menu={menu} locale={locale} />
+        </>
       ) : (
         <>
           <Card>
@@ -551,445 +537,91 @@ export function MenuTab({
                   })}
                 </p>
               </div>
-              <PrimaryButton onClick={() => publishMutation.mutate()} disabled={publishMutation.isPending}>
+              <PrimaryButton onClick={() => publishMutation.mutate()} loading={publishMutation.isPending}>
                 <CheckCircle2 className="size-4" />
                 {menu.publishedAt ? t('unpublish') : t('publish')}
               </PrimaryButton>
             </div>
           </Card>
+          <MenuExtractionPanel branchId={effectiveBranchId} menu={menu} locale={locale} />
 
           <div className="space-y-3">
-            <Card>
-              <div className="flex items-center justify-between gap-3">
-                <SectionTitle eyebrow={t('build')} title={t('categoriesAndItemsTitle')} />
-                <IconButton
-                  label={t('addCategory')}
-                  onClick={openCreateCategoryForm}
-                  disabled={createCategoryMutation.isPending}
-                >
-                  <Plus className="size-4" />
-                </IconButton>
-              </div>
+            <MenuCategorySection
+              categories={menu.categories}
+              locale={locale}
+              formMode={formMode}
+              editingCategoryId={editingCategoryId}
+              categoryForm={categoryForm}
+              onOpenCreateCategoryForm={openCreateCategoryForm}
+              onCloseCategoryForm={closeForm}
+              onSubmitCategoryForm={(values) =>
+                editingCategoryId
+                  ? saveCategoryMutation.mutate(values)
+                  : createCategoryMutation.mutate(values)
+              }
+              onEditCategory={openEditCategoryForm}
+              onToggleCategory={(categoryId, active) => toggleCategoryMutation.mutate({ categoryId, active })}
+              onDeleteCategory={setCategoryToDelete}
+              createCategoryPending={createCategoryMutation.isPending}
+              saveCategoryPending={saveCategoryMutation.isPending}
+              toggleCategoryPending={toggleCategoryMutation.isPending}
+              deleteCategoryPending={deleteCategoryMutation.isPending}
+              error={
+                createCategoryMutation.error ?? saveCategoryMutation.error ?? deleteCategoryMutation.error
+              }
+            />
 
-              {formMode === 'category' ? (
-                <FormPanel
-                  title={editingCategoryId ? t('editCategory') : t('addCategory')}
-                  closeLabel={commonT('close')}
-                  onClose={closeForm}
-                  panelClassName="sm:max-w-xl xl:max-w-2xl"
-                >
-                  <form
-                    onSubmit={categoryForm.handleSubmit((values) =>
-                      editingCategoryId
-                        ? saveCategoryMutation.mutate(values)
-                        : createCategoryMutation.mutate(values),
-                    )}
-                  >
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <FormInput
-                        name="name.en"
-                        register={categoryForm.register}
-                        errors={categoryForm.formState.errors}
-                        placeholder={t('categoryNameInEnglish')}
-                      />
-                      <FormInput
-                        name="name.ar"
-                        register={categoryForm.register}
-                        errors={categoryForm.formState.errors}
-                        placeholder={t('categoryNameInArabic')}
-                      />
-                      <FormInput
-                        name="description.en"
-                        register={categoryForm.register}
-                        errors={categoryForm.formState.errors}
-                        placeholder={t('descriptionInEnglish')}
-                      />
-                      <FormInput
-                        name="description.ar"
-                        register={categoryForm.register}
-                        errors={categoryForm.formState.errors}
-                        placeholder={t('descriptionInArabic')}
-                      />
-                      <FormInput
-                        name="imageUrl"
-                        type="url"
-                        register={categoryForm.register}
-                        errors={categoryForm.formState.errors}
-                        placeholder={t('categoryImageUrl')}
-                      />
-                      {/* <label className="flex h-11 items-center gap-2 rounded-xl border border-border bg-white px-3 text-sm font-bold">
-                        <input type="checkbox" {...categoryForm.register('active')} />
-                        {t('activeCategory')}
-                      </label> */}
-                    </div>
-                    <div className="flex mt-4 gap-2 justify-end">
-                      <button
-                        type="button"
-                        className="ms-2 inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 text-sm font-bold text-red-700 transition hover:bg-red-100"
-                        onClick={closeForm}
-                      >
-                        {commonT('cancel')}
-                      </button>
-                      <PrimaryButton
-                        type="submit"
-                        disabled={createCategoryMutation.isPending || saveCategoryMutation.isPending}
-                      >
-                        <CheckCircle2 className="size-4" />
-                        {editingCategoryId ? t('saveCategory') : t('createCategory')}
-                      </PrimaryButton>
-                    </div>
-                    {createCategoryMutation.error ? (
-                      <p className="mt-2 text-sm text-red-700">{readError(createCategoryMutation.error)}</p>
-                    ) : null}
-                    {saveCategoryMutation.error ? (
-                      <p className="mt-2 text-sm text-red-700">{readError(saveCategoryMutation.error)}</p>
-                    ) : null}
-                    {deleteCategoryMutation.error ? (
-                      <p className="mt-2 text-sm text-red-700">{readError(deleteCategoryMutation.error)}</p>
-                    ) : null}
-                  </form>
-                </FormPanel>
-              ) : null}
-
-              {formMode === 'item' ? (
-                <FormPanel
-                  title={editingItemContext ? t('editItem') : t('addItem')}
-                  closeLabel={commonT('close')}
-                  onClose={closeForm}
-                  panelClassName="sm:max-w-4xl xl:max-w-5xl"
-                >
-                  <form
-                    onSubmit={itemForm.handleSubmit((values) =>
-                      editingItemContext
-                        ? saveItemMutation.mutate(values)
-                        : createItemMutation.mutate(values),
-                    )}
-                  >
-                    <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(280px,360px)] xl:items-start">
-                      <div className="grid min-w-0 gap-3 sm:grid-cols-2">
-                        <div className="sm:col-span-2">
-                          <FormSelect
-                            name="categoryId"
-                            register={itemForm.register}
-                            errors={itemForm.formState.errors}
-                            disabled={Boolean(editingItemContext)}
-                          >
-                            {menu.categories.map((category) => (
-                              <option key={category.id} value={category.id}>
-                                {textForLocale(category.name, locale)}
-                              </option>
-                            ))}
-                          </FormSelect>
-                        </div>
-
-                        <FormInput
-                          name="name.en"
-                          register={itemForm.register}
-                          errors={itemForm.formState.errors}
-                          placeholder={t('itemNameInEnglish')}
-                        />
-                        <FormInput
-                          name="name.ar"
-                          register={itemForm.register}
-                          errors={itemForm.formState.errors}
-                          placeholder={t('itemNameInArabic')}
-                        />
-                        <FormTextarea
-                          name="description.en"
-                          register={itemForm.register}
-                          errors={itemForm.formState.errors}
-                          placeholder={t('descriptionInEnglish')}
-                        />
-                        <FormTextarea
-                          name="description.ar"
-                          register={itemForm.register}
-                          errors={itemForm.formState.errors}
-                          placeholder={t('descriptionInArabic')}
-                        />
-                        <div className="sm:col-span-2">
-                          <FormInput
-                            name="imageUrl"
-                            type="url"
-                            register={itemForm.register}
-                            errors={itemForm.formState.errors}
-                            placeholder={t('imageUrl')}
-                          />
-                        </div>
-                        <div className="sm:col-span-2">
-                          <FormInput
-                            name="tags"
-                            register={itemForm.register}
-                            errors={itemForm.formState.errors}
-                            placeholder={t('tagsSeparated')}
-                          />
-                        </div>
-                        <FormInput
-                          name="calories"
-                          type="number"
-                          register={itemForm.register}
-                          errors={itemForm.formState.errors}
-                          placeholder={t('calories')}
-                          inputMode="numeric"
-                        />
-                        <label className="flex h-11 min-w-0 items-center gap-2 rounded-xl border border-border bg-white px-3 text-sm font-bold">
-                          <input type="checkbox" {...itemForm.register('available')} />
-                          <span className="truncate">{t('available')}</span>
-                        </label>
-                      </div>
-                      <div className="min-w-0 rounded-2xl border border-border bg-stone-50 p-3">
-                        <div className="flex flex-row gap-3 items-center justify-between">
-                          <div>
-                            <p className="text-sm font-bold text-stone-900">{t('multiLabeledPrices')}</p>
-                            <p className="text-xs text-muted-foreground">{t('multiLabeledPricesBody')}</p>
-                          </div>
-                          <button
-                            className={cx(
-                              'relative h-7 w-12 shrink-0 rounded-full transition',
-                              watchedPriceMode === 'multi' ? 'bg-primary' : 'bg-stone-300',
-                            )}
-                            onClick={() =>
-                              itemForm.setValue(
-                                'priceMode',
-                                watchedPriceMode === 'multi' ? 'single' : 'multi',
-                                { shouldDirty: true, shouldValidate: true },
-                              )
-                            }
-                            type="button"
-                          >
-                            <span
-                              className={cx(
-                                'absolute top-1 size-5 rounded-full bg-white shadow transition',
-                                watchedPriceMode === 'multi' ? 'left-6' : 'left-1',
-                              )}
-                            />
-                          </button>
-                        </div>
-
-                        {watchedPriceMode !== 'multi' ? (
-                          <FormInput
-                            name="singlePrice"
-                            register={itemForm.register}
-                            errors={itemForm.formState.errors}
-                            placeholder={t('regularPrice')}
-                            inputMode="decimal"
-                            className="mt-3 h-11 w-full rounded-xl border border-border bg-white px-3 outline-none focus:border-primary"
-                          />
-                        ) : (
-                          <div className="mt-3 space-y-2">
-                            {priceFields.map((price, index) => (
-                              <div
-                                key={price.id}
-                                className="grid gap-2 rounded-xl border border-border bg-white p-2 grid-cols-[minmax(3rem,1fr)_minmax(3rem,1fr)_2.5rem] sm:items-start"
-                              >
-                                <FormInput
-                                  name={`prices.${index}.label`}
-                                  register={itemForm.register}
-                                  errors={itemForm.formState.errors}
-                                  placeholder={t('label')}
-                                  className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary"
-                                />
-                                <FormInput
-                                  name={`prices.${index}.price`}
-                                  register={itemForm.register}
-                                  errors={itemForm.formState.errors}
-                                  placeholder={t('price')}
-                                  inputMode="decimal"
-                                  className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary"
-                                />
-                                <div className="flex justify-end sm:block">
-                                  <IconButton
-                                    label={t('removePrice')}
-                                    onClick={() => removePrice(index)}
-                                    disabled={priceFields.length === 1}
-                                  >
-                                    <X className="size-4" />
-                                  </IconButton>
-                                </div>
-                              </div>
-                            ))}
-                            <button
-                              className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm font-bold text-stone-700 transition hover:border-primary hover:text-primary disabled:opacity-50 sm:w-auto"
-                              onClick={() => appendPrice({ label: '', price: '' })}
-                              disabled={priceFields.length >= 5}
-                              type="button"
-                            >
-                              {t('addPriceOption')}
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
-                      <button
-                        type="button"
-                        className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 text-sm font-bold text-red-700 transition hover:bg-red-100"
-                        onClick={closeForm}
-                      >
-                        {commonT('cancel')}
-                      </button>
-                      <PrimaryButton
-                        type="submit"
-                        disabled={createItemMutation.isPending || saveItemMutation.isPending}
-                      >
-                        <CheckCircle2 className="size-4" />
-                        {editingItemContext ? t('saveItem') : t('createItem')}
-                      </PrimaryButton>
-                    </div>
-                    {createItemMutation.error ? (
-                      <p className="mt-2 text-sm text-red-700">{readError(createItemMutation.error)}</p>
-                    ) : null}
-                    {saveItemMutation.error ? (
-                      <p className="mt-2 text-sm text-red-700">{readError(saveItemMutation.error)}</p>
-                    ) : null}
-                    {deleteItemMutation.error ? (
-                      <p className="mt-2 text-sm text-red-700">{readError(deleteItemMutation.error)}</p>
-                    ) : null}
-                  </form>
-                </FormPanel>
-              ) : null}
-            </Card>
-
-            {menu.categories.length > 0 ? (
-              menu.categories.map((category) => (
-                <Card key={category.id}>
-                  <div className="mb-3 flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="font-black text-stone-950">{textForLocale(category.name, locale)}</h3>
-                        <Badge tone={category.active ? 'green' : 'muted'}>
-                          {category.active ? t('active') : t('hidden')}
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        {t('itemCount', { count: category.items.length })}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        className={cx(
-                          'relative h-7 w-12 rounded-full transition disabled:opacity-50',
-                          category.active ? 'bg-primary' : 'bg-stone-300',
-                        )}
-                        onClick={() =>
-                          toggleCategoryMutation.mutate({ categoryId: category.id, active: !category.active })
-                        }
-                        disabled={toggleCategoryMutation.isPending}
-                        aria-label={category.active ? t('deactivateCategory') : t('activateCategory')}
-                      >
-                        <span
-                          className={cx(
-                            'absolute top-1 size-5 rounded-full bg-white shadow transition',
-                            category.active ? 'left-6' : 'left-1',
-                          )}
-                        />
-                      </button>
-                      <IconButton label={t('editCategory')} onClick={() => openEditCategoryForm(category)}>
-                        <Edit3 className="size-4" />
-                      </IconButton>
-                      <IconButton
-                        label={t('deleteCategory')}
-                        onClick={() => deleteCategoryMutation.mutate(category.id)}
-                        disabled={deleteCategoryMutation.isPending}
-                      >
-                        <Trash2 className="size-4 text-red-600" />
-                      </IconButton>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    {category.items.length > 0 ? (
-                      category.items.map((item) => (
-                        <div
-                          key={item.id}
-                          className="grid gap-3 rounded-2xl border border-border bg-stone-50 p-3 sm:grid-cols-[64px_1fr_auto] sm:items-center"
-                        >
-                          <div className="flex size-16 items-center justify-center overflow-hidden rounded-2xl bg-white">
-                            {item.imageUrl ? (
-                              <img src={item.imageUrl} alt="" className="size-full object-cover" />
-                            ) : (
-                              <ImageIcon className="size-5 text-stone-300" />
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <p className="font-bold text-stone-900">{textForLocale(item.name, locale)}</p>
-                              {item.tags.slice(0, 2).map((tag) => (
-                                <Badge key={tag} tone="teal">
-                                  {tag}
-                                </Badge>
-                              ))}
-                            </div>
-                            <p className="mt-1 truncate text-xs text-muted-foreground">
-                              {textForLocale(item.description, locale) || t('noDescription')}
-                            </p>
-                            <p className="mt-1 text-xs font-bold text-primary">
-                              {itemPriceText(item, currency, t('noPrice'))}
-                            </p>
-                          </div>
-                          <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-                            <button
-                              className={cx(
-                                'relative h-7 w-12 rounded-full transition disabled:opacity-50',
-                                item.available ? 'bg-primary' : 'bg-stone-300',
-                              )}
-                              onClick={() =>
-                                toggleItemMutation.mutate({
-                                  categoryId: category.id,
-                                  itemId: item.id,
-                                  available: !item.available,
-                                })
-                              }
-                              disabled={toggleItemMutation.isPending}
-                              aria-label={item.available ? t('available') : t('hidden')}
-                            >
-                              <span
-                                className={cx(
-                                  'absolute top-1 size-5 rounded-full bg-white shadow transition',
-                                  item.available ? 'left-6' : 'left-1',
-                                )}
-                              />
-                            </button>
-                            <IconButton
-                              label={t('editItem')}
-                              onClick={() => openEditItemForm(category, item)}
-                            >
-                              <Edit3 className="size-4" />
-                            </IconButton>
-                            <IconButton
-                              label={t('deleteItem')}
-                              onClick={() =>
-                                deleteItemMutation.mutate({ categoryId: category.id, itemId: item.id })
-                              }
-                              disabled={deleteItemMutation.isPending}
-                            >
-                              <Trash2 className="size-4 text-red-600" />
-                            </IconButton>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="rounded-xl bg-stone-50 p-3 text-sm text-muted-foreground">
-                        {t('noItemsInCategory')}
-                      </p>
-                    )}
-                  </div>
-                </Card>
-              ))
-            ) : (
-              <EmptyState icon={UtensilsCrossed} title={t('addFirstCategory')} body={t('categoryNeeded')} />
-            )}
-
-            <Card className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h3 className="font-black text-stone-950">{t('addMenuItem')}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{t('itemsCreatedUnderCategory')}</p>
-              </div>
-              <PrimaryButton onClick={openCreateItemForm} disabled={menu.categories.length === 0}>
-                <Plus className="size-4" />
-                {t('addItem')}
-              </PrimaryButton>
-            </Card>
+            <MenuItemsSection
+              menu={menu}
+              locale={locale}
+              currency={currency}
+              formMode={formMode}
+              itemForm={itemForm}
+              onOpenCreateItemForm={openCreateItemForm}
+              onCloseItemForm={closeForm}
+              onSubmitItemForm={(values) =>
+                editingItemContext ? saveItemMutation.mutate(values) : createItemMutation.mutate(values)
+              }
+              createItemPending={createItemMutation.isPending}
+              saveItemPending={saveItemMutation.isPending}
+              toggleItemPending={toggleItemMutation.isPending}
+              deleteItemPending={deleteItemMutation.isPending}
+              editingItemContext={editingItemContext}
+              onEditItem={openEditItemForm}
+              onToggleItem={(categoryId, itemId, available) =>
+                toggleItemMutation.mutate({ categoryId, itemId, available })
+              }
+              setItemToDelete={setItemToDelete}
+              itemToDelete={itemToDelete}
+              error={createItemMutation.error ?? saveItemMutation.error ?? deleteItemMutation.error}
+            />
           </div>
         </>
+      )}
+
+      {itemToDelete && (
+        <ConfirmationModal
+          open={!!itemToDelete}
+          setOpen={(open) => !open && !deleteItemMutation.isPending && setItemToDelete(null)}
+          title={t('deleteItem')}
+          description={t('deleteItemWarning')}
+          confirmText={t('delete')}
+          cancelText={t('cancel')}
+          confirmLoading={deleteItemMutation.isPending}
+          onConfirm={() => deleteItemMutation.mutate(itemToDelete)}
+        />
+      )}
+      {categoryToDelete && (
+        <ConfirmationModal
+          open={!!categoryToDelete}
+          setOpen={(open) => !open && !deleteCategoryMutation.isPending && setCategoryToDelete(null)}
+          title={t('deleteCategory')}
+          description={t('deleteCategoryWarning')}
+          confirmText={t('delete')}
+          cancelText={t('cancel')}
+          confirmLoading={deleteCategoryMutation.isPending}
+          onConfirm={() => deleteCategoryMutation.mutate(categoryToDelete)}
+        />
       )}
     </div>
   );

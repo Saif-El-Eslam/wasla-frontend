@@ -60,7 +60,7 @@ export function AuthPanel({ mode }: { mode: Mode }) {
   const loginMutation = useMutation({
     mutationFn: api.login,
     onSuccess: ({ user }) => {
-      router.push(user.venueId ? `/${locale}/dashboard` : `/${locale}/setup`);
+      router.push(user.venueId ? `/${locale}/dashboard` : `/${locale}/dashboard/setup`);
     },
   });
 
@@ -75,18 +75,14 @@ export function AuthPanel({ mode }: { mode: Mode }) {
   const verifyMutation = useMutation({
     mutationFn: api.verifyOtp,
     onSuccess: ({ user }) => {
-      router.push(user.venueId ? `/${locale}/dashboard` : `/${locale}/setup`);
+      router.push(user.venueId ? `/${locale}/dashboard` : `/${locale}/dashboard/setup`);
     },
   });
 
   const isRegister = mode === 'register';
   const isVerify = mode === 'verify';
   const title = isRegister ? t('createOwnerAccount') : isVerify ? t('verifyPhone') : t('welcomeBack');
-  const subtitle = isRegister
-    ? t('registerSubtitle')
-    : isVerify
-      ? t('verifySubtitle')
-      : t('loginSubtitle');
+  const subtitle = isRegister ? t('registerSubtitle') : isVerify ? t('verifySubtitle') : t('loginSubtitle');
   const error = loginMutation.error ?? registerMutation.error ?? verifyMutation.error;
   const pending = loginMutation.isPending || registerMutation.isPending || verifyMutation.isPending;
   const onSubmit = (values: AuthPanelFormValues) => {
@@ -116,15 +112,13 @@ export function AuthPanel({ mode }: { mode: Mode }) {
           </div>
         </div>
 
-        <form
-          className="space-y-3"
-          onSubmit={handleSubmit(onSubmit)}
-        >
+        <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
           {isRegister ? (
             <FormInput
               name="name"
               register={register}
               errors={errors}
+              label={t('ownerName')}
               placeholder={t('ownerName')}
               autoComplete="name"
               className="h-11 w-full rounded-md border border-border px-3"
@@ -136,6 +130,7 @@ export function AuthPanel({ mode }: { mode: Mode }) {
             type="tel"
             register={register}
             errors={errors}
+            label={t('phoneNumber')}
             placeholder={t('phoneNumber')}
             autoComplete="tel"
             className="h-11 w-full rounded-md border border-border px-3"
@@ -146,6 +141,7 @@ export function AuthPanel({ mode }: { mode: Mode }) {
               name="code"
               register={register}
               errors={errors}
+              label={t('verificationCode')}
               placeholder={t('verificationCode')}
               inputMode="numeric"
               className="h-11 w-full rounded-md border border-border px-3"
@@ -155,6 +151,7 @@ export function AuthPanel({ mode }: { mode: Mode }) {
               name="password"
               register={register}
               errors={errors}
+              label={t('password')}
               placeholder={t('password')}
               type="password"
               autoComplete={isRegister ? 'new-password' : 'current-password'}
@@ -162,16 +159,26 @@ export function AuthPanel({ mode }: { mode: Mode }) {
             />
           )}
 
-          {devOtp ? <p className="rounded-md bg-muted px-3 py-2 text-sm">{t('developmentOtp', { otp: devOtp })}</p> : null}
+          {devOtp ? (
+            <p className="rounded-md bg-muted px-3 py-2 text-sm">{t('developmentOtp', { otp: devOtp })}</p>
+          ) : null}
           {error ? (
-            <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{readError(error, commonT('somethingWentWrong'))}</p>
+            <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+              {readError(error, commonT('somethingWentWrong'))}
+            </p>
           ) : null}
 
           <button
             className="h-11 w-full rounded-md bg-primary px-4 font-medium text-primary-foreground disabled:opacity-60"
             disabled={pending}
           >
-            {pending ? commonT('pleaseWait') : isRegister ? t('createAccount') : isVerify ? t('verify') : commonT('continue')}
+            {pending
+              ? commonT('pleaseWait')
+              : isRegister
+                ? t('createAccount')
+                : isVerify
+                  ? t('verify')
+                  : commonT('continue')}
           </button>
         </form>
 

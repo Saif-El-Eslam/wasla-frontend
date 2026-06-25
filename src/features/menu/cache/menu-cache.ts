@@ -3,13 +3,13 @@ import type { Menu, MenuCategory, MenuItem } from '@/lib/api';
 import { queryKeys } from '@/lib/api/query-keys';
 
 function updateMenuCache(queryClient: QueryClient, branchId: string, updater: (menu: Menu) => Menu) {
-  if (!branchId) {
-    return;
-  }
+  if (!branchId) return;
+  queryClient.setQueriesData<Menu | null>({ queryKey: queryKeys.branchMenu(branchId) }, (current) => {
+    if (!current) return current;
+    if (!Array.isArray(current.categories)) return current;
 
-  queryClient.setQueriesData<Menu | null>({ queryKey: queryKeys.branchMenu(branchId) }, (current) =>
-    current ? updater(current) : current,
-  );
+    return updater(current);
+  });
 }
 
 export function replaceCachedMenu(queryClient: QueryClient, branchId: string, menu: Menu) {
@@ -87,22 +87,29 @@ export function replaceCachedItem(
   itemId: string,
   item: Partial<MenuItem>,
 ) {
-  updateMenuCache(queryClient, branchId, (current) => ({
-    ...current,
-    categories: current.categories.map((category) =>
-      category.id === categoryId
-        ? {
-            ...category,
-            items: category.items.map((currentItem) =>
-              currentItem.id === itemId ? { ...currentItem, ...item } : currentItem,
-            ),
-          }
-        : category,
-    ),
-  }));
+  updateMenuCache(queryClient, branchId, (current) => {
+    return {
+      ...current,
+      categories: current.categories.map((category) =>
+        category.id === categoryId
+          ? {
+              ...category,
+              items: category.items.map((currentItem) =>
+                currentItem.id === itemId ? { ...currentItem, ...item } : currentItem,
+              ),
+            }
+          : category,
+      ),
+    };
+  });
 }
 
-export function removeCachedItem(queryClient: QueryClient, branchId: string, categoryId: string, itemId: string) {
+export function removeCachedItem(
+  queryClient: QueryClient,
+  branchId: string,
+  categoryId: string,
+  itemId: string,
+) {
   updateMenuCache(queryClient, branchId, (current) => ({
     ...current,
     categories: current.categories.map((category) =>

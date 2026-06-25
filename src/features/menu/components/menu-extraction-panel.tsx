@@ -1,0 +1,427 @@
+'use client';
+
+import { useMemo, useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { CheckCircle2, RefreshCw, Sparkles, Upload, XCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { api, type ExtractedMenu, type Menu } from '@/lib/api';
+import { Badge, Card, PrimaryButton, SectionTitle, TabLoader, cx } from '@/components/ui/dashboard-ui';
+import { readError } from '@/features/dashboard/utils/dashboard-utils';
+import { replaceCachedMenu } from '@/features/menu/cache/menu-cache';
+import { useExtractionJob, useLatestExtractionJob } from '@/features/venue/hooks/use-venue';
+import { queryKeys } from '@/lib/api/query-keys';
+import { textForLocale } from '@/lib/localized-text';
+
+type Props = {
+  branchId: string;
+  menu: Menu | null;
+  locale: string;
+};
+
+function cloneExtractedMenu(value: ExtractedMenu) {
+  return JSON.parse(JSON.stringify(value)) as ExtractedMenu;
+}
+
+function statusTone(status?: string) {
+  if (status === 'COMPLETED' || status === 'APPROVED') {
+    return 'green' as const;
+  }
+
+  if (status === 'FAILED' || status === 'REJECTED') {
+    return 'red' as const;
+  }
+
+  if (status === 'PENDING' || status === 'PROCESSING') {
+    return 'amber' as const;
+  }
+
+  return 'muted' as const;
+}
+
+export function MenuExtractionPanel({ branchId, menu, locale }: Props) {
+  const t = useTranslations('dashboard');
+  const commonT = useTranslations('common');
+  const queryClient = useQueryClient();
+  const [files, setFiles] = useState<File[]>([]);
+  const [activeJobId, setActiveJobId] = useState<string | undefined>();
+  const latestJob = useLatestExtractionJob(branchId);
+  const activeJob = useExtractionJob(branchId, activeJobId);
+  const data = activeJobId ? activeJob.data : latestJob.data;
+  const job = data?.job ?? null;
+  const limits = data?.limits ?? latestJob.data?.limits;
+  const [draftState, setDraftState] = useState<{ jobId: string; value: ExtractedMenu } | null>(null);
+  const draft = useMemo(() => {
+    if (!job) {
+      return null;
+    }
+
+    if (draftState?.jobId === job.id) {
+      return draftState.value;
+    }
+
+    return job.extractedMenu ? cloneExtractedMenu(job.extractedMenu) : null;
+  }, [draftState, job]);
+
+  const canUpload = files.length > 0 && (!limits || files.length <= limits.maxImages);
+  const isBusy = job?.status === 'PENDING' || job?.status === 'PROCESSING';
+  const itemCount = useMemo(
+    () => draft?.categories.reduce((sum, category) => sum + category.items.length, 0) ?? 0,
+    [draft],
+  );
+
+  const startMutation = useMutation({
+    mutationFn: () => api.startExtraction(branchId, files),
+    onSuccess: ({ job: startedJob, menu: returnedMenu }) => {
+      setActiveJobId(startedJob.id);
+      replaceCachedMenu(queryClient, branchId, returnedMenu);
+      queryClient.invalidateQueries({ queryKey: queryKeys.branchMenu(branchId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.extraction(branchId, 'latest') });
+    },
+  });
+
+  const retryMutation = useMutation({
+    mutationFn: () => {
+      if (!job) {
+        throw new Error('No extraction job selected');
+      }
+
+      return api.retryExtraction(branchId, job.id, files);
+    },
+    onSuccess: ({ job: retriedJob, menu: returnedMenu }) => {
+      setActiveJobId(retriedJob.id);
+      replaceCachedMenu(queryClient, branchId, returnedMenu);
+      queryClient.invalidateQueries({ queryKey: queryKeys.extraction(branchId, 'latest') });
+    },
+  });
+
+  const approveMutation = useMutation({
+    mutationFn: () => {
+      if (!job) {
+        throw new Error('No extraction job selected');
+      }
+
+      return api.approveExtraction(branchId, job.id, draft ?? undefined);
+    },
+    onSuccess: ({ menu: updatedMenu }) => {
+      replaceCachedMenu(queryClient, branchId, updatedMenu);
+      queryClient.invalidateQueries({ queryKey: queryKeys.branchMenu(branchId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.extraction(branchId, 'latest') });
+    },
+  });
+
+  const rejectMutation = useMutation({
+    mutationFn: () => {
+      if (!job) {
+        throw new Error('No extraction job selected');
+      }
+
+      return api.rejectExtraction(branchId, job.id);
+    },
+    onSuccess: (result) => {
+      setDraftState(null);
+      if (result.job) {
+        queryClient.setQueryData([...queryKeys.extraction(branchId, 'latest'), locale], result);
+        queryClient.setQueryData(
+          [...queryKeys.extraction(branchId, 'current', result.job.id), locale],
+          result,
+        );
+      }
+      queryClient.invalidateQueries({ queryKey: queryKeys.extraction(branchId, 'latest') });
+      queryClient.invalidateQueries({ queryKey: queryKeys.extraction(branchId, 'current', result.job?.id) });
+    },
+  });
+
+  const updateDraft = (updater: (current: ExtractedMenu) => ExtractedMenu) => {
+    if (!job || !draft) {
+      return;
+    }
+
+    setDraftState({ jobId: job.id, value: updater(draft) });
+  };
+
+  const updateMenuName = (lang: 'en' | 'ar', value: string) => {
+    updateDraft((current) => ({
+      ...current,
+      menu: { ...current.menu, name: { ...current.menu.name, [lang]: value } },
+    }));
+  };
+
+  const updateCategory = (index: number, lang: 'en' | 'ar', value: string) => {
+    updateDraft((current) => {
+      const categories = [...current.categories];
+      categories[index] = {
+        ...categories[index],
+        name: { ...categories[index].name, [lang]: value },
+      };
+
+      return { ...current, categories };
+    });
+  };
+
+  const updateItem = (
+    categoryIndex: number,
+    itemIndex: number,
+    field: 'name' | 'description',
+    lang: 'en' | 'ar',
+    value: string,
+  ) => {
+    updateDraft((current) => {
+      const categories = [...current.categories];
+      const category = categories[categoryIndex];
+      const items = [...category.items];
+      const item = items[itemIndex];
+      items[itemIndex] = {
+        ...item,
+        [field]: {
+          ...(item[field] ?? {}),
+          [lang]: value,
+        },
+      };
+      categories[categoryIndex] = { ...category, items };
+
+      return { ...current, categories };
+    });
+  };
+
+  const updateItemPrice = (categoryIndex: number, itemIndex: number, value: string) => {
+    updateDraft((current) => {
+      const categories = [...current.categories];
+      const category = categories[categoryIndex];
+      const items = [...category.items];
+      const item = items[itemIndex];
+      const numericValue = Number(value);
+      const price = Number.isFinite(numericValue) ? numericValue : 0;
+      items[itemIndex] = item.prices?.length
+        ? { ...item, prices: item.prices.map((row, index) => (index === 0 ? { ...row, price } : row)) }
+        : { ...item, price };
+      categories[categoryIndex] = { ...category, items };
+
+      return { ...current, categories };
+    });
+  };
+
+  const selectedFileLabel =
+    files.length > 0 ? t('selectedImages', { count: files.length }) : t('noImagesSelected');
+
+  return (
+    <Card>
+      <div className="space-y-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <SectionTitle eyebrow={t('AIEyebrow')} title={t('menuExtraction')}>
+            {job ? <Badge tone={statusTone(job.status)}>{t(`extractionStatus.${job.status}`)}</Badge> : null}
+          </SectionTitle>
+          {limits ? (
+            <div className="rounded-xl border border-border bg-stone-50 px-3 py-2 text-xs font-bold text-stone-700">
+              {t('extractionLimitSummary', {
+                remaining: limits.remainingThisMonth,
+                total: limits.monthlyExtractions,
+                images: limits.maxImages,
+              })}
+            </div>
+          ) : null}
+        </div>
+
+        <div className="grid gap-3 lg:grid-cols-[1fr_auto] items-end sm:items-center">
+          <label className="block min-w-0">
+            <span className="mb-1 block text-xs font-bold uppercase tracking-wide text-muted-foreground">
+              {t('menuImages')}
+            </span>
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              multiple
+              className="block w-full rounded-xl border border-border bg-white px-3 py-2 text-sm"
+              onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
+            />
+            <span className="mt-1 block text-xs text-muted-foreground">{selectedFileLabel}</span>
+          </label>
+          <div className="flex flex-col gap-2 sm:flex-row items-center justify-center">
+            <PrimaryButton
+              onClick={() => startMutation.mutate()}
+              disabled={!canUpload || startMutation.isPending || isBusy}
+              className="w-full sm:w-auto"
+            >
+              <Upload className="size-4" />
+              {menu ? t('extractAndMerge') : t('extractAndCreate')}
+            </PrimaryButton>
+            {job?.status === 'FAILED' || job?.status === 'REJECTED' ? (
+              <PrimaryButton
+                onClick={() => retryMutation.mutate()}
+                disabled={!canUpload || retryMutation.isPending}
+              >
+                <RefreshCw className="size-4" />
+                {t('retryExtraction')}
+              </PrimaryButton>
+            ) : null}
+          </div>
+        </div>
+
+        {limits && files.length > limits.maxImages ? (
+          <p className="text-sm font-bold text-red-700">
+            {t('tooManyExtractionImages', { count: limits.maxImages })}
+          </p>
+        ) : null}
+        {startMutation.error ? (
+          <p className="text-sm text-red-700">{readError(startMutation.error)}</p>
+        ) : null}
+        {retryMutation.error ? (
+          <p className="text-sm text-red-700">{readError(retryMutation.error)}</p>
+        ) : null}
+
+        {isBusy ? <TabLoader label={t('extractingMenu')} /> : null}
+
+        {job?.errors.length ? (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            {job.errors.join(' ')}
+          </div>
+        ) : null}
+
+        {draft && job?.status === 'COMPLETED' ? (
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge tone="teal">
+                {t('extractedSummary', { categories: draft.categories.length, items: itemCount })}
+              </Badge>
+              {job.confidenceScore !== null ? (
+                <Badge tone="muted">
+                  {t('confidenceScore', { score: Math.round(job.confidenceScore * 100) })}
+                </Badge>
+              ) : null}
+            </div>
+
+            {draft.warnings.length > 0 ? (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                {draft.warnings.join(' ')}
+              </div>
+            ) : null}
+
+            <div className="grid gap-2 sm:grid-cols-2">
+              <input
+                value={draft.menu.name.en ?? ''}
+                onChange={(event) => updateMenuName('en', event.target.value)}
+                className="h-11 rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary"
+                placeholder={t('menuNameInEnglish')}
+              />
+              <input
+                value={draft.menu.name.ar ?? ''}
+                onChange={(event) => updateMenuName('ar', event.target.value)}
+                className="h-11 rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary"
+                placeholder={t('menuNameInArabic')}
+              />
+            </div>
+
+            <div className="space-y-3">
+              {draft.categories.map((category, categoryIndex) => (
+                <div
+                  key={`${category.name.en}-${categoryIndex}`}
+                  className="rounded-xl border border-border bg-stone-50 p-3"
+                >
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <input
+                      value={category.name.en ?? ''}
+                      onChange={(event) => updateCategory(categoryIndex, 'en', event.target.value)}
+                      className="h-10 rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary"
+                      placeholder={t('categoryNameInEnglish')}
+                    />
+                    <input
+                      value={category.name.ar ?? ''}
+                      onChange={(event) => updateCategory(categoryIndex, 'ar', event.target.value)}
+                      className="h-10 rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary"
+                      placeholder={t('categoryNameInArabic')}
+                    />
+                  </div>
+                  <div className="mt-3 space-y-2">
+                    {category.items.map((item, itemIndex) => {
+                      const firstPrice = item.prices?.[0]?.price ?? item.price ?? '';
+
+                      return (
+                        <div
+                          key={`${item.name.en}-${itemIndex}`}
+                          className="grid gap-2 rounded-xl border border-border bg-white p-2 lg:grid-cols-[minmax(0,1fr)_110px]"
+                        >
+                          <div className="grid min-w-0 gap-2 sm:grid-cols-2">
+                            <input
+                              value={item.name.en ?? ''}
+                              onChange={(event) =>
+                                updateItem(categoryIndex, itemIndex, 'name', 'en', event.target.value)
+                              }
+                              className="h-10 rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary"
+                              placeholder={t('itemNameInEnglish')}
+                            />
+                            <input
+                              value={item.name.ar ?? ''}
+                              onChange={(event) =>
+                                updateItem(categoryIndex, itemIndex, 'name', 'ar', event.target.value)
+                              }
+                              className="h-10 rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary"
+                              placeholder={t('itemNameInArabic')}
+                            />
+                            <input
+                              value={item.description?.en ?? ''}
+                              onChange={(event) =>
+                                updateItem(categoryIndex, itemIndex, 'description', 'en', event.target.value)
+                              }
+                              className="h-10 rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary"
+                              placeholder={t('descriptionInEnglish')}
+                            />
+                            <input
+                              value={item.description?.ar ?? ''}
+                              onChange={(event) =>
+                                updateItem(categoryIndex, itemIndex, 'description', 'ar', event.target.value)
+                              }
+                              className="h-10 rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary"
+                              placeholder={t('descriptionInArabic')}
+                            />
+                          </div>
+                          <input
+                            value={String(firstPrice)}
+                            onChange={(event) =>
+                              updateItemPrice(categoryIndex, itemIndex, event.target.value)
+                            }
+                            className="h-10 rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary"
+                            placeholder={t('price')}
+                            inputMode="decimal"
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+              <button
+                className={cx(
+                  'inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 text-sm font-bold text-red-700 transition hover:bg-red-100',
+                )}
+                onClick={() => rejectMutation.mutate()}
+                disabled={rejectMutation.isPending}
+              >
+                <XCircle className="size-4" />
+                {t('rejectExtraction')}
+              </button>
+              <PrimaryButton onClick={() => approveMutation.mutate()} disabled={approveMutation.isPending}>
+                <CheckCircle2 className="size-4" />
+                {t('approveExtraction')}
+              </PrimaryButton>
+            </div>
+            {approveMutation.error ? (
+              <p className="text-sm text-red-700">{readError(approveMutation.error)}</p>
+            ) : null}
+            {rejectMutation.error ? (
+              <p className="text-sm text-red-700">{readError(rejectMutation.error)}</p>
+            ) : null}
+          </div>
+        ) : null}
+
+        {job?.status === 'APPROVED' ? (
+          <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-bold text-emerald-800">
+            <Sparkles className="size-4" />
+            {t('extractionApprovedFor', { menu: textForLocale(menu?.name, locale) || commonT('wasla') })}
+          </div>
+        ) : null}
+      </div>
+    </Card>
+  );
+}

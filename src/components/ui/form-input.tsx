@@ -30,7 +30,7 @@ export function FormInput<T extends FieldValues>({
   const error = name.split('.').reduce<any>((acc, key) => acc?.[key], errors);
 
   return (
-    <div className="min-w-0">
+    <div className="flex min-w-0 flex-col gap-.5">
       {label && <label className="text-sm font-medium text-muted-foreground">{label}</label>}
       <input
         type={type}

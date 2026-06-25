@@ -41,7 +41,11 @@ export function addBranchToCaches(queryClient: QueryClient, branch: BranchManage
   invalidateBranchDetailCaches(queryClient);
 }
 
-export function updateBranchCaches(queryClient: QueryClient, branchId: string, patch: Partial<BranchManagement>) {
+export function updateBranchCaches(
+  queryClient: QueryClient,
+  branchId: string,
+  patch: Partial<BranchManagement>,
+) {
   queryClient.setQueriesData<BranchOptionsResponse>({ queryKey: queryKeys.branchOptions }, (current) =>
     current
       ? {
@@ -74,6 +78,19 @@ export function setMainBranchInCaches(queryClient: QueryClient, branchId: string
             isMain: branch.id === branchId,
             active: branch.id === branchId ? true : branch.active,
           })),
+        }
+      : current,
+  );
+
+  invalidateBranchDetailCaches(queryClient);
+}
+
+export function removeBranchFromCaches(queryClient: QueryClient, branchId: string) {
+  queryClient.setQueriesData<BranchOptionsResponse>({ queryKey: queryKeys.branchOptions }, (current) =>
+    current
+      ? {
+          ...current,
+          branches: current.branches.filter((branch) => branch.id !== branchId),
         }
       : current,
   );

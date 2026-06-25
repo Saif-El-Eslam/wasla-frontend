@@ -19,7 +19,6 @@ export function FormPanel({
   return (
     <div
       className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-0 sm:place-items-center sm:p-4"
-      // className="fixed inset-0 z-50 grid place-items-end bg-black/40 p-0 sm:place-items-center sm:p-4"
       onClick={onClose}
     >
       <section

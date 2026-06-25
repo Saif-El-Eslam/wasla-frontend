@@ -11,7 +11,9 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const pathnameHasLocale = locales.some((locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`));
+  const pathnameHasLocale = locales.some(
+    (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
+  );
 
   if (!pathnameHasLocale) {
     request.nextUrl.pathname = `/${defaultLocale}${pathname}`;
@@ -19,7 +21,8 @@ export function proxy(request: NextRequest) {
   }
 
   const isProtectedRoute = locales.some(
-    (locale) => pathname.startsWith(`/${locale}/dashboard`) || pathname.startsWith(`/${locale}/setup`),
+    (locale) =>
+      pathname.startsWith(`/${locale}/dashboard`) || pathname.startsWith(`/${locale}/dashboard/setup`),
   );
   const hasSession = Boolean(request.cookies.get('wasla_session'));
 

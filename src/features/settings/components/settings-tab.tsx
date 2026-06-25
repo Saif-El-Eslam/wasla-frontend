@@ -2,7 +2,19 @@
 
 import { useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2, FileText, HelpCircle, KeyRound, Phone, Search, ShieldCheck, Store, UserCog, UserPlus, Users } from 'lucide-react';
+import {
+  CheckCircle2,
+  FileText,
+  HelpCircle,
+  KeyRound,
+  Phone,
+  Search,
+  ShieldCheck,
+  Store,
+  UserCog,
+  UserPlus,
+  Users,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import { Badge, Card, FormPanel, PrimaryButton, SectionTitle, cx } from '@/components/ui/dashboard-ui';
@@ -38,7 +50,9 @@ export function SettingsTab({
   const t = useTranslations('dashboard');
   const commonT = useTranslations('common');
   const queryClient = useQueryClient();
-  const [activeSettingsTab, setActiveSettingsTab] = useState<'user' | 'password' | 'venue' | 'team' | 'support'>('user');
+  const [activeSettingsTab, setActiveSettingsTab] = useState<
+    'user' | 'password' | 'venue' | 'team' | 'support'
+  >('user');
   const venue = useVenue();
   const branchesQuery = useBranchOptions(isAdmin);
   const usersQuery = useUsers({
@@ -72,7 +86,9 @@ export function SettingsTab({
     { id: 'support' as const, label: t('support'), show: true },
   ].filter((tab) => tab.show);
   const filteredUsers = users.filter((user) =>
-    `${user.name ?? ''} ${user.phone} ${user.email ?? ''} ${user.role}`.toLowerCase().includes(userSearch.toLowerCase()),
+    `${user.name ?? ''} ${user.phone} ${user.email ?? ''} ${user.role}`
+      .toLowerCase()
+      .includes(userSearch.toLowerCase()),
   );
 
   useEffect(() => {
@@ -110,6 +126,10 @@ export function SettingsTab({
     },
   });
 
+  if (venue.isLoading || branchesQuery.isLoading || (activeSettingsTab === 'team' && usersQuery.isLoading)) {
+    return <TabLoader label={t('loadingWorkspace')} />;
+  }
+
   return (
     <div className="space-y-5">
       <SectionTitle eyebrow={t('account')} title={t('settings')} />
@@ -119,7 +139,9 @@ export function SettingsTab({
             key={tab.id}
             className={cx(
               'h-10 shrink-0 rounded-xl px-4 text-sm font-bold transition',
-              activeSettingsTab === tab.id ? 'bg-primary text-white shadow-sm' : 'text-stone-500 hover:bg-stone-50 hover:text-stone-900',
+              activeSettingsTab === tab.id
+                ? 'bg-primary text-white shadow-sm'
+                : 'text-stone-500 hover:bg-stone-50 hover:text-stone-900',
             )}
             onClick={() => setActiveSettingsTab(tab.id)}
           >
@@ -134,7 +156,10 @@ export function SettingsTab({
             <UserCog className="size-5 text-primary" />
             <h3 className="font-black text-stone-950">{t('userSettings')}</h3>
           </div>
-          <form className="grid gap-2" onSubmit={profileForm.handleSubmit((values) => updateMeMutation.mutate(values))}>
+          <form
+            className="grid gap-2"
+            onSubmit={profileForm.handleSubmit((values) => updateMeMutation.mutate(values))}
+          >
             <FormInput
               name="name"
               register={profileForm.register}
@@ -149,11 +174,13 @@ export function SettingsTab({
               placeholder={t('phone')}
             />
             <Badge tone="muted">{t('role', { role: me.data?.role ?? '' })}</Badge>
-            <PrimaryButton type="submit" disabled={updateMeMutation.isPending}>
+            <PrimaryButton type="submit" loading={updateMeMutation.isPending}>
               <CheckCircle2 className="size-4" />
               {t('saveProfile')}
             </PrimaryButton>
-            {updateMeMutation.error ? <p className="text-sm text-red-700">{readError(updateMeMutation.error)}</p> : null}
+            {updateMeMutation.error ? (
+              <p className="text-sm text-red-700">{readError(updateMeMutation.error)}</p>
+            ) : null}
           </form>
         </Card>
       ) : null}
@@ -164,14 +191,31 @@ export function SettingsTab({
             <KeyRound className="size-5 text-primary" />
             <h3 className="font-black text-stone-950">{t('passwordReset')}</h3>
           </div>
-          <form className="grid gap-2" onSubmit={passwordForm.handleSubmit((values) => updatePasswordMutation.mutate(values))}>
-            <FormInput name="currentPassword" type="password" register={passwordForm.register} errors={passwordForm.formState.errors} placeholder={t('currentPassword')} />
-            <FormInput name="newPassword" type="password" register={passwordForm.register} errors={passwordForm.formState.errors} placeholder={t('newPassword')} />
-            <button className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-border bg-white px-4 text-sm font-bold transition hover:border-primary hover:text-primary disabled:opacity-55" disabled={updatePasswordMutation.isPending}>
+          <form
+            className="grid gap-2"
+            onSubmit={passwordForm.handleSubmit((values) => updatePasswordMutation.mutate(values))}
+          >
+            <FormInput
+              name="currentPassword"
+              type="password"
+              register={passwordForm.register}
+              errors={passwordForm.formState.errors}
+              placeholder={t('currentPassword')}
+            />
+            <FormInput
+              name="newPassword"
+              type="password"
+              register={passwordForm.register}
+              errors={passwordForm.formState.errors}
+              placeholder={t('newPassword')}
+            />
+            <PrimaryButton type="submit" loading={updatePasswordMutation.isPending}>
               <KeyRound className="size-4" />
               {t('updatePassword')}
-            </button>
-            {updatePasswordMutation.error ? <p className="text-sm text-red-700">{readError(updatePasswordMutation.error)}</p> : null}
+            </PrimaryButton>
+            {updatePasswordMutation.error ? (
+              <p className="text-sm text-red-700">{readError(updatePasswordMutation.error)}</p>
+            ) : null}
           </form>
         </Card>
       ) : null}
@@ -183,12 +227,24 @@ export function SettingsTab({
             <h3 className="font-black text-stone-950">{t('venueSettings')}</h3>
           </div>
           <div className="grid gap-2 text-sm">
-            <span className="rounded-xl bg-stone-50 px-3 py-2">{t('name')} {textForLocale(venue.data?.name, locale) || commonT('notSet')}</span>
-            <span className="rounded-xl bg-stone-50 px-3 py-2">{t('type')} {venue.data?.type ?? commonT('notSet')}</span>
-            <span className="rounded-xl bg-stone-50 px-3 py-2">{t('currency')} {venue.data?.currency ?? 'EGP'}</span>
-            <span className="rounded-xl bg-stone-50 px-3 py-2">{t('phone')} {venue.data?.phone ?? commonT('notSet')}</span>
-            <span className="rounded-xl bg-stone-50 px-3 py-2">{t('whatsapp')} {venue.data?.whatsapp ?? commonT('notSet')}</span>
-            <span className="rounded-xl bg-stone-50 px-3 py-2">{t('address')} {textForLocale(venue.data?.address, locale) || commonT('notSet')}</span>
+            <span className="rounded-xl bg-stone-50 px-3 py-2">
+              {t('name')} {textForLocale(venue.data?.name, locale) || commonT('notSet')}
+            </span>
+            <span className="rounded-xl bg-stone-50 px-3 py-2">
+              {t('type')} {venue.data?.type ?? commonT('notSet')}
+            </span>
+            <span className="rounded-xl bg-stone-50 px-3 py-2">
+              {t('currency')} {venue.data?.currency ?? 'EGP'}
+            </span>
+            <span className="rounded-xl bg-stone-50 px-3 py-2">
+              {t('phone')} {venue.data?.phone ?? commonT('notSet')}
+            </span>
+            <span className="rounded-xl bg-stone-50 px-3 py-2">
+              {t('whatsapp')} {venue.data?.whatsapp ?? commonT('notSet')}
+            </span>
+            <span className="rounded-xl bg-stone-50 px-3 py-2">
+              {t('address')} {textForLocale(venue.data?.address, locale) || commonT('notSet')}
+            </span>
           </div>
         </Card>
       ) : null}
@@ -208,23 +264,57 @@ export function SettingsTab({
             </div>
             <label className="relative mt-4 block">
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <input className="h-11 w-full rounded-xl border border-border px-9 outline-none focus:border-primary" value={userSearch} onChange={(event) => setUserSearch(event.target.value)} placeholder={t('searchUsers')} />
+              <input
+                className="h-11 w-full rounded-xl border border-border px-9 outline-none focus:border-primary"
+                value={userSearch}
+                onChange={(event) => setUserSearch(event.target.value)}
+                placeholder={t('searchUsers')}
+              />
             </label>
           </Card>
 
           {userFormOpen ? (
-            <FormPanel title={t('addTeamUser')} closeLabel={commonT('close')} onClose={() => setUserFormOpen(false)}>
+            <FormPanel
+              title={t('addTeamUser')}
+              closeLabel={commonT('close')}
+              onClose={() => setUserFormOpen(false)}
+            >
               <form onSubmit={teamUserForm.handleSubmit((values) => createStaffMutation.mutate(values))}>
                 <div className="grid gap-2 lg:grid-cols-3">
-                  <FormInput name="name" register={teamUserForm.register} errors={teamUserForm.formState.errors} placeholder={t('userName')} />
-                  <FormInput name="phone" type="tel" register={teamUserForm.register} errors={teamUserForm.formState.errors} placeholder={t('phone')} />
-                  <FormInput name="password" type="password" register={teamUserForm.register} errors={teamUserForm.formState.errors} placeholder={t('temporaryPassword')} />
+                  <FormInput
+                    name="name"
+                    register={teamUserForm.register}
+                    errors={teamUserForm.formState.errors}
+                    placeholder={t('userName')}
+                  />
+                  <FormInput
+                    name="phone"
+                    type="tel"
+                    register={teamUserForm.register}
+                    errors={teamUserForm.formState.errors}
+                    placeholder={t('phone')}
+                  />
+                  <FormInput
+                    name="password"
+                    type="password"
+                    register={teamUserForm.register}
+                    errors={teamUserForm.formState.errors}
+                    placeholder={t('temporaryPassword')}
+                  />
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {branches.map((branch) => {
                     const checked = selectedBranchIds.includes(branch.id);
                     return (
-                      <label key={branch.id} className={cx('flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold transition', checked ? 'border-primary bg-teal-50 text-primary' : 'border-border bg-white text-stone-700 hover:border-primary')}>
+                      <label
+                        key={branch.id}
+                        className={cx(
+                          'flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold transition',
+                          checked
+                            ? 'border-primary bg-teal-50 text-primary'
+                            : 'border-border bg-white text-stone-700 hover:border-primary',
+                        )}
+                      >
                         <input
                           type="checkbox"
                           checked={checked}
@@ -244,16 +334,20 @@ export function SettingsTab({
                   })}
                 </div>
                 {teamUserForm.formState.errors.branchIds?.message ? (
-                  <p className="mt-2 text-sm text-red-700">{String(teamUserForm.formState.errors.branchIds.message)}</p>
+                  <p className="mt-2 text-sm text-red-700">
+                    {String(teamUserForm.formState.errors.branchIds.message)}
+                  </p>
                 ) : null}
                 <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-sm text-muted-foreground">{t('assignUserToBranch')}</p>
-                  <PrimaryButton type="submit" disabled={createStaffMutation.isPending}>
+                  <PrimaryButton type="submit" loading={createStaffMutation.isPending}>
                     <UserPlus className="size-4" />
                     {t('addUser')}
                   </PrimaryButton>
                 </div>
-                {createStaffMutation.error ? <p className="mt-2 text-sm text-red-700">{readError(createStaffMutation.error)}</p> : null}
+                {createStaffMutation.error ? (
+                  <p className="mt-2 text-sm text-red-700">{readError(createStaffMutation.error)}</p>
+                ) : null}
               </form>
             </FormPanel>
           ) : null}
@@ -288,27 +382,26 @@ export function SettingsTab({
 
       {activeSettingsTab === 'support' ? (
         <Card>
-        <div className="mb-4 flex items-center gap-2">
-          <HelpCircle className="size-5 text-primary" />
-          <h3 className="font-black text-stone-950">{t('support')}</h3>
-        </div>
-        <div className="grid gap-2 sm:grid-cols-3">
-          <button className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-border bg-white px-3 text-sm font-bold transition hover:border-primary hover:text-primary">
-            <Phone className="size-4" />
-            {t('contactUs')}
-          </button>
-          <button className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-border bg-white px-3 text-sm font-bold transition hover:border-primary hover:text-primary">
-            <FileText className="size-4" />
-            {t('privacyPolicy')}
-          </button>
-          <span className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-teal-50 px-3 text-sm font-bold text-primary">
-            <ShieldCheck className="size-4" />
-            {t('accountVerified')}
-          </span>
-        </div>
+          <div className="mb-4 flex items-center gap-2">
+            <HelpCircle className="size-5 text-primary" />
+            <h3 className="font-black text-stone-950">{t('support')}</h3>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-3">
+            <button className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-border bg-white px-3 text-sm font-bold transition hover:border-primary hover:text-primary">
+              <Phone className="size-4" />
+              {t('contactUs')}
+            </button>
+            <button className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-border bg-white px-3 text-sm font-bold transition hover:border-primary hover:text-primary">
+              <FileText className="size-4" />
+              {t('privacyPolicy')}
+            </button>
+            <span className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-teal-50 px-3 text-sm font-bold text-primary">
+              <ShieldCheck className="size-4" />
+              {t('accountVerified')}
+            </span>
+          </div>
         </Card>
       ) : null}
     </div>
   );
 }
-

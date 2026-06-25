@@ -80,6 +80,38 @@ export function useBranchMenu(branchId: string) {
   });
 }
 
+export function useLatestExtractionJob(branchId: string) {
+  const locale = useLocale();
+
+  return useQuery({
+    queryKey: [...queryKeys.extraction(branchId, 'latest'), locale] as const,
+    queryFn: () => api.latestExtractionJob(branchId),
+    enabled: Boolean(branchId),
+    refetchInterval: (query) => {
+      const status = query.state.data?.job?.status;
+
+      return status === 'PENDING' || status === 'PROCESSING' ? 5000 : false;
+    },
+    retry: false,
+  });
+}
+
+export function useExtractionJob(branchId: string, jobId?: string) {
+  const locale = useLocale();
+
+  return useQuery({
+    queryKey: [...queryKeys.extraction(branchId, 'current', jobId), locale] as const,
+    queryFn: () => api.extractionJob(branchId, jobId ?? ''),
+    enabled: Boolean(branchId && jobId),
+    refetchInterval: (query) => {
+      const status = query.state.data?.job?.status;
+
+      return status === 'PENDING' || status === 'PROCESSING' ? 5000 : false;
+    },
+    retry: false,
+  });
+}
+
 export function useBranchQr(branchId: string) {
   const locale = useLocale();
 
