@@ -20,11 +20,11 @@ export function PublicPreview({
   currency,
   onClose,
 }: {
-  venueName: string;
+  venueName?: string;
   branchId: string;
   locale: string;
   currency: string;
-  onClose: () => void;
+  onClose?: () => void;
 }) {
   const t = useTranslations('dashboard');
   const branchManagement = useBranchManagement();
@@ -61,8 +61,8 @@ export function PublicPreview({
     .toUpperCase();
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-[#fafaf8]">
-      <div className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-border bg-[#fafaf8]/90 px-4 py-3 backdrop-blur z-50">
+    <div className="">
+      {/* <div className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-border bg-[#fafaf8]/90 px-4 py-3 backdrop-blur z-50">
         <button
           className="inline-flex h-10 items-center gap-1 rounded-full bg-[#042f2e] hover:bg-[#042f2e]/90 px-4 text-sm font-bold text-white"
           onClick={onClose}
@@ -82,7 +82,7 @@ export function PublicPreview({
             {locale.toUpperCase()}
           </button>
         </div>
-      </div>
+      </div> */}
 
       <div className="relative h-60 overflow-visible bg-stone-200">
         <div className="absolute inset-0 overflow-hidden">
@@ -98,8 +98,8 @@ export function PublicPreview({
         </div>
       </div>
 
-      <main className="relative z-10 mx-auto max-w-3xl px-4 pb-10 pt-14">
-        <PublicBranchInfo venueName={venueName} branch={branch} locale={locale} />
+      <main className="relative z-10 mx-auto max-w-5xl px-4 pb-10 pt-14">
+        <PublicBranchInfo venueName={venueName || t('waslaVenue')} branch={branch} locale={locale} />
 
         {branchManagement.isLoading || menuQuery.isLoading ? (
           <div className="mt-8 rounded-2xl border border-border bg-white p-6 text-center text-sm font-bold text-muted-foreground">

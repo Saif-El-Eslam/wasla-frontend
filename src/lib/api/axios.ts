@@ -35,6 +35,19 @@ axiosClient.interceptors.request.use((config) => {
   return config;
 });
 
+let isRedirectingToLogin = false;
+axiosClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401 && typeof window !== 'undefined' && !isRedirectingToLogin) {
+      isRedirectingToLogin = true;
+      window.location.href = '/en/login';
+    }
+
+    return Promise.reject(error);
+  },
+);
+
 axiosClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {

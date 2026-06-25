@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Building2, Menu as MenuIcon, CheckCircle2, GitBranch, Plus, UtensilsCrossed } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -12,16 +12,13 @@ import {
   EmptyState,
   FormPanel,
   PrimaryButton,
-  SectionTitle,
   TabLoader,
 } from '@/components/ui/dashboard-ui';
 import { readError, toLocalized, type LocalizedDraft } from '@/features/dashboard/utils/dashboard-utils';
 import { FormInput } from '@/components/ui/form-input';
 import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { MenuExtractionPanel } from './menu-extraction-panel';
-import { MenuCategorySection } from './menu-category-section';
 import { MenuItemsSection } from './menu-items-section';
-import type { UseFormReturn } from 'react-hook-form';
 import { useBranchMenu, useBranchOptions } from '@/features/venue/hooks/use-venue';
 import {
   addCachedCategory,
@@ -47,6 +44,7 @@ import {
   type MenuFormInput,
   type MenuFormValues,
 } from '@/features/menu/schemas/menu.schema';
+import { PublicPreview } from '@/features/public-menu/components/public-preview';
 
 const emptyLocalizedDraft: LocalizedDraft = { en: '', ar: '' };
 
@@ -98,6 +96,7 @@ export function MenuTab({
   const menuQuery = useBranchMenu(effectiveBranchId);
   const branch = branches.find((item) => item.id === effectiveBranchId);
   const menu = menuQuery.data ?? null;
+  const contentRef = useRef<HTMLDivElement>(null);
   const [formMode, setFormMode] = useState<'menu' | 'category' | 'item' | null>(null);
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
   const [editingItemContext, setEditingItemContext] = useState<{ categoryId: string; itemId: string } | null>(
@@ -105,6 +104,7 @@ export function MenuTab({
   );
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
   const [itemToDelete, setItemToDelete] = useState<{ categoryId: string; itemId: string } | null>(null);
+  const [activeTab, setActiveTab] = useState<'build' | 'preview'>('build');
   const menuForm = useForm<MenuFormInput, unknown, MenuFormValues>({
     resolver: zodResolver(menuFormSchema),
     defaultValues: { name: emptyLocalizedDraft },
@@ -139,6 +139,16 @@ export function MenuTab({
     ? itemForm.watch('categoryId')
     : (menu?.categories[0]?.id ?? '');
 
+  const handleTabChange = (tab: 'build' | 'preview') => {
+    setActiveTab(tab);
+
+    requestAnimationFrame(() => {
+      contentRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    });
+  };
   const resetCategoryForm = () => {
     setEditingCategoryId(null);
     categoryForm.reset({
@@ -580,46 +590,82 @@ export function MenuTab({
           </Card>
           <MenuExtractionPanel branchId={effectiveBranchId} menu={menu} locale={locale} />
 
-          <div className="space-y-3">
-            <MenuItemsSection
-              menu={menu}
-              locale={locale}
-              currency={currency}
-              formMode={formMode}
-              itemForm={itemForm}
-              onCloseItemForm={closeForm}
-              onOpenCreateItemForm={openCreateItemForm}
-              onSubmitItemForm={(values) =>
-                editingItemContext ? saveItemMutation.mutate(values) : createItemMutation.mutate(values)
-              }
-              createItemPending={createItemMutation.isPending}
-              saveItemPending={saveItemMutation.isPending}
-              toggleItemPending={toggleItemMutation.isPending}
-              deleteItemPending={deleteItemMutation.isPending}
-              editingItemContext={editingItemContext}
-              onEditItem={openEditItemForm}
-              onToggleItem={(categoryId, itemId, available) =>
-                toggleItemMutation.mutate({ categoryId, itemId, available })
-              }
-              setItemToDelete={setItemToDelete}
-              itemToDelete={itemToDelete}
-              error={createItemMutation.error ?? saveItemMutation.error ?? deleteItemMutation.error}
-              categoryForm={categoryForm}
-              editingCategoryId={editingCategoryId}
-              toggleCategoryPending={toggleCategoryMutation.isPending}
-              onSubmitCategoryForm={(values) =>
-                editingCategoryId
-                  ? saveCategoryMutation.mutate(values)
-                  : createCategoryMutation.mutate(values)
-              }
-              onEditCategory={openEditCategoryForm}
-              onDeleteCategory={setCategoryToDelete}
-              onOpenCreateCategoryForm={openCreateCategoryForm}
-              onCloseCategoryForm={closeForm}
-              createCategoryPending={createCategoryMutation.isPending}
-              saveCategoryPending={saveCategoryMutation.isPending}
-              onToggleCategory={(categoryId, active) => toggleCategoryMutation.mutate({ categoryId, active })}
-            />
+          <div className="space-y-2">
+            <div className="flex rounded-3xl bg-stone-100 p-1">
+              <button
+                onClick={() => setActiveTab('build')}
+                className={`flex-1 rounded-3xl py-2 font-semibold transition-all ${
+                  activeTab === 'build'
+                    ? 'bg-white text-stone-900 shadow text-sm'
+                    : 'text-stone-500 hover:text-stone-700 text-xs'
+                }`}
+              >
+                Build
+              </button>
+
+              <button
+                onClick={() => handleTabChange('preview')}
+                className={`flex-1 rounded-3xl py-2 font-semibold transition-all ${
+                  activeTab === 'preview'
+                    ? 'bg-white text-stone-900 shadow text-sm'
+                    : 'text-stone-500 hover:text-stone-700 text-xs'
+                }`}
+              >
+                Preview
+              </button>
+            </div>
+
+            <div ref={contentRef}>
+              {activeTab === 'build' && (
+                <div className="space-y-3">
+                  <MenuItemsSection
+                    menu={menu}
+                    locale={locale}
+                    currency={currency}
+                    formMode={formMode}
+                    itemForm={itemForm}
+                    onCloseItemForm={closeForm}
+                    onOpenCreateItemForm={openCreateItemForm}
+                    onSubmitItemForm={(values) =>
+                      editingItemContext ? saveItemMutation.mutate(values) : createItemMutation.mutate(values)
+                    }
+                    createItemPending={createItemMutation.isPending}
+                    saveItemPending={saveItemMutation.isPending}
+                    toggleItemPending={toggleItemMutation.isPending}
+                    deleteItemPending={deleteItemMutation.isPending}
+                    editingItemContext={editingItemContext}
+                    onEditItem={openEditItemForm}
+                    onToggleItem={(categoryId, itemId, available) =>
+                      toggleItemMutation.mutate({ categoryId, itemId, available })
+                    }
+                    setItemToDelete={setItemToDelete}
+                    itemToDelete={itemToDelete}
+                    error={createItemMutation.error ?? saveItemMutation.error ?? deleteItemMutation.error}
+                    categoryForm={categoryForm}
+                    editingCategoryId={editingCategoryId}
+                    toggleCategoryPending={toggleCategoryMutation.isPending}
+                    onSubmitCategoryForm={(values) =>
+                      editingCategoryId
+                        ? saveCategoryMutation.mutate(values)
+                        : createCategoryMutation.mutate(values)
+                    }
+                    onEditCategory={openEditCategoryForm}
+                    onDeleteCategory={setCategoryToDelete}
+                    onOpenCreateCategoryForm={openCreateCategoryForm}
+                    onCloseCategoryForm={closeForm}
+                    createCategoryPending={createCategoryMutation.isPending}
+                    saveCategoryPending={saveCategoryMutation.isPending}
+                    onToggleCategory={(categoryId, active) =>
+                      toggleCategoryMutation.mutate({ categoryId, active })
+                    }
+                  />
+                </div>
+              )}
+
+              {activeTab === 'preview' && (
+                <PublicPreview branchId={effectiveBranchId} locale={locale} currency={currency} />
+              )}
+            </div>
           </div>
         </>
       )}

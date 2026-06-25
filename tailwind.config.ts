@@ -17,7 +17,7 @@ const config: Config = {
           foreground: '#ffffff',
         },
         accent: {
-          DEFAULT: '#D97706',
+          DEFAULT: '#ff8e0c',
           foreground: '#111827',
         },
       },

@@ -44,7 +44,7 @@ export function DashboardShell({
   venueName: string;
   activeTab: DashboardTab;
   onTabChange: (tab: DashboardTab) => void;
-  onPreview: () => void;
+  onPreview?: () => void;
   onLogout: () => void;
   locale: string;
   onLocaleChange: (locale: string) => void;
@@ -99,14 +99,14 @@ export function DashboardShell({
               <span className="flex size-4 items-center justify-center text-xs font-black">文</span>
               {t('languageName')}
             </button>
-            <button
+            {/* <button
               className="flex h-11 w-full items-center gap-2 rounded-xl border border-teal-400/20 bg-teal-400/10 px-3 text-sm font-bold text-teal-200 transition hover:bg-teal-400/15"
               onClick={onPreview}
               type="button"
             >
               <Eye className="size-4" />
               {t('publicPreview')}
-            </button>
+            </button> */}
             <button
               className="flex h-11 w-full items-center gap-2 rounded-xl px-3 text-sm font-bold text-white/55 transition hover:bg-white/5 hover:text-white disabled:opacity-50"
               onClick={onLogout}
@@ -144,9 +144,9 @@ export function DashboardShell({
                 >
                   {t('languageShort')}
                 </button>
-                <IconButton label={t('publicPreview')} onClick={onPreview}>
+                {/* <IconButton label={t('publicPreview')} onClick={onPreview}>
                   <Eye className="size-4" />
-                </IconButton>
+                </IconButton> */}
                 {/* <IconButton label={t('notifications')}>
                   <Bell className="size-4" />
                 </IconButton> */}

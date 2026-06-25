@@ -216,7 +216,7 @@ export function MenuExtractionPanel({ branchId, menu, locale }: Props) {
       <div className="space-y-3">
         <div className="flex flex-col gap-3 flex-row items-start justify-between align-center">
           <SectionTitle
-            icon={<Sparkles className="size-8 text-primary p-2 bg-primary/10 rounded-full" />}
+            icon={<Sparkles className="size-8 text-accent/100 p-2 bg-accent/9 rounded-full" />}
             title={t('menuExtraction')}
           >
             {job ? <Badge tone={statusTone(job.status)}>{t(`extractionStatus.${job.status}`)}</Badge> : null}

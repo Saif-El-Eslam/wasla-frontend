@@ -11,7 +11,7 @@ import { BranchesTab } from '@/features/branches/components/branches-tab';
 import { Badge, Card, DashboardShell, PrimaryButton, type DashboardTab } from '@/components/ui/dashboard-ui';
 import { MenuTab } from '@/features/menu/components/menu-tab';
 import { OverviewTab } from '@/features/home/components/overview-tab';
-import { PublicPreview } from '@/features/public-menu/components/public-preview';
+// import { PublicPreview } from '@/features/public-menu/components/public-preview';
 import { QrTab } from '@/features/qr/components/qr-tab';
 import { SettingsTab } from '@/features/settings/components/settings-tab';
 import { useMe } from '@/features/auth/hooks/use-me';
@@ -31,7 +31,7 @@ export default function DashboardPage() {
   const [selectedMenuBranchId, setSelectedMenuBranchId] = useState('');
   const [selectedQrBranchId, setSelectedQrBranchId] = useState('');
   const [selectedAnalyticsBranchId, setSelectedAnalyticsBranchId] = useState('all');
-  const [publicPreviewOpen, setPublicPreviewOpen] = useState(false);
+  // const [publicPreviewOpen, setPublicPreviewOpen] = useState(false);
 
   const logoutMutation = useMutation({
     mutationFn: api.logout,
@@ -83,7 +83,7 @@ export default function DashboardPage() {
         venueName={venueName}
         activeTab={activeTab}
         onTabChange={setActiveTab}
-        onPreview={() => setPublicPreviewOpen(true)}
+        // onPreview={() => setPublicPreviewOpen(true)}
         onLogout={() => logoutMutation.mutate()}
         locale={locale}
         onLocaleChange={changeLocale}
@@ -124,7 +124,7 @@ export default function DashboardPage() {
         ) : null}
         {activeTab === 'settings' ? <SettingsTab isAdmin={isAdmin} me={me} locale={locale} /> : null}
       </DashboardShell>
-      {publicPreviewOpen ? (
+      {/* {publicPreviewOpen ? (
         <PublicPreview
           venueName={venueName}
           branchId={previewBranchId}
@@ -132,7 +132,7 @@ export default function DashboardPage() {
           currency={venue.data?.currency ?? 'EGP'}
           onClose={() => setPublicPreviewOpen(false)}
         />
-      ) : null}
+      ) : null} */}
     </>
   );
 }

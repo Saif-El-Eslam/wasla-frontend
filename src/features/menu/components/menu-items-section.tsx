@@ -82,7 +82,8 @@ export function MenuItemsSection({
 
   const [openActionsItemId, setOpenActionsItemId] = useState<string | null>(null);
   const [openCategoryIds, setOpenCategoryIds] = useState<Set<string>>(
-    () => new Set(menu.categories.map((category) => category.id)),
+    // () => new Set(menu.categories.map((category) => category.id)),
+    () => new Set([]),
   );
 
   useEffect(() => {
