@@ -1,14 +1,7 @@
 import { z } from 'zod';
 import { fieldValidations } from '@/components/ui/form-validation';
 
-export const menuFormSchema = z
-  .object({
-    name: fieldValidations.localizedDraft(),
-  })
-  .refine((data) => data.name.en || data.name.ar, {
-    message: 'English or Arabic name is required',
-    path: ['name', 'en'],
-  });
+export const menuFormSchema = z.object({});
 
 export const categoryFormSchema = z
   .object({

@@ -107,7 +107,7 @@ export function MenuTab({
   const [activeTab, setActiveTab] = useState<'build' | 'preview'>('build');
   const menuForm = useForm<MenuFormInput, unknown, MenuFormValues>({
     resolver: zodResolver(menuFormSchema),
-    defaultValues: { name: emptyLocalizedDraft },
+    defaultValues: {},
   });
   const categoryForm = useForm<CategoryFormInput, unknown, CategoryFormValues>({
     resolver: zodResolver(categoryFormSchema),
@@ -226,18 +226,14 @@ export function MenuTab({
   };
 
   const createMenuMutation = useMutation({
-    mutationFn: (values: MenuFormValues) =>
+    mutationFn: () =>
       api.createBranchMenu(effectiveBranchId, {
-        name: toLocalized(values.name, `${textForLocale(branch?.name, locale)} ${t('menu')}`),
         theme: 'MODERN',
         showPrices: true,
       }),
-    onSuccess: ({ menu: createdMenu }, values) => {
-      replaceCachedMenu(queryClient, effectiveBranchId, {
-        ...createdMenu,
-        name: toLocalized(values.name, `${textForLocale(branch?.name, locale)} ${t('menu')}`),
-      });
-      menuForm.reset({ name: draftWithFallback() });
+    onSuccess: ({ menu: createdMenu }) => {
+      replaceCachedMenu(queryClient, effectiveBranchId, createdMenu);
+      menuForm.reset({});
       setFormMode(null);
     },
   });
@@ -497,21 +493,12 @@ export function MenuTab({
                   closeLabel={commonT('close')}
                   onClose={() => setFormMode(null)}
                 >
-                  <form onSubmit={menuForm.handleSubmit((values) => createMenuMutation.mutate(values))}>
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <FormInput
-                        name="name.en"
-                        register={menuForm.register}
-                        errors={menuForm.formState.errors}
-                        placeholder={t('menuNameInEnglish')}
-                      />
-                      <FormInput
-                        name="name.ar"
-                        register={menuForm.register}
-                        errors={menuForm.formState.errors}
-                        placeholder={t('menuNameInArabic')}
-                      />
-                    </div>
+                  <form
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      createMenuMutation.mutate();
+                    }}
+                  >
                     <div className="mt-4">
                       <PrimaryButton type="submit" loading={createMenuMutation.isPending}>
                         <CheckCircle2 className="size-4" />

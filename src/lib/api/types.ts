@@ -67,10 +67,12 @@ export type BranchManagement = Omit<Branch, 'menu'> & {
 };
 
 export type BranchOverviewResponse = {
-  branches: Array<Pick<Branch, 'id' | 'name' | 'slug' | 'active'> & {
-    hasMenu: boolean;
-    stats: BranchStats;
-  }>;
+  branches: Array<
+    Pick<Branch, 'id' | 'name' | 'slug' | 'active'> & {
+      hasMenu: boolean;
+      stats: BranchStats;
+    }
+  >;
   totals: {
     menus: number;
     items: number;
@@ -175,7 +177,7 @@ export type MenuCategory = {
 export type Menu = {
   id: string;
   branchId: string;
-  name: LocalizedValue;
+  // name?: LocalizedValue;
   theme: 'CLASSIC' | 'MODERN' | 'MINIMAL';
   showPrices: boolean;
   publishedAt: string | null;
@@ -219,7 +221,7 @@ export type ExtractedCategory = {
 export type ExtractedMenu = {
   menu: {
     id?: string;
-    name: LocalizedText;
+    // name: LocalizedText;
     theme: 'CLASSIC' | 'MODERN' | 'MINIMAL';
     showPrices: boolean;
   };
@@ -322,11 +324,14 @@ export type BranchQrResponse = {
 export type AnalyticsSummary = {
   period: '7d' | '30d';
   branchId: string | null;
-  metrics: Record<'views' | 'scans' | 'whatsapp' | 'calls' | 'maps', {
-    current: number;
-    previous: number;
-    change: number;
-  }>;
+  metrics: Record<
+    'views' | 'scans' | 'whatsapp' | 'calls' | 'maps',
+    {
+      current: number;
+      previous: number;
+      change: number;
+    }
+  >;
   series: Array<{ label: string; views: number; scans: number }>;
   branchActivity: Array<{ branchId: string; name: LocalizedValue; slug: string; value: number }>;
   topItems: Array<{ itemId: string; name: LocalizedValue | null; views: number }>;
@@ -349,7 +354,6 @@ export type CreateBranchInput = {
 export type UpdateBranchInput = Partial<CreateBranchInput>;
 
 export type CreateMenuInput = {
-  name: LocalizedText;
   theme?: 'CLASSIC' | 'MODERN' | 'MINIMAL';
   showPrices?: boolean;
 };

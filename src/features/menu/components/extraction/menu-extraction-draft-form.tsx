@@ -10,7 +10,6 @@ type Props = {
   draft: ExtractedMenu;
   itemCount: number;
   confidenceScore: number | null;
-  onUpdateMenuName: (lang: 'en' | 'ar', value: string) => void;
   onUpdateCategory: (index: number, lang: 'en' | 'ar', value: string) => void;
   onUpdateItem: (
     categoryIndex: number,
@@ -32,7 +31,6 @@ export function MenuExtractionDraftForm({
   draft,
   itemCount,
   confidenceScore,
-  onUpdateMenuName,
   onUpdateCategory,
   onUpdateItem,
   onUpdateItemPrice,
@@ -61,21 +59,6 @@ export function MenuExtractionDraftForm({
           {draft.warnings.join(' ')}
         </div>
       ) : null}
-
-      <div className="grid gap-2 sm:grid-cols-2">
-        <input
-          value={draft.menu.name.en ?? ''}
-          onChange={(event) => onUpdateMenuName('en', event.target.value)}
-          className="h-11 rounded-3xl border border-border bg-white px-3 text-xs outline-none focus:border-primary"
-          placeholder={t('menuNameInEnglish')}
-        />
-        <input
-          value={draft.menu.name.ar ?? ''}
-          onChange={(event) => onUpdateMenuName('ar', event.target.value)}
-          className="h-11 rounded-3xl border border-border bg-white px-3 text-xs outline-none focus:border-primary"
-          placeholder={t('menuNameInArabic')}
-        />
-      </div>
 
       <div className="space-y-3">
         {draft.categories.map((category, categoryIndex) => (

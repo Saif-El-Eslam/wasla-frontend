@@ -140,13 +140,6 @@ export function MenuExtractionPanel({ branchId, menu, locale }: Props) {
     setDraftState({ jobId: job.id, value: updater(draft) });
   };
 
-  const updateMenuName = (lang: 'en' | 'ar', value: string) => {
-    updateDraft((current) => ({
-      ...current,
-      menu: { ...current.menu, name: { ...current.menu.name, [lang]: value } },
-    }));
-  };
-
   const updateCategory = (index: number, lang: 'en' | 'ar', value: string) => {
     updateDraft((current) => {
       const categories = [...current.categories];
@@ -306,7 +299,6 @@ export function MenuExtractionPanel({ branchId, menu, locale }: Props) {
             draft={draft}
             itemCount={itemCount}
             confidenceScore={job.confidenceScore}
-            onUpdateMenuName={updateMenuName}
             onUpdateCategory={updateCategory}
             onUpdateItem={updateItem}
             onUpdateItemPrice={updateItemPrice}
