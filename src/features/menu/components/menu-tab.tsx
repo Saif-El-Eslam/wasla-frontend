@@ -510,7 +510,12 @@ export function MenuTab({
               </div>
             ) : null}
           </Card>
-          <MenuExtractionPanel branchId={effectiveBranchId} menu={menu} locale={locale} />
+          <MenuExtractionPanel
+            branchId={effectiveBranchId}
+            branchName={branch?.name}
+            menu={menu}
+            locale={locale}
+          />
         </>
       ) : (
         <>
@@ -539,7 +544,7 @@ export function MenuTab({
 
                   <span className="text-stone-300">•</span>
 
-                  <span className="font-medium text-stone-700">{textForLocale(menu.name, locale)}</span>
+                  <span className="font-medium text-stone-700">{textForLocale(branch?.name, locale)}</span>
 
                   <span className="text-stone-300">•</span>
 
@@ -575,7 +580,12 @@ export function MenuTab({
               </div>
             </div>
           </Card>
-          <MenuExtractionPanel branchId={effectiveBranchId} menu={menu} locale={locale} />
+          <MenuExtractionPanel
+            branchId={effectiveBranchId}
+            menu={menu}
+            locale={locale}
+            branchName={branch?.name}
+          />
 
           <div className="space-y-2">
             <div className="flex rounded-3xl bg-stone-100 p-1">

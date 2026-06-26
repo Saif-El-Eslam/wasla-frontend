@@ -12,11 +12,13 @@ import { useExtractionJob, useLatestExtractionJob } from '@/features/venue/hooks
 import { queryKeys } from '@/lib/api/query-keys';
 import { textForLocale } from '@/lib/localized-text';
 import { MenuExtractionDraftForm } from './menu-extraction-draft-form';
+import { LocalizedValue } from '@/lib/api/types';
 
 type Props = {
   branchId: string;
   menu: Menu | null;
   locale: string;
+  branchName?: LocalizedValue;
 };
 
 function cloneExtractedMenu(value: ExtractedMenu) {
@@ -39,7 +41,7 @@ function statusTone(status?: string) {
   return 'muted' as const;
 }
 
-export function MenuExtractionPanel({ branchId, menu, locale }: Props) {
+export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Props) {
   const t = useTranslations('dashboard');
   const commonT = useTranslations('common');
   const queryClient = useQueryClient();
@@ -197,6 +199,8 @@ export function MenuExtractionPanel({ branchId, menu, locale }: Props) {
   const selectedFileLabel =
     files.length > 0 ? t('selectedImages', { count: files.length }) : t('noImagesSelected');
 
+  console.log('Menu', menu);
+
   return (
     <Card>
       <div className="space-y-3">
@@ -314,7 +318,7 @@ export function MenuExtractionPanel({ branchId, menu, locale }: Props) {
         {job?.status === 'APPROVED' ? (
           <div className="flex items-center gap-2 rounded-3xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-bold text-emerald-800">
             <Sparkles className="size-4" />
-            {t('extractionApprovedFor', { menu: textForLocale(menu?.name, locale) || commonT('wasla') })}
+            {t('extractionApprovedFor', { menu: textForLocale(branchName, locale) || commonT('wasla') })}
           </div>
         ) : null}
       </div>
