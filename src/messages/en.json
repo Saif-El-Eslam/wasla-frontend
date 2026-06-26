@@ -61,6 +61,8 @@
     "qr": "QR",
     "branches": "Branches",
     "branch": "Branch",
+    "item": "Item",
+    "category": "Category",
     "analytics": "Analytics",
     "settings": "Settings",
     "publicPreview": "Public preview",
@@ -275,7 +277,9 @@
     "extractedSummary": "{categories} categories - {items} items extracted",
     "confidenceScore": "{score}% confidence",
     "approveExtraction": "Approve extraction",
+    "approvingExtraction": "Approving extraction...",
     "rejectExtraction": "Reject extraction",
+    "rejectingExtraction": "Rejecting extraction...",
     "extractionApprovedFor": "Extraction approved for {menu}.",
     "extractionStatus": {
       "PENDING": "Pending",
@@ -297,6 +301,10 @@
     "hide": "Hide",
     "show": "Show",
     "extractionUsageSummary": "Extraction usage summary",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "reviewLastExtractedMenu": "Review last extracted menu",
+    "extractionDraft": "Extraction draft",
+    "prices": "Prices",
+    "back": "Back"
   }
 }

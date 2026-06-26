@@ -61,6 +61,8 @@
     "qr": "QR",
     "branches": "الفروع",
     "branch": "الفرع",
+    "item": "العنصر",
+    "category": "القسم",
     "analytics": "التحليلات",
     "settings": "الإعدادات",
     "publicPreview": "معاينة القائمة",
@@ -275,7 +277,9 @@
     "extractedSummary": "{categories} فئات - {items} عناصر استخراجتة",
     "confidenceScore": "{score}% نسبة الثقة",
     "approveExtraction": "قبول استخراج",
+    "approvingExtraction": "جار قبول الاستخراج...",
     "rejectExtraction": "رفض استخراج",
+    "rejectingExtraction": "جار رفض الاستخراج...",
     "extractionApprovedFor": "استخراج موافق على {menu}.",
     "extractionStatus": {
       "PENDING": "قيد الانتظار",
@@ -297,6 +301,10 @@
     "hide": "اخفاء",
     "show": "اظهار",
     "extractionUsageSummary": "ملخص استخراج القائمة",
-    "loading": "جار التحميل..."
+    "loading": "جار التحميل...",
+    "reviewLastExtractedMenu": "مراجعة القائمة المستخرجة الاخيرة",
+    "extractionDraft": "مسودة استخراج القائمة",
+    "prices": "الأسعار",
+    "back": "رجوع"
   }
 }

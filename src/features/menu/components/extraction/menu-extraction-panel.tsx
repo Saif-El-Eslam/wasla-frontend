@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Sparkles, ImagePlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -45,6 +45,8 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
   const t = useTranslations('dashboard');
   const commonT = useTranslations('common');
   const queryClient = useQueryClient();
+  const formRef = useRef<HTMLDivElement>(null);
+
   const [files, setFiles] = useState<File[]>([]);
   const [activeJobId, setActiveJobId] = useState<string | undefined>();
   const latestJob = useLatestExtractionJob(branchId);
@@ -53,6 +55,9 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
   const job = data?.job ?? null;
   const limits = data?.limits ?? latestJob.data?.limits;
   const [draftState, setDraftState] = useState<{ jobId: string; value: ExtractedMenu } | null>(null);
+  const [dismissedJobId, setDismissedJobId] = useState<string | null>(null);
+  const [draftModalOpen, setDraftModalOpen] = useState(job?.status === 'COMPLETED');
+
   const draft = useMemo(() => {
     if (!job) {
       return null;
@@ -65,7 +70,11 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
     return job.extractedMenu ? cloneExtractedMenu(job.extractedMenu) : null;
   }, [draftState, job]);
 
-  const canUpload = files.length > 0 && (!limits || files.length <= limits.maxImages);
+  const hasPendingCompletedExtraction = Boolean(draft && job?.status === 'COMPLETED');
+  const shouldAutoOpenDraft = hasPendingCompletedExtraction && dismissedJobId !== job?.id;
+  console.log('JOB', job);
+  const canUpload =
+    limits?.remainingThisMonth || (files.length > 0 && (!limits || files.length <= limits.maxImages));
   const isBusy = job?.status === 'PENDING' || job?.status === 'PROCESSING';
   const itemCount = useMemo(
     () => draft?.categories.reduce((sum, category) => sum + category.items.length, 0) ?? 0,
@@ -106,6 +115,9 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
       return api.approveExtraction(branchId, job.id, draft ?? undefined);
     },
     onSuccess: ({ menu: updatedMenu }) => {
+      setDraftModalOpen(false);
+      setDraftState(null);
+
       replaceCachedMenu(queryClient, branchId, updatedMenu);
       queryClient.invalidateQueries({ queryKey: queryKeys.branchMenu(branchId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.extraction(branchId, 'latest') });
@@ -123,6 +135,9 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
     onSuccess: (result) => {
       setDraftState(null);
       if (result.job) {
+        setDraftModalOpen(false);
+        setDraftState(null);
+
         queryClient.setQueryData([...queryKeys.extraction(branchId, 'latest'), locale], result);
         queryClient.setQueryData(
           [...queryKeys.extraction(branchId, 'current', result.job.id), locale],
@@ -154,6 +169,152 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
     });
   };
 
+  const addCategory = () => {
+    updateDraft((current) => ({
+      ...current,
+      categories: [
+        ...current.categories,
+        {
+          name: { en: '', ar: '' },
+          active: true,
+          items: [],
+        },
+      ],
+    }));
+  };
+
+  const removeCategory = (categoryIndex: number) => {
+    updateDraft((current) => ({
+      ...current,
+      categories: current.categories.filter((_, index) => index !== categoryIndex),
+    }));
+  };
+
+  const addItem = (categoryIndex: number) => {
+    updateDraft((current) => {
+      const categories = [...current.categories];
+      const category = categories[categoryIndex];
+
+      categories[categoryIndex] = {
+        ...category,
+        items: [
+          ...category.items,
+          {
+            name: { en: '', ar: '' },
+            description: { en: '', ar: '' },
+            price: 0,
+            prices: [{ label: 'Regular', price: 0 }],
+            available: true,
+            tags: [],
+          },
+        ],
+      };
+
+      return { ...current, categories };
+    });
+  };
+
+  const removeItem = (categoryIndex: number, itemIndex: number) => {
+    updateDraft((current) => {
+      const categories = [...current.categories];
+      const category = categories[categoryIndex];
+
+      categories[categoryIndex] = {
+        ...category,
+        items: category.items.filter((_, index) => index !== itemIndex),
+      };
+
+      return { ...current, categories };
+    });
+  };
+
+  const addItemPrice = (categoryIndex: number, itemIndex: number) => {
+    updateDraft((current) => {
+      const categories = [...current.categories];
+      const category = categories[categoryIndex];
+      const items = [...category.items];
+      const item = items[itemIndex];
+
+      const prices =
+        item.prices && item.prices.length > 0
+          ? [...item.prices]
+          : [{ label: 'Regular', price: item.price ?? 0 }];
+
+      items[itemIndex] = {
+        ...item,
+        prices: [...prices, { label: 'Regular', price: 0 }],
+      };
+
+      categories[categoryIndex] = { ...category, items };
+
+      return { ...current, categories };
+    });
+  };
+
+  const removeItemPrice = (categoryIndex: number, itemIndex: number, priceIndex: number) => {
+    updateDraft((current) => {
+      const categories = [...current.categories];
+      const category = categories[categoryIndex];
+      const items = [...category.items];
+      const item = items[itemIndex];
+
+      const prices = (item.prices ?? []).filter((_, index) => index !== priceIndex);
+
+      items[itemIndex] = {
+        ...item,
+        price: prices[0]?.price ?? 0,
+        prices,
+      };
+
+      categories[categoryIndex] = { ...category, items };
+
+      return { ...current, categories };
+    });
+  };
+
+  const updateItemPrice = (
+    categoryIndex: number,
+    itemIndex: number,
+    value: string,
+    priceIndex = 0,
+    field: 'price' | 'label' = 'price',
+  ) => {
+    updateDraft((current) => {
+      const categories = [...current.categories];
+      const category = categories[categoryIndex];
+      const items = [...category.items];
+      const item = items[itemIndex];
+
+      const prices =
+        item.prices && item.prices.length > 0
+          ? [...item.prices]
+          : [{ label: 'Regular', price: item.price ?? 0 }];
+
+      const currentPrice = prices[priceIndex] ?? { label: 'Regular', price: 0 };
+
+      prices[priceIndex] =
+        field === 'price'
+          ? {
+              ...currentPrice,
+              price: Number.isFinite(Number(value)) ? Number(value) : 0,
+            }
+          : {
+              ...currentPrice,
+              label: value,
+            };
+
+      items[itemIndex] = {
+        ...item,
+        price: prices[0]?.price ?? 0,
+        prices,
+      };
+
+      categories[categoryIndex] = { ...category, items };
+
+      return { ...current, categories };
+    });
+  };
+
   const updateItem = (
     categoryIndex: number,
     itemIndex: number,
@@ -179,27 +340,37 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
     });
   };
 
-  const updateItemPrice = (categoryIndex: number, itemIndex: number, value: string) => {
-    updateDraft((current) => {
-      const categories = [...current.categories];
-      const category = categories[categoryIndex];
-      const items = [...category.items];
-      const item = items[itemIndex];
-      const numericValue = Number(value);
-      const price = Number.isFinite(numericValue) ? numericValue : 0;
-      items[itemIndex] = item.prices?.length
-        ? { ...item, prices: item.prices.map((row, index) => (index === 0 ? { ...row, price } : row)) }
-        : { ...item, price };
-      categories[categoryIndex] = { ...category, items };
+  useEffect(() => {
+    if (shouldAutoOpenDraft) {
+      setDraftModalOpen(true);
+    }
+  }, [shouldAutoOpenDraft]);
 
-      return { ...current, categories };
-    });
+  const onClose = () => {
+    setDraftModalOpen(false);
+    if (job) {
+      setDismissedJobId(job.id);
+    }
   };
+
+  useEffect(() => {
+    const handleOutsideClick = (event: PointerEvent) => {
+      if (!formRef.current) return;
+
+      if (!formRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('pointerdown', handleOutsideClick);
+
+    return () => {
+      document.removeEventListener('pointerdown', handleOutsideClick);
+    };
+  }, [onClose]);
 
   const selectedFileLabel =
     files.length > 0 ? t('selectedImages', { count: files.length }) : t('noImagesSelected');
-
-  console.log('Menu', menu);
 
   return (
     <Card>
@@ -239,7 +410,13 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
 
         <div className="grid gap-3 lg:grid-cols-[1fr] items-end sm:items-center">
           <div>
-            <div className="relative border-2 border-dashed border-stone-200 rounded-3xl p-4 text-center hover:border-teal-300 hover:bg-teal-50/30 transition-colors cursor-pointer group">
+            <div
+              className={`relative border-2 border-dashed border-stone-200 rounded-3xl p-4 text-center ${
+                !canUpload || isBusy || (limits && files.length >= limits.maxImages)
+                  ? ''
+                  : 'hover:border-teal-300 hover:bg-teal-50/30 transition-colors cursor-pointer group'
+              }`}
+            >
               <ImagePlus
                 size={20}
                 className="mx-auto text-stone-300 group-hover:text-teal-400 transition-colors mb-2"
@@ -253,6 +430,7 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
                 accept="image/png,image/jpeg,image/webp"
                 multiple
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                disabled={!canUpload || isBusy || (limits && files.length >= limits.maxImages)}
                 onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
               />
             </div>
@@ -299,20 +477,80 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
         ) : null}
 
         {draft && job?.status === 'COMPLETED' ? (
-          <MenuExtractionDraftForm
-            draft={draft}
-            itemCount={itemCount}
-            confidenceScore={job.confidenceScore}
-            onUpdateCategory={updateCategory}
-            onUpdateItem={updateItem}
-            onUpdateItemPrice={updateItemPrice}
-            onApprove={() => approveMutation.mutate()}
-            onReject={() => rejectMutation.mutate()}
-            approvePending={approveMutation.isPending}
-            rejectPending={rejectMutation.isPending}
-            approveError={approveMutation.error}
-            rejectError={rejectMutation.error}
-          />
+          <>
+            <button
+              type="button"
+              onClick={() => setDraftModalOpen(true)}
+              className="flex w-full items-center justify-between rounded-3xl border border-teal-200 bg-teal-50 p-4 text-start transition hover:bg-teal-100"
+            >
+              <div>
+                <p className="text-sm font-black text-teal-900">{t('reviewLastExtractedMenu')}</p>
+                <p className="mt-1 text-xs font-medium text-teal-700">
+                  {t('extractedSummary', {
+                    categories: draft.categories.length,
+                    items: itemCount,
+                  })}
+                </p>
+              </div>
+
+              <Badge tone="teal">
+                {job.confidenceScore !== null
+                  ? t('confidenceScore', {
+                      score: Math.round((job.confidenceScore ?? 0) * 100),
+                    })
+                  : t('pendingReview')}
+              </Badge>
+            </button>
+
+            {draftModalOpen ? (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+                <div className="max-h-[90vh] w-full max-w-6xl overflow-hidden rounded-[2rem] bg-white shadow-2xl">
+                  <div className="flex items-center justify-between border-b border-stone-100 py-8 px-4 sm:p-8">
+                    <div>
+                      <h3 className="text-lg font-black text-stone-950">{t('reviewLastExtractedMenu')}</h3>
+                      <p className="text-xs text-stone-500">
+                        {t('extractedSummary', {
+                          categories: draft.categories.length,
+                          items: itemCount,
+                        })}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="rounded-full border border-stone-200 px-4 py-2 text-xs font-bold text-stone-600 transition hover:bg-stone-50"
+                    >
+                      {t('back')}
+                    </button>
+                  </div>
+
+                  <div className="max-h-[calc(90vh-88px)] overflow-y-auto p-4 sm:p-8" ref={formRef}>
+                    <MenuExtractionDraftForm
+                      draft={draft}
+                      itemCount={itemCount}
+                      confidenceScore={job.confidenceScore}
+                      onUpdateCategory={updateCategory}
+                      onUpdateItem={updateItem}
+                      onUpdateItemPrice={updateItemPrice}
+                      onAddCategory={addCategory}
+                      onRemoveCategory={removeCategory}
+                      onAddItem={addItem}
+                      onRemoveItem={removeItem}
+                      onAddItemPrice={addItemPrice}
+                      onRemoveItemPrice={removeItemPrice}
+                      onApprove={() => approveMutation.mutate()}
+                      onReject={() => rejectMutation.mutate()}
+                      approvePending={approveMutation.isPending}
+                      rejectPending={rejectMutation.isPending}
+                      approveError={approveMutation.error}
+                      rejectError={rejectMutation.error}
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </>
         ) : null}
 
         {job?.status === 'APPROVED' ? (
