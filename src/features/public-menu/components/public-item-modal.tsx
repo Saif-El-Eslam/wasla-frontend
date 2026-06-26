@@ -35,13 +35,17 @@ export function PublicItemModal({
         )}
         <div className="p-5">
           <div className="flex items-start justify-between gap-3">
-            <div>
+            <div className="flex-1">
               <h3 className="text-2xl font-black text-stone-950">{textForLocale(item.name, locale)}</h3>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
                 {textForLocale(item.description, locale) || t('noDescriptionProvided')}
               </p>
             </div>
-            <IconButton label={t('closeItem')} onClick={onClose}>
+            <IconButton
+              className="flex w-10 size-10 items-center justify-center rounded-2xl border border-border bg-white text-stone-600 transition hover:border-primary hover:text-primary disabled:opacity-50"
+              label={t('closeItem')}
+              onClick={onClose}
+            >
               <X className="size-4" />
             </IconButton>
           </div>
