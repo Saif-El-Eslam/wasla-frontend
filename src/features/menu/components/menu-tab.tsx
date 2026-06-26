@@ -17,8 +17,8 @@ import {
 import { readError, toLocalized, type LocalizedDraft } from '@/features/dashboard/utils/dashboard-utils';
 import { FormInput } from '@/components/ui/form-input';
 import { ConfirmationModal } from '@/components/ui/confirmation-modal';
-import { MenuExtractionPanel } from './menu-extraction-panel';
-import { MenuItemsSection } from './menu-items-section';
+import { MenuExtractionPanel } from './extraction/menu-extraction-panel';
+import { MenuItemsSection } from './items/menu-items-section';
 import { useBranchMenu, useBranchOptions } from '@/features/venue/hooks/use-venue';
 import {
   addCachedCategory,

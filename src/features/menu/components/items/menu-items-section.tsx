@@ -8,7 +8,7 @@ import { Edit3, Eye, EyeOff, ImageIcon, MoreVertical, Plus, Trash2 } from 'lucid
 import { textForLocale } from '@/lib/localized-text';
 import type { Menu, MenuCategory, MenuItem } from '@/lib/api';
 import { MenuItemForm } from './menu-item-form';
-import { MenuCategoryForm } from './menu-category-form';
+import { MenuCategoryForm } from '../categories/menu-category-form';
 import type { UseFormReturn } from 'react-hook-form';
 import type {
   CategoryFormInput,
@@ -16,7 +16,7 @@ import type {
   ItemFormInput,
   ItemFormValues,
 } from '@/features/menu/schemas/menu.schema';
-import { MenuCategoryHeader } from '@/features/menu/components/menu-category-header';
+import { MenuCategoryHeader } from '@/features/menu/components/categories/menu-category-header';
 import { ItemPrices } from '@/components/ui/item-prices';
 
 export function MenuItemsSection({
