@@ -2,23 +2,16 @@
 
 import { useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2, RefreshCw, Sparkles, Upload, XCircle, ImagePlus } from 'lucide-react';
+import { Sparkles, ImagePlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { api, type ExtractedMenu, type Menu } from '@/lib/api';
-import {
-  Badge,
-  Card,
-  PrimaryButton,
-  SecondaryButton,
-  SectionTitle,
-  TabLoader,
-  cx,
-} from '@/components/ui/dashboard-ui';
+import { Badge, Card, SecondaryButton, SectionTitle, TabLoader } from '@/components/ui/dashboard-ui';
 import { readError } from '@/features/dashboard/utils/dashboard-utils';
 import { replaceCachedMenu } from '@/features/menu/cache/menu-cache';
 import { useExtractionJob, useLatestExtractionJob } from '@/features/venue/hooks/use-venue';
 import { queryKeys } from '@/lib/api/query-keys';
 import { textForLocale } from '@/lib/localized-text';
+import { MenuExtractionDraftForm } from './menu-extraction-draft-form';
 
 type Props = {
   branchId: string;
@@ -309,142 +302,21 @@ export function MenuExtractionPanel({ branchId, menu, locale }: Props) {
         ) : null}
 
         {draft && job?.status === 'COMPLETED' ? (
-          <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge tone="teal">
-                {t('extractedSummary', { categories: draft.categories.length, items: itemCount })}
-              </Badge>
-              {job.confidenceScore !== null ? (
-                <Badge tone="muted">
-                  {t('confidenceScore', { score: Math.round(job.confidenceScore * 100) })}
-                </Badge>
-              ) : null}
-            </div>
-
-            {draft.warnings.length > 0 ? (
-              <div className="rounded-3xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
-                {draft.warnings.join(' ')}
-              </div>
-            ) : null}
-
-            <div className="grid gap-2 sm:grid-cols-2">
-              <input
-                value={draft.menu.name.en ?? ''}
-                onChange={(event) => updateMenuName('en', event.target.value)}
-                className="h-11 rounded-3xl border border-border bg-white px-3 text-xs outline-none focus:border-primary"
-                placeholder={t('menuNameInEnglish')}
-              />
-              <input
-                value={draft.menu.name.ar ?? ''}
-                onChange={(event) => updateMenuName('ar', event.target.value)}
-                className="h-11 rounded-3xl border border-border bg-white px-3 text-xs outline-none focus:border-primary"
-                placeholder={t('menuNameInArabic')}
-              />
-            </div>
-
-            <div className="space-y-3">
-              {draft.categories.map((category, categoryIndex) => (
-                <div
-                  key={`${category.name.en}-${categoryIndex}`}
-                  className="rounded-3xl border border-border bg-stone-50 p-3"
-                >
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    <input
-                      value={category.name.en ?? ''}
-                      onChange={(event) => updateCategory(categoryIndex, 'en', event.target.value)}
-                      className="h-10 rounded-3xl border border-border bg-white px-3 text-xs outline-none focus:border-primary"
-                      placeholder={t('categoryNameInEnglish')}
-                    />
-                    <input
-                      value={category.name.ar ?? ''}
-                      onChange={(event) => updateCategory(categoryIndex, 'ar', event.target.value)}
-                      className="h-10 rounded-3xl border border-border bg-white px-3 text-xs outline-none focus:border-primary"
-                      placeholder={t('categoryNameInArabic')}
-                    />
-                  </div>
-                  <div className="mt-3 space-y-2">
-                    {category.items.map((item, itemIndex) => {
-                      const firstPrice = item.prices?.[0]?.price ?? item.price ?? '';
-
-                      return (
-                        <div
-                          key={`${item.name.en}-${itemIndex}`}
-                          className="grid gap-2 rounded-3xl border border-border bg-white p-2 lg:grid-cols-[minmax(0,1fr)_110px]"
-                        >
-                          <div className="grid min-w-0 gap-2 sm:grid-cols-2">
-                            <input
-                              value={item.name.en ?? ''}
-                              onChange={(event) =>
-                                updateItem(categoryIndex, itemIndex, 'name', 'en', event.target.value)
-                              }
-                              className="h-10 rounded-3xl border border-border bg-white px-3 text-xs outline-none focus:border-primary"
-                              placeholder={t('itemNameInEnglish')}
-                            />
-                            <input
-                              value={item.name.ar ?? ''}
-                              onChange={(event) =>
-                                updateItem(categoryIndex, itemIndex, 'name', 'ar', event.target.value)
-                              }
-                              className="h-10 rounded-3xl border border-border bg-white px-3 text-xs outline-none focus:border-primary"
-                              placeholder={t('itemNameInArabic')}
-                            />
-                            <input
-                              value={item.description?.en ?? ''}
-                              onChange={(event) =>
-                                updateItem(categoryIndex, itemIndex, 'description', 'en', event.target.value)
-                              }
-                              className="h-10 rounded-3xl border border-border bg-white px-3 text-xs outline-none focus:border-primary"
-                              placeholder={t('descriptionInEnglish')}
-                            />
-                            <input
-                              value={item.description?.ar ?? ''}
-                              onChange={(event) =>
-                                updateItem(categoryIndex, itemIndex, 'description', 'ar', event.target.value)
-                              }
-                              className="h-10 rounded-3xl border border-border bg-white px-3 text-xs outline-none focus:border-primary"
-                              placeholder={t('descriptionInArabic')}
-                            />
-                          </div>
-                          <input
-                            value={String(firstPrice)}
-                            onChange={(event) =>
-                              updateItemPrice(categoryIndex, itemIndex, event.target.value)
-                            }
-                            className="h-10 rounded-3xl border border-border bg-white px-3 text-xs outline-none focus:border-primary"
-                            placeholder={t('price')}
-                            inputMode="decimal"
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-              <button
-                className={cx(
-                  'inline-flex h-11 items-center justify-center gap-2 rounded-3xl border border-red-200 bg-red-50 px-4 text-xs font-bold text-red-700 transition hover:bg-red-100',
-                )}
-                onClick={() => rejectMutation.mutate()}
-                disabled={rejectMutation.isPending}
-              >
-                <XCircle className="size-4" />
-                {t('rejectExtraction')}
-              </button>
-              <PrimaryButton onClick={() => approveMutation.mutate()} disabled={approveMutation.isPending}>
-                <CheckCircle2 className="size-4" />
-                {t('approveExtraction')}
-              </PrimaryButton>
-            </div>
-            {approveMutation.error ? (
-              <p className="text-xs text-red-700">{readError(approveMutation.error)}</p>
-            ) : null}
-            {rejectMutation.error ? (
-              <p className="text-xs text-red-700">{readError(rejectMutation.error)}</p>
-            ) : null}
-          </div>
+          <MenuExtractionDraftForm
+            draft={draft}
+            itemCount={itemCount}
+            confidenceScore={job.confidenceScore}
+            onUpdateMenuName={updateMenuName}
+            onUpdateCategory={updateCategory}
+            onUpdateItem={updateItem}
+            onUpdateItemPrice={updateItemPrice}
+            onApprove={() => approveMutation.mutate()}
+            onReject={() => rejectMutation.mutate()}
+            approvePending={approveMutation.isPending}
+            rejectPending={rejectMutation.isPending}
+            approveError={approveMutation.error}
+            rejectError={rejectMutation.error}
+          />
         ) : null}
 
         {job?.status === 'APPROVED' ? (
