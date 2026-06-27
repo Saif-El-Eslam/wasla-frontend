@@ -29,7 +29,7 @@ export function FormInput<T extends FieldValues>({
   dir,
   inputMode,
 }: FormInputProps<T>) {
-  const [showPassword, setShowPassword] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
   const error = name.split('.').reduce<any>((acc, key) => acc?.[key], errors);
 
   const isPassword = type === 'password';

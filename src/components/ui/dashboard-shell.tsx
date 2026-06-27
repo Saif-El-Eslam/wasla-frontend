@@ -13,7 +13,6 @@ import {
 import { useTranslations } from 'next-intl';
 import type { DashboardTab } from '@/features/dashboard/types/dashboard-types';
 import { cx } from './cx';
-import { IconButton } from './icon-button';
 
 const navItems: Array<{
   id: DashboardTab;
