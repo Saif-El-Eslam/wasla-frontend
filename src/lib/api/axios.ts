@@ -1,5 +1,6 @@
 import axios, { AxiosError, type AxiosRequestConfig, type Method } from 'axios';
 import type { ApiEnvelope } from './types';
+import { currentBrowserLocale } from '@/lib/i18n/locale-detection';
 
 export class ApiError extends Error {
   constructor(
@@ -14,11 +15,7 @@ export class ApiError extends Error {
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
 
 function currentLocale() {
-  if (typeof window === 'undefined') {
-    return 'en';
-  }
-
-  return window.location.pathname.split('/').filter(Boolean)[0] === 'ar' ? 'ar' : 'en';
+  return currentBrowserLocale();
 }
 
 export const axiosClient = axios.create({
@@ -41,7 +38,7 @@ axiosClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401 && typeof window !== 'undefined' && !isRedirectingToLogin) {
       isRedirectingToLogin = true;
-      window.location.href = '/en/login';
+      window.location.href = `/${currentBrowserLocale()}/login`;
     }
 
     return Promise.reject(error);

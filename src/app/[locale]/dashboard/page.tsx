@@ -11,7 +11,7 @@ import { BranchesTab } from '@/features/branches/components/branches-tab';
 import { Badge, Card, DashboardShell, PrimaryButton, type DashboardTab } from '@/components/ui/dashboard-ui';
 import { MenuTab } from '@/features/menu/components/menu-tab';
 import { OverviewTab } from '@/features/home/components/overview-tab';
-// import { PublicPreview } from '@/features/public-menu/components/public-preview';
+// import { PublicPreview } from '@/features/public/menu/components/menu/public-preview';
 import { QrTab } from '@/features/qr/components/qr-tab';
 import { SettingsTab } from '@/features/settings/components/settings-tab';
 import { useMe } from '@/features/auth/hooks/use-me';

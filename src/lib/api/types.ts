@@ -105,6 +105,59 @@ export type BranchManagementResponse = {
   branches: BranchManagement[];
 };
 
+export type PublicBranch = Omit<Branch, 'menu'> & {
+  menuId: string | null;
+  publishedAt: string | null;
+  stats: {
+    categories: number;
+    items: number;
+  };
+};
+
+export type PublicVenue = Omit<Venue, 'branches'> & {
+  branchCount: number;
+  branches: PublicBranch[];
+};
+
+export type PublicVenueListResponse = {
+  venues: PublicVenue[];
+  pagination: PaginationMeta;
+  filters: {
+    search: string;
+    type: string | null;
+  };
+};
+
+export type PublicVenueResponse = {
+  venue: PublicVenue;
+  branches: PublicBranch[];
+};
+
+export type PublicBranchMenuResponse = {
+  venue: Venue;
+  branch: Omit<Branch, 'menu'>;
+  menu: Menu | null;
+};
+
+export type PublicAnalyticsEventType =
+  | 'VENUE_VIEW'
+  | 'MENU_VIEW'
+  | 'CATEGORY_VIEW'
+  | 'QR_SCAN'
+  | 'WHATSAPP_CLICK'
+  | 'CALL_CLICK'
+  | 'MAPS_CLICK'
+  | 'ITEM_VIEW';
+
+export type PublicAnalyticsEventInput = {
+  eventType: PublicAnalyticsEventType;
+  venueId: string;
+  branchId?: string;
+  menuId?: string;
+  categoryId?: string;
+  itemId?: string;
+};
+
 export type AssignedBranch = Pick<Branch, 'id' | 'name' | 'slug' | 'isMain' | 'active'>;
 
 export type VenueUser = {
@@ -281,6 +334,8 @@ export type Venue = {
   type: string;
   name: LocalizedValue;
   slug: string;
+  logoUrl?: string | null;
+  coverUrl?: string | null;
   description: LocalizedValue | null;
   defaultLocale: string;
   supportedLocales: string[];
@@ -289,6 +344,8 @@ export type Venue = {
   phone: string | null;
   whatsapp: string | null;
   address: LocalizedValue | null;
+  googleMapsUrl?: string | null;
+  instagramUrl?: string | null;
   branches?: Branch[];
 };
 
@@ -317,7 +374,7 @@ export type ListQueryOptions = {
 };
 
 export type BranchQrResponse = {
-  branch: Pick<Branch, 'id' | 'name' | 'slug' | 'phone'>;
+  branch: Pick<Branch, 'id' | 'name' | 'slug' | 'phone'> & { venueSlug: string | null };
   menu: Pick<Menu, 'id' | 'publishedAt' | 'qrCode' | 'analytics'> | null;
 };
 
@@ -325,7 +382,7 @@ export type AnalyticsSummary = {
   period: '7d' | '30d';
   branchId: string | null;
   metrics: Record<
-    'views' | 'scans' | 'whatsapp' | 'calls' | 'maps',
+    'venueViews' | 'views' | 'categoryViews' | 'itemViews' | 'scans' | 'whatsapp' | 'calls' | 'maps',
     {
       current: number;
       previous: number;

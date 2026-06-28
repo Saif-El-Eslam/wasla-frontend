@@ -44,7 +44,7 @@ import {
   type MenuFormInput,
   type MenuFormValues,
 } from '@/features/menu/schemas/menu.schema';
-import { PublicPreview } from '@/features/public-menu/components/public-preview';
+import { PublicPreview } from '@/features/public/menu/components/menu/public-preview';
 
 const emptyLocalizedDraft: LocalizedDraft = { en: '', ar: '' };
 

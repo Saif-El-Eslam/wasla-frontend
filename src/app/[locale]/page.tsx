@@ -1,6 +1,6 @@
-import { redirect } from 'next/navigation';
+import { PublicLandingPage } from '@/features/public/menu/components/venue/public-landing-page';
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  redirect(`/${locale}/dashboard`);
+  return <PublicLandingPage locale={locale === 'ar' ? 'ar' : 'en'} />;
 }

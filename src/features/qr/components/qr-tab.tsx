@@ -43,6 +43,10 @@ export function QrTab({
   const qrQuery = useBranchQr(effectiveBranchId);
   const branch = qrQuery.data?.branch;
   const menu = qrQuery.data?.menu ?? null;
+  const publicUrl =
+    branch?.venueSlug && branch.slug
+      ? `/${locale}/venues/${branch.venueSlug}/${branch.slug}/menu`
+      : menu?.qrCode?.targetUrl ?? `/m/${menu?.qrCode?.shortCode ?? t('pending')}`;
 
   useEffect(() => {
     if (initialBranchId) {
@@ -166,7 +170,7 @@ export function QrTab({
                   {t('publicUrl')}
                 </p>
                 <p className="mt-1 truncate text-sm font-black text-stone-900">
-                  {menu.qrCode?.targetUrl ?? `/m/${menu.qrCode?.shortCode ?? t('pending')}`}
+                  {publicUrl}
                 </p>
               </div>
             </div>

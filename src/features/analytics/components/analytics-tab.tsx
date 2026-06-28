@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowUpRight, Eye, MapPinned, MessageCircle, Phone, QrCode, TrendingUp } from 'lucide-react';
+import { ArrowUpRight, Building2, Eye, MapPinned, MessageCircle, Phone, QrCode, TrendingUp, UtensilsCrossed } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { BranchSelect, Card, SectionTitle, TabLoader, cx } from '@/components/ui/dashboard-ui';
 import { useAnalyticsSummary, useBranchOptions } from '@/features/venue/hooks/use-venue';
@@ -59,9 +59,11 @@ export function AnalyticsTab({
         </div>
       </SectionTitle>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-7">
         {[
+          { key: 'venueViews' as const, label: t('venue'), value: metrics?.venueViews.current ?? 0, change: metrics?.venueViews.change ?? 0, icon: Building2, tone: 'text-sky-700 bg-sky-50' },
           { key: 'views' as const, label: t('views'), value: metrics?.views.current ?? 0, change: metrics?.views.change ?? 0, icon: Eye, tone: 'text-teal-700 bg-teal-50' },
+          { key: 'itemViews' as const, label: t('items'), value: metrics?.itemViews.current ?? 0, change: metrics?.itemViews.change ?? 0, icon: UtensilsCrossed, tone: 'text-rose-700 bg-rose-50' },
           { key: 'scans' as const, label: t('qrScans'), value: metrics?.scans.current ?? 0, change: metrics?.scans.change ?? 0, icon: QrCode, tone: 'text-amber-700 bg-amber-50' },
           { key: 'whatsapp' as const, label: t('whatsappMetric'), value: metrics?.whatsapp.current ?? 0, change: metrics?.whatsapp.change ?? 0, icon: MessageCircle, tone: 'text-emerald-700 bg-emerald-50' },
           { key: 'calls' as const, label: t('calls'), value: metrics?.calls.current ?? 0, change: metrics?.calls.change ?? 0, icon: Phone, tone: 'text-stone-900 bg-stone-50' },
