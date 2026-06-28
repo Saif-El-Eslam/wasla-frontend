@@ -19,7 +19,7 @@ export function PublicCategoryNav({
   const commonT = useTranslations('common');
 
   return (
-    <div className="sticky top-[-16px] z-10 -mx-4 mt-6 overflow-x-auto border-y border-border bg-[#fafaf8]/95 px-4 py-3 backdrop-blur">
+    <div className="sticky top-0 z-10 -mx-4 mt-6 overflow-x-auto border-y border-border bg-[#fafaf8]/95 px-4 py-3 backdrop-blur">
       <div className="flex gap-2">
         <button
           className={cx(
