@@ -1,5 +1,6 @@
 import { publicMenuApi } from '@/features/public/menu/api/public-menu.api';
 import { PublicVenuesBrowser } from '@/features/public/menu/components/venue/public-venues-browser';
+import type { PublicVenueListResponse } from '@/lib/api';
 
 type SearchParams = {
   search?: string;
@@ -18,12 +19,33 @@ export default async function PublicVenuesPage({
   const resolvedLocale = locale === 'ar' ? 'ar' : 'en';
   const search = typeof query.search === 'string' ? query.search : '';
   const type = typeof query.type === 'string' ? query.type : 'ALL';
-  const initialData = await publicMenuApi.venues({
-    page: 1,
-    limit: 12,
-    search,
-    type,
-  });
+  let initialData: PublicVenueListResponse;
+
+  try {
+    initialData = await publicMenuApi.venues({
+      page: 1,
+      limit: 12,
+      search,
+      type,
+      locale: resolvedLocale,
+    });
+  } catch {
+    initialData = {
+      venues: [],
+      pagination: {
+        page: 1,
+        limit: 12,
+        total: 0,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
+      filters: {
+        search,
+        type: type === 'ALL' ? null : type,
+      },
+    };
+  }
 
   return (
     <PublicVenuesBrowser

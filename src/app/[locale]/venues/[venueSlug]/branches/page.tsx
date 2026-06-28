@@ -11,7 +11,7 @@ export default async function PublicBranchesPage({
   const resolvedLocale = locale === 'ar' ? 'ar' : 'en';
 
   try {
-    const data = await publicMenuApi.venue(venueSlug);
+    const data = await publicMenuApi.venue(venueSlug, resolvedLocale);
     return <PublicBranchesView venue={data.venue} branches={data.branches} locale={resolvedLocale} />;
   } catch {
     notFound();

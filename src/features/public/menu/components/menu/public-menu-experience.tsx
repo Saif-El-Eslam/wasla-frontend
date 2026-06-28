@@ -127,10 +127,10 @@ export function PublicMenuExperience({
 
   return (
     <div className="min-h-dvh bg-[#fafaf8]" dir={isRtl ? 'rtl' : 'ltr'}>
-      <div className="relative h-64 overflow-visible bg-stone-200">
+      <div className="relative h-[46dvh] min-h-80 overflow-visible bg-stone-200">
         <img src={coverUrl} alt="" className="absolute inset-0 size-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#fafaf8] via-transparent to-black/35" />
-        <div className="absolute inset-x-4 top-4 z-30 flex items-center justify-between gap-3">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_18%,rgba(251,191,36,0.22),transparent_26%),linear-gradient(0deg,#fafaf8,rgba(4,47,46,0.18),rgba(4,47,46,0.62))]" />
+        <div className="absolute inset-x-4 top-4 z-30 flex items-center justify-between gap-3 sm:inset-x-8 lg:inset-x-14 xl:inset-x-20">
           <div>
             {backHref ? (
               <Link
@@ -159,7 +159,7 @@ export function PublicMenuExperience({
         </div>
       </div>
 
-      <main className="mx-auto max-w-5xl px-4 pb-10 pt-14">
+      <main className="px-4 pb-12 pt-14 sm:px-8 lg:px-14 xl:px-20">
         <section className="text-center">
           <h1 className="text-3xl font-black text-stone-950">{venueName}</h1>
           <div className="mt-3 flex flex-wrap justify-center gap-2">
@@ -168,7 +168,7 @@ export function PublicMenuExperience({
               {branch?.active ? t('openNow') : t('inactive')}
             </Badge>
           </div>
-          <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">{description}</p>
+          <p className="mx-auto mt-3 max-w-3xl text-sm leading-7 text-muted-foreground">{description}</p>
           {address ? (
             <div className="mt-3 inline-flex items-center justify-center gap-2 rounded-full px-3 py-2 text-sm text-muted-foreground">
               <MapPin className="size-4 text-primary" />
@@ -177,7 +177,7 @@ export function PublicMenuExperience({
           ) : null}
         </section>
 
-        <div className="mx-auto mt-5 max-w-xl space-y-3">
+        <div className="mx-auto mt-5 max-w-3xl space-y-3">
           <PublicBranchActions branch={branch ?? venue} onIntent={(eventType) => track(eventType)} />
           {openingHours ? (
             <div className="mx-auto inline-flex w-fit items-center justify-center gap-2 rounded-full bg-stone-100 px-3 py-2 text-sm text-muted-foreground">
@@ -201,19 +201,21 @@ export function PublicMenuExperience({
               locale={locale}
               onChange={handleCategoryChange}
             />
-            <div className="mt-6 space-y-8">
+            <div className="mt-8 space-y-10">
               {visibleCategories.map((category) => {
                 const items = category.items.filter((item) => item.available);
 
                 return (
                   <section key={category.id}>
                     <div className="flex items-center justify-between gap-3">
-                      <h2 className="text-xl font-black text-stone-950">{textForLocale(category.name, locale)}</h2>
+                      <h2 className="text-xl font-black text-stone-950">
+                        {textForLocale(category.name, locale)}
+                      </h2>
                       <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-bold text-muted-foreground">
                         {t('itemCount', { count: items.length })}
                       </span>
                     </div>
-                    <div className="mt-3 grid gap-3">
+                    <div className="mt-3 grid gap-3 md:grid-cols-2">
                       {items.length ? (
                         items.map((item) => (
                           <PublicMenuItemCard

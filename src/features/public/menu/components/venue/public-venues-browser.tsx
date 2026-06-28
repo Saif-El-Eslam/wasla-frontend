@@ -36,7 +36,11 @@ function VenueCard({ venue, locale }: { venue: PublicVenue; locale: string }) {
       className="group block overflow-hidden rounded-2xl border border-border bg-white text-start shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
     >
       <div className="relative h-40 overflow-hidden bg-stone-100">
-        <img src={cover} alt="" className="size-full object-cover transition duration-300 group-hover:scale-105" />
+        <img
+          src={cover}
+          alt=""
+          className="size-full object-cover transition duration-300 group-hover:scale-105"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
         <div className="absolute bottom-3 start-3 flex flex-wrap gap-2">
           <span className="rounded-full bg-black/35 px-2.5 py-1 text-xs font-bold text-white backdrop-blur">
@@ -75,6 +79,47 @@ function VenueCard({ venue, locale }: { venue: PublicVenue; locale: string }) {
   );
 }
 
+function VenueCardSkeleton() {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
+      <div className="wasla-venue-skeleton h-40" />
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="wasla-venue-skeleton h-5 w-2/3 rounded-full" />
+            <div className="wasla-venue-skeleton mt-3 h-3 w-full rounded-full" />
+            <div className="wasla-venue-skeleton mt-2 h-3 w-4/5 rounded-full" />
+          </div>
+          <div className="wasla-venue-skeleton h-7 w-12 rounded-lg" />
+        </div>
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <div className="wasla-venue-skeleton h-4 w-28 rounded-full" />
+          <div className="wasla-venue-skeleton h-4 w-20 rounded-full" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function VenueSearchActivity({ label }: { label: string }) {
+  return (
+    <div className="mb-4 overflow-hidden rounded-2xl border border-teal-100 bg-white shadow-sm">
+      <div className="flex items-center gap-3 px-4 py-3">
+        <div className="relative flex size-9 shrink-0 items-center justify-center rounded-xl bg-teal-50">
+          <Search className="size-4 text-teal-700" />
+          <span className="wasla-search-pulse absolute inset-0 rounded-xl border border-teal-300" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-sm font-black text-stone-900">{label}</div>
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-teal-50">
+            <span className="wasla-search-loader-line block h-full w-1/3 rounded-full bg-teal-500" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function PublicVenuesBrowser({
   initialData,
   locale,
@@ -91,6 +136,7 @@ export function PublicVenuesBrowser({
   const [search, setSearch] = useState(initialSearch);
   const [pages, setPages] = useState([initialData]);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const debouncedSearch = useDebounce(search.trim(), 350);
@@ -98,12 +144,15 @@ export function PublicVenuesBrowser({
   const lastRequestedRef = useRef(`${initialSearch.trim()}|${initialType || 'ALL'}`);
   const venues = pages.flatMap((page) => page.venues);
   const lastPage = pages[pages.length - 1];
+  const searchIsSettling = search.trim() !== throttledSearch;
+  const showSearchActivity = searchIsSettling || searchLoading;
 
   useEffect(() => {
     if (document.activeElement !== searchInputRef.current) {
       setSearch(initialSearch);
     }
     setPages([initialData]);
+    setSearchLoading(false);
     lastRequestedRef.current = `${initialSearch.trim()}|${initialType || 'ALL'}`;
   }, [initialData, initialSearch, initialType]);
 
@@ -124,6 +173,7 @@ export function PublicVenuesBrowser({
     }
 
     lastRequestedRef.current = nextSignature;
+    setSearchLoading(true);
     router.replace(`/${locale}/venues${params.toString() ? `?${params.toString()}` : ''}`, { scroll: false });
   }, [initialType, locale, router, throttledSearch]);
 
@@ -146,6 +196,7 @@ export function PublicVenuesBrowser({
           limit: lastPage.pagination.limit,
           search: initialSearch,
           type: initialType,
+          locale,
         })
         .then((nextPage) => setPages((current) => [...current, nextPage]))
         .finally(() => setLoadingMore(false));
@@ -153,7 +204,7 @@ export function PublicVenuesBrowser({
 
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [initialSearch, initialType, lastPage.pagination, loadingMore]);
+  }, [initialSearch, initialType, lastPage.pagination, loadingMore, locale]);
 
   const submitSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -165,79 +216,105 @@ export function PublicVenuesBrowser({
       params.set('type', initialType);
     }
     lastRequestedRef.current = `${search.trim()}|${initialType || 'ALL'}`;
+    setSearchLoading(true);
     router.push(`/${locale}/venues${params.toString() ? `?${params.toString()}` : ''}`);
   };
 
   return (
-    <main className="min-h-dvh bg-[#f8fafa] px-4 py-5">
-      <div className="mx-auto max-w-6xl">
-        <header className="mb-5 flex items-center justify-between gap-4">
-          <div>
-            <Link href={`/${locale}`} className="mb-1 flex w-fit items-center gap-2">
-              <div className="flex size-8 items-center justify-center rounded-xl bg-teal-600 text-sm font-black text-white">
-                W
+    <main className="min-h-dvh bg-[#f8fafa]">
+      <div className="w-full">
+        <section className="relative overflow-hidden bg-[#042f2e] text-white">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_18%,rgba(251,191,36,0.24),transparent_24%),radial-gradient(circle_at_16%_86%,rgba(45,212,191,0.22),transparent_28%)]" />
+          <header className="relative px-4 pb-4 pt-8 sm:px-8 lg:px-14 xl:px-20">
+            <div className="relative flex items-center justify-between gap-4">
+              <div className="flex flex-col gap-8">
+                <Link href={`/${locale}`} className="flex w-fit items-center gap-2">
+                  <div className="flex size-8 items-center justify-center rounded-xl bg-teal-600 text-sm font-black text-white">
+                    W
+                  </div>
+                  <span className="text-base font-black text-white">Wasla</span>
+                </Link>
+                <h1 className="text-4xl font-black text-white sm:text-5xl">{t('discoverVenues')}</h1>
               </div>
-              <span className="text-base font-black text-teal-700">Wasla</span>
-            </Link>
-            <h1 className="text-2xl font-black text-stone-950">{t('discoverVenues')}</h1>
-          </div>
-          <Link
-            href={`/${locale === 'ar' ? 'en' : 'ar'}/venues`}
-            className="inline-flex h-10 items-center rounded-xl border border-border bg-white px-3 text-xs font-black text-stone-700"
-          >
-            {locale === 'ar' ? 'EN' : 'AR'}
-          </Link>
-        </header>
-
-        <form onSubmit={submitSearch} className="relative">
-          <Search className="absolute start-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            ref={searchInputRef}
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder={t('venueBrowserSearchPlaceholder')}
-            className="h-12 w-full rounded-xl border border-border bg-white ps-10 pe-4 text-sm font-medium outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-500/20"
-          />
-        </form>
-
-        <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
-          {venueTypes.map((type) => {
-            const params = new URLSearchParams();
-            if (search.trim()) {
-              params.set('search', search.trim());
-            }
-            if (type !== 'ALL') {
-              params.set('type', type);
-            }
-            const active = (initialType || 'ALL') === type;
-
-            return (
               <Link
-                key={type}
-                href={`/${locale}/venues${params.toString() ? `?${params.toString()}` : ''}`}
-                className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-full px-4 text-xs font-black transition ${
-                  active ? 'bg-teal-600 text-white shadow-md' : 'border border-border bg-white text-stone-700'
-                }`}
+                href={`/${locale === 'ar' ? 'en' : 'ar'}/venues`}
+                className="inline-flex h-10 items-center rounded-xl border border-white/20 bg-white/10 px-3 text-xs font-black text-white backdrop-blur"
               >
-                <Filter className="size-3.5" />
-                {t(`venueTypes.${type}`)}
+                {locale === 'ar' ? 'EN' : 'AR'}
               </Link>
-            );
-          })}
-        </div>
+            </div>
+          </header>
 
-        <div className="mt-4 text-xs font-black uppercase tracking-[0.18em] text-muted-foreground">
-          {t('venuesCount', { count: lastPage.pagination.total })}
-        </div>
-        <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {venues.map((venue) => (
-            <VenueCard key={venue.id} venue={venue} locale={locale} />
-          ))}
-        </div>
+          <form onSubmit={submitSearch} className="relative px-4 pb-5 sm:px-8 lg:px-14 xl:px-20">
+            <Search className="absolute start-8 top-[1.25rem] size-4 text-teal-700 sm:start-12 lg:start-[4.5rem] xl:start-[5.5rem]" />
+            <input
+              ref={searchInputRef}
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder={t('venueBrowserSearchPlaceholder')}
+              className="h-14 w-full rounded-2xl border border-white/20 bg-white ps-11 pe-4 text-sm font-bold text-stone-900 shadow-2xl shadow-teal-950/20 outline-none transition focus:border-teal-300 focus:ring-4 focus:ring-teal-500/20"
+            />
+          </form>
 
-        <div ref={sentinelRef} className="h-16 py-6 text-center text-sm font-bold text-muted-foreground">
-          {loadingMore ? t('loadingMoreVenues') : lastPage.pagination.hasNextPage ? '' : t('endOfVenues')}
-        </div>
+          <div className="relative flex gap-2 overflow-x-auto px-4 pb-8 sm:px-8 lg:px-14 xl:px-20">
+            {venueTypes.map((type) => {
+              const params = new URLSearchParams();
+              if (search.trim()) {
+                params.set('search', search.trim());
+              }
+              if (type !== 'ALL') {
+                params.set('type', type);
+              }
+              const active = (initialType || 'ALL') === type;
+
+              return (
+                <Link
+                  key={type}
+                  href={`/${locale}/venues${params.toString() ? `?${params.toString()}` : ''}`}
+                  onClick={() => {
+                    if (!active) {
+                      setSearchLoading(true);
+                    }
+                  }}
+                  className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-full px-4 text-xs font-black transition ${
+                    active
+                      ? 'bg-teal-500 text-white shadow-md'
+                      : 'border border-white/20 bg-white/10 text-white backdrop-blur'
+                  }`}
+                >
+                  <Filter className="size-3.5" />
+                  {t(`venueTypes.${type}`)}
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="px-4 py-8 sm:px-8 lg:px-14 xl:px-20">
+          {showSearchActivity ? <VenueSearchActivity label={t('searchingVenues')} /> : null}
+          <div className="text-xs font-black uppercase tracking-[0.18em] text-muted-foreground">
+            {t('venuesCount', { count: lastPage.pagination.total })}
+          </div>
+          <div className="mt-3 grid gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+            {searchLoading
+              ? Array.from({ length: 6 }).map((_, index) => <VenueCardSkeleton key={index} />)
+              : venues.map((venue) => <VenueCard key={venue.id} venue={venue} locale={locale} />)}
+          </div>
+
+          <div ref={sentinelRef} className="h-16 py-6 text-center text-sm font-bold text-muted-foreground">
+            {loadingMore ? (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <VenueCardSkeleton key={index} />
+                ))}
+              </div>
+            ) : lastPage.pagination.hasNextPage ? (
+              ''
+            ) : (
+              t('endOfVenues')
+            )}
+          </div>
+        </section>
       </div>
     </main>
   );

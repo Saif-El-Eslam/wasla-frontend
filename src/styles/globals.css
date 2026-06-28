@@ -294,6 +294,353 @@ textarea:disabled,
   }
 }
 
+@keyframes wasla-orbit-spin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes wasla-hero-tile-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+
+  50% {
+    transform: translate3d(0, -18px, 0) rotate(1.5deg);
+  }
+}
+
+@keyframes wasla-owner-card-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes wasla-loader-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scaleX(0.94);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes wasla-loader-phone {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) rotate(-2deg) translateY(0);
+  }
+
+  50% {
+    transform: translate(-50%, -50%) rotate(2deg) translateY(-10px);
+  }
+}
+
+@keyframes wasla-loader-menu {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.76;
+  }
+
+  50% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+}
+
+@keyframes wasla-loader-scan {
+  0% {
+    top: 16%;
+    opacity: 0;
+  }
+
+  16%,
+  86% {
+    opacity: 1;
+  }
+
+  100% {
+    top: 72%;
+    opacity: 0;
+  }
+}
+
+@keyframes wasla-venue-skeleton {
+  0% {
+    background-position: 180% 0;
+  }
+
+  100% {
+    background-position: -80% 0;
+  }
+}
+
+@keyframes wasla-search-loader-line {
+  0% {
+    transform: translateX(-120%);
+  }
+
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+@keyframes wasla-search-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0;
+    transform: scale(1.42);
+  }
+}
+
+@keyframes wasla-dashboard-skeleton {
+  0% {
+    background-position: 180% 0;
+  }
+
+  100% {
+    background-position: -80% 0;
+  }
+}
+
+@keyframes wasla-dashboard-card-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes wasla-dashboard-chart {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scaleY(0.84);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes wasla-dashboard-dot {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.45);
+  }
+}
+
+.wasla-public-loader::after {
+  content: '';
+  position: absolute;
+  inset-inline: 15%;
+  bottom: 0;
+  height: 35%;
+  background: radial-gradient(ellipse, rgba(45, 212, 191, 0.22), transparent 70%);
+  filter: blur(18px);
+}
+
+.wasla-loader-copy {
+  animation: wasla-loader-pulse 1.8s ease-in-out infinite;
+  transform-origin: left center;
+}
+
+.wasla-loader-copy:nth-child(3) {
+  animation-delay: 180ms;
+}
+
+.wasla-loader-copy:nth-child(4) {
+  animation-delay: 360ms;
+}
+
+.wasla-loader-stage {
+  isolation: isolate;
+}
+
+.wasla-loader-stage::before {
+  content: '';
+  position: absolute;
+  inset: 12%;
+  z-index: -1;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  animation: wasla-orbit-spin 16s linear infinite;
+}
+
+.wasla-loader-phone {
+  animation: wasla-loader-phone 4.8s ease-in-out infinite;
+}
+
+.wasla-loader-menu-line {
+  animation: wasla-loader-menu 2.8s ease-in-out infinite;
+}
+
+.wasla-loader-menu-line-2 {
+  animation-delay: 220ms;
+}
+
+.wasla-loader-menu-line-3 {
+  animation-delay: 440ms;
+}
+
+.wasla-loader-scan {
+  animation: wasla-loader-scan 2s ease-in-out infinite;
+}
+
+.wasla-loader-chip-1 {
+  animation: wasla-chip-drift-a 4.5s ease-in-out infinite;
+}
+
+.wasla-loader-chip-2 {
+  animation: wasla-chip-drift-b 5s ease-in-out infinite;
+}
+
+.wasla-loader-chip-3 {
+  animation: wasla-chip-drift-c 4.2s ease-in-out infinite;
+}
+
+.wasla-venue-skeleton {
+  background: linear-gradient(100deg, #f1f5f4 0%, #dff8f3 34%, #fff7df 48%, #f1f5f4 68%, #f1f5f4 100%);
+  background-size: 240% 100%;
+  animation: wasla-venue-skeleton 1.55s ease-in-out infinite;
+}
+
+.wasla-search-loader-line {
+  animation: wasla-search-loader-line 1.15s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+}
+
+.wasla-search-pulse {
+  animation: wasla-search-pulse 1.35s ease-in-out infinite;
+}
+
+.wasla-dashboard-skeleton {
+  background: linear-gradient(100deg, #f1f5f4 0%, #dff8f3 34%, #fff7df 48%, #f1f5f4 68%, #f1f5f4 100%);
+  background-size: 240% 100%;
+  animation: wasla-dashboard-skeleton 1.65s ease-in-out infinite;
+}
+
+.wasla-dashboard-card-loader {
+  animation: wasla-dashboard-card-float 5.2s ease-in-out infinite;
+}
+
+.wasla-dashboard-card-loader-2 {
+  animation-delay: 240ms;
+}
+
+.wasla-dashboard-card-loader-3 {
+  animation-delay: 480ms;
+}
+
+.wasla-dashboard-card-loader-4 {
+  animation-delay: 720ms;
+}
+
+.wasla-dashboard-chart-bar {
+  animation: wasla-dashboard-chart 2.2s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.wasla-dashboard-dot {
+  animation: wasla-dashboard-dot 1.1s ease-in-out infinite;
+}
+
+.wasla-orbit {
+  animation: wasla-orbit-spin 18s linear infinite;
+}
+
+.wasla-orbit::before,
+.wasla-orbit::after {
+  content: '';
+  position: absolute;
+  border-radius: 999px;
+  background: #fbbf24;
+  box-shadow: 0 0 28px rgba(251, 191, 36, 0.7);
+}
+
+.wasla-orbit::before {
+  inset-block-start: -7px;
+  inset-inline-start: 50%;
+  width: 14px;
+  height: 14px;
+}
+
+.wasla-orbit::after {
+  inset-block-end: 28px;
+  inset-inline-end: 22px;
+  width: 10px;
+  height: 10px;
+  background: #2dd4bf;
+  box-shadow: 0 0 26px rgba(45, 212, 191, 0.68);
+}
+
+.wasla-hero-tile {
+  animation: wasla-hero-tile-float 5s ease-in-out infinite;
+  transition:
+    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    background-color 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+}
+
+.wasla-hero-tile:hover,
+.wasla-hero-tile:active {
+  border-color: rgba(255, 255, 255, 0.34);
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.wasla-hero-tile-2 {
+  animation-delay: 900ms;
+}
+
+.wasla-hero-tile-3 {
+  animation-delay: 1500ms;
+}
+
+.wasla-search-surface {
+  isolation: isolate;
+}
+
+.wasla-search-surface::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 18% 20%, rgba(45, 212, 191, 0.2), transparent 34%),
+    radial-gradient(circle at 92% 84%, rgba(251, 191, 36, 0.18), transparent 30%);
+  filter: blur(0);
+}
+
 .wasla-wow-stage::before {
   content: '';
   position: absolute;
@@ -316,6 +663,15 @@ textarea:disabled,
 
 .wasla-wow-phone {
   animation: wasla-phone-pop 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition:
+    transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.wasla-wow-phone:hover,
+.wasla-wow-phone:active {
+  box-shadow: 0 34px 80px rgba(0, 0, 0, 0.34);
+  transform: perspective(900px) rotateX(0deg) rotateY(-3deg) translateY(-8px) scale(1.02);
 }
 
 .wasla-menu-card {
@@ -336,6 +692,15 @@ textarea:disabled,
 
 .wasla-action-chip {
   will-change: transform;
+  transition:
+    filter 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.wasla-action-chip:hover,
+.wasla-action-chip:active {
+  filter: saturate(1.12);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.2);
 }
 
 .wasla-action-chip-1 {
@@ -384,10 +749,70 @@ textarea:disabled,
   box-shadow: 0 18px 36px rgba(15, 23, 42, 0.12);
 }
 
+.wasla-tilt-card:active {
+  transform: translateY(-2px) scale(0.99);
+}
+
+.wasla-owner-card {
+  animation: wasla-owner-card-float 5.4s ease-in-out infinite;
+}
+
+.wasla-owner-card-2 {
+  animation-delay: 450ms;
+}
+
+.wasla-owner-card-3 {
+  animation-delay: 900ms;
+}
+
+.wasla-owner-card-4 {
+  animation-delay: 1350ms;
+}
+
+@media (max-width: 639px) {
+  .wasla-wow-stage::before {
+    inset: 6px;
+  }
+
+  .wasla-wow-stage::after {
+    inset-inline: 4%;
+    bottom: 8px;
+  }
+
+  .wasla-wow-phone:hover,
+  .wasla-wow-phone:active {
+    transform: perspective(900px) rotateX(0deg) rotateY(-2deg) translateY(-5px) scale(1.01);
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .wasla-wow-stage::before {
+    inset: 12px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .wasla-fade-up,
   .wasla-float,
   .wasla-shimmer,
+  .wasla-orbit,
+  .wasla-hero-tile,
+  .wasla-loader-copy,
+  .wasla-loader-stage::before,
+  .wasla-loader-phone,
+  .wasla-loader-menu-line,
+  .wasla-loader-scan,
+  .wasla-loader-chip-1,
+  .wasla-loader-chip-2,
+  .wasla-loader-chip-3,
+  .wasla-venue-skeleton,
+  .wasla-search-loader-line,
+  .wasla-search-pulse,
+  .wasla-dashboard-skeleton,
+  .wasla-dashboard-card-loader,
+  .wasla-dashboard-chart-bar,
+  .wasla-dashboard-dot,
+  .wasla-owner-card,
   .wasla-wow-phone,
   .wasla-menu-card,
   .wasla-scan-line,
@@ -398,7 +823,10 @@ textarea:disabled,
   }
 
   .wasla-tilt-card,
-  .wasla-tilt-card:hover {
+  .wasla-tilt-card:hover,
+  .wasla-tilt-card:active,
+  .wasla-wow-phone:hover,
+  .wasla-wow-phone:active {
     transform: none;
   }
 }

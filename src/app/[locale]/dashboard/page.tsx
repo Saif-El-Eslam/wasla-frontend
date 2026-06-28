@@ -9,6 +9,7 @@ import { api } from '@/lib/api';
 import { AnalyticsTab } from '@/features/analytics/components/analytics-tab';
 import { BranchesTab } from '@/features/branches/components/branches-tab';
 import { Badge, Card, DashboardShell, PrimaryButton, type DashboardTab } from '@/components/ui/dashboard-ui';
+import { DashboardLoading } from '@/components/ui/dashboard-loading';
 import { MenuTab } from '@/features/menu/components/menu-tab';
 import { OverviewTab } from '@/features/home/components/overview-tab';
 // import { PublicPreview } from '@/features/public/menu/components/menu/public-preview';
@@ -46,14 +47,7 @@ export default function DashboardPage() {
   };
 
   if (me.isLoading || venue.isLoading) {
-    return (
-      <main className="grid min-h-dvh place-items-center bg-[#f8fafa] px-4">
-        <Card className="w-full max-w-sm text-center">
-          <div className="mx-auto size-10 animate-pulse rounded-2xl bg-teal-100" />
-          <p className="mt-3 text-sm font-bold text-muted-foreground">{t('loadingWorkspace')}</p>
-        </Card>
-      </main>
-    );
+    return <DashboardLoading />;
   }
 
   if (venue.isError) {

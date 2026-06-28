@@ -9,13 +9,28 @@ import { toQueryString } from '@/lib/api';
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
 
-async function publicApi<T>(path: string, init?: RequestInit): Promise<T> {
+function localeHeaders(locale?: string) {
+  const resolvedLocale = locale === 'ar' ? 'ar' : locale === 'en' ? 'en' : undefined;
+
+  return resolvedLocale
+    ? {
+        'x-locale': resolvedLocale,
+        'Accept-Language': resolvedLocale,
+      }
+    : {};
+}
+
+async function publicApi<T>(path: string, init?: RequestInit, locale?: string): Promise<T> {
+  const headers = new Headers(init?.headers);
+  headers.set('Content-Type', headers.get('Content-Type') ?? 'application/json');
+
+  for (const [key, value] of Object.entries(localeHeaders(locale))) {
+    headers.set(key, value);
+  }
+
   const response = await fetch(`${apiBaseUrl}${path}`, {
     ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(init?.headers ?? {}),
-    },
+    headers,
     cache: init?.cache ?? 'no-store',
   });
 
@@ -28,7 +43,7 @@ async function publicApi<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const publicMenuApi = {
-  venues: (params: { page?: number; limit?: number; search?: string; type?: string }) =>
+  venues: (params: { page?: number; limit?: number; search?: string; type?: string; locale?: string }) =>
     publicApi<PublicVenueListResponse>(
       `/public/venues${toQueryString({
         page: params.page ?? 1,
@@ -36,10 +51,17 @@ export const publicMenuApi = {
         search: params.search || undefined,
         type: params.type && params.type !== 'ALL' ? params.type : undefined,
       })}`,
+      undefined,
+      params.locale,
     ),
-  venue: (venueSlug: string) => publicApi<PublicVenueResponse>(`/public/venues/${venueSlug}`),
-  branchMenu: (venueSlug: string, branchSlug: string) =>
-    publicApi<PublicBranchMenuResponse>(`/public/venues/${venueSlug}/${branchSlug}/menu`),
+  venue: (venueSlug: string, locale?: string) =>
+    publicApi<PublicVenueResponse>(`/public/venues/${venueSlug}`, undefined, locale),
+  branchMenu: (venueSlug: string, branchSlug: string, locale?: string) =>
+    publicApi<PublicBranchMenuResponse>(
+      `/public/venues/${venueSlug}/${branchSlug}/menu`,
+      undefined,
+      locale,
+    ),
   track: (input: PublicAnalyticsEventInput) =>
     publicApi<{ tracked: boolean }>('/public/analytics', {
       method: 'POST',

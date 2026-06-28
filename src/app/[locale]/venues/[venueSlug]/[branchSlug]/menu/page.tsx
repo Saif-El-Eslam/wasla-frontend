@@ -12,8 +12,8 @@ export default async function PublicBranchMenuPage({
 
   try {
     const [menuData, venueData] = await Promise.all([
-      publicMenuApi.branchMenu(venueSlug, branchSlug),
-      publicMenuApi.venue(venueSlug),
+      publicMenuApi.branchMenu(venueSlug, branchSlug, resolvedLocale),
+      publicMenuApi.venue(venueSlug, resolvedLocale),
     ]);
     const nextLocale = resolvedLocale === 'ar' ? 'en' : 'ar';
 

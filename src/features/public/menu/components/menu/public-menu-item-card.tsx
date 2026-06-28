@@ -35,10 +35,10 @@ export function PublicMenuItemCard({
           onSelect(item);
         }
       }}
-      className="group flex w-full cursor-pointer flex-col gap-3 rounded-3xl border border-border bg-white p-3 text-start shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md sm:flex-row sm:items-center sm:p-4"
+      className="group flex w-full cursor-pointer flex-col gap-3 rounded-3xl border border-border bg-white p-3 text-start shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md sm:p-4 lg:flex-row lg:items-center"
     >
-      <div className="flex min-w-0 flex-1 gap-3">
-        <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-stone-100 sm:size-[76px]">
+      <div className="flex w-full min-w-0 flex-1 gap-3">
+        <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-stone-100 sm:size-24 lg:size-[76px]">
           {item.imageUrl ? (
             <img
               src={item.imageUrl}
@@ -51,7 +51,9 @@ export function PublicMenuItemCard({
         </div>
 
         <div className="min-w-0 flex-1 self-center">
-          <p className="truncate text-base font-black text-stone-950">{textForLocale(item.name, locale)}</p>
+          <p className="break-words text-base font-black leading-tight text-stone-950 sm:text-lg lg:truncate lg:text-base">
+            {textForLocale(item.name, locale)}
+          </p>
 
           <p className="mt-1 line-clamp-2 text-sm leading-6 text-muted-foreground">
             {textForLocale(item.description, locale) || t('tapForDetails')}
@@ -59,35 +61,9 @@ export function PublicMenuItemCard({
         </div>
       </div>
 
-      <ItemPrices prices={item.prices} currency={currency} noPriceText={t('noPrice')} />
-
-      {/* <div className="flex shrink-0 items-center justify-between gap-3 border-t border-border pt-3 sm:min-w-36 sm:flex-col sm:items-end sm:border-t-0 sm:pt-0">
-        {prices.length > 1 ? (
-          <div
-            className="flex max-w-full overflow-hidden rounded-full border border-border bg-stone-50 p-1"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {prices.map((price, index) => (
-              <button
-                key={`${price.label}-${index}`}
-                type="button"
-                onClick={() => setSelectedPriceIndex(index)}
-                className={`rounded-full px-3 py-1 text-xs font-bold transition ${
-                  selectedPriceIndex === index
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:bg-white hover:text-stone-900'
-                }`}
-              >
-                {price.label}
-              </button>
-            ))}
-          </div>
-        ) : null}
-
-        <p className="whitespace-nowrap text-lg font-black text-primary text-start">
-          {selectedPrice ? `${selectedPrice.price} ${currency}` : t('noPrice')}
-        </p>
-      </div> */}
+      <div className="w-full border-t border-border pt-3 lg:w-auto lg:max-w-[45%] lg:shrink-0 lg:border-t-0 lg:pt-0">
+        <ItemPrices prices={item.prices ?? []} currency={currency} noPriceText={t('noPrice')} />
+      </div>
     </article>
   );
 }

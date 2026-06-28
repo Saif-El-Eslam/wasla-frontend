@@ -31,10 +31,10 @@ export function PublicBranchesView({
 
   return (
     <main className="min-h-dvh bg-[#f8fafa]" dir={isRtl ? 'rtl' : 'ltr'}>
-      <section className="relative h-56 overflow-hidden bg-stone-200">
+      <section className="relative h-[46dvh] min-h-80 overflow-hidden bg-stone-200">
         <img src={cover} alt="" className="absolute inset-0 size-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/65 to-black/10" />
-        <div className="absolute inset-x-4 top-4 flex items-center justify-between">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_86%_20%,rgba(251,191,36,0.22),transparent_26%),linear-gradient(0deg,rgba(4,47,46,0.84),rgba(4,47,46,0.18))]" />
+        <div className="absolute inset-x-4 top-4 flex items-center justify-between sm:inset-x-8 lg:inset-x-14 xl:inset-x-20">
           <Link
             href={`/${locale}/venues`}
             className="inline-flex h-10 items-center gap-1 rounded-full bg-black/40 px-3 text-xs font-black text-white backdrop-blur"
@@ -49,12 +49,12 @@ export function PublicBranchesView({
             {locale === 'ar' ? 'EN' : 'AR'}
           </Link>
         </div>
-        <div className="absolute bottom-5 start-4 flex items-center gap-3">
+        <div className="absolute bottom-8 start-4 flex items-center gap-4 sm:start-8 lg:start-14 xl:start-20">
           <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border-4 border-white bg-teal-600 text-2xl font-black text-white shadow-lg">
             {venue.logoUrl ? <img src={venue.logoUrl} alt="" className="size-full object-cover" /> : venueName.charAt(0)}
           </div>
           <div>
-            <h1 className="text-2xl font-black text-white">{venueName}</h1>
+            <h1 className="text-4xl font-black text-white sm:text-6xl">{venueName}</h1>
             <span className="mt-1 inline-flex rounded-full bg-black/35 px-2.5 py-1 text-xs font-black text-white backdrop-blur">
               {t(`venueTypes.${venue.type}`)}
             </span>
@@ -62,15 +62,15 @@ export function PublicBranchesView({
         </div>
       </section>
 
-      <section className="mx-auto max-w-4xl px-4 py-5">
-        <p className="mb-5 rounded-2xl border border-border bg-white p-4 text-sm leading-6 text-muted-foreground shadow-sm">
+      <section className="px-4 py-8 sm:px-8 lg:px-14 xl:px-20">
+        <p className="mb-8 max-w-4xl text-base leading-8 text-muted-foreground">
           {venueDescription || t('chooseBranch')}
         </p>
-        <h2 className="mb-3 flex items-center gap-2 text-sm font-black text-stone-800">
+        <h2 className="mb-4 flex items-center gap-2 text-sm font-black text-stone-800">
           <GitBranch className="size-4 text-teal-600" />
           {t('branchesHeading', { count: branches.length })}
         </h2>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {branches.map((branch) => (
             <Link
               key={branch.id}
