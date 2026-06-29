@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { api } from '@/lib/api';
 import { AnalyticsTab } from '@/features/analytics/components/analytics-tab';
 import { BranchesTab } from '@/features/branches/components/branches-tab';
@@ -19,16 +19,24 @@ import { useMe } from '@/features/auth/hooks/use-me';
 import { useVenue } from '@/features/venue/hooks/use-venue';
 import { textForLocale } from '@/lib/localized-text';
 
+const dashboardTabs: DashboardTab[] = ['overview', 'menu', 'qr', 'branches', 'analytics', 'settings'];
+
+function dashboardTabFromUrl(tab: string | null): DashboardTab {
+  return dashboardTabs.includes(tab as DashboardTab) ? (tab as DashboardTab) : 'overview';
+}
+
 export default function DashboardPage() {
   const t = useTranslations('dashboard');
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const params = useParams<{ locale: string }>();
   const queryClient = useQueryClient();
   const locale = params.locale ?? 'en';
   const me = useMe();
   const venue = useVenue();
   const isAdmin = me.data?.role === 'OWNER' || me.data?.role === 'MANAGER';
-  const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
+  const [activeTab, setActiveTab] = useState<DashboardTab>(() => dashboardTabFromUrl(searchParams.get('tab')));
   const [selectedMenuBranchId, setSelectedMenuBranchId] = useState('');
   const [selectedQrBranchId, setSelectedQrBranchId] = useState('');
   const [selectedAnalyticsBranchId, setSelectedAnalyticsBranchId] = useState('all');
@@ -42,8 +50,31 @@ export default function DashboardPage() {
     },
   });
 
+  useEffect(() => {
+    setActiveTab(dashboardTabFromUrl(searchParams.get('tab')));
+  }, [searchParams]);
+
+  const changeDashboardTab = useCallback(
+    (tab: DashboardTab) => {
+      setActiveTab(tab);
+
+      const nextParams = new URLSearchParams(searchParams.toString());
+
+      if (tab === 'overview') {
+        nextParams.delete('tab');
+      } else {
+        nextParams.set('tab', tab);
+      }
+
+      const query = nextParams.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
   const changeLocale = (nextLocale: string) => {
-    router.push(`/${nextLocale}/dashboard`);
+    const query = searchParams.toString();
+    router.push(`/${nextLocale}/dashboard${query ? `?${query}` : ''}`);
   };
 
   if (me.isLoading || venue.isLoading) {
@@ -95,7 +126,7 @@ export default function DashboardPage() {
       <DashboardShell
         venueName={venueName}
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={changeDashboardTab}
         // onPreview={() => setPublicPreviewOpen(true)}
         onLogout={() => logoutMutation.mutate()}
         locale={locale}
@@ -116,15 +147,15 @@ export default function DashboardPage() {
             locale={locale}
             onOpenMenu={(branchId) => {
               setSelectedMenuBranchId(branchId);
-              setActiveTab('menu');
+              changeDashboardTab('menu');
             }}
             onOpenQr={(branchId) => {
               setSelectedQrBranchId(branchId);
-              setActiveTab('qr');
+              changeDashboardTab('qr');
             }}
             onOpenStats={(branchId) => {
               setSelectedAnalyticsBranchId(branchId);
-              setActiveTab('analytics');
+              changeDashboardTab('analytics');
             }}
           />
         ) : null}
