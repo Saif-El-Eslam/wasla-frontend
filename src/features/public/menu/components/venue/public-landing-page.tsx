@@ -80,13 +80,16 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
                 {t('browseVenues')}
               </Link>
             </div>
-            <div className="mt-16 hidden max-w-lg grid-cols-3 gap-2 lg:grid">
+            <div className="mt-16 hidden max-w-lg flex-nowrap gap-2 lg:flex">
               {[
-                ['128+', t('landingStatMenus')],
+                ['5 Min', t('landingStatPublish')],
                 ['24/7', t('landingStatAccess')],
                 ['QR', t('landingStatQr')],
-              ].map(([value, label]) => (
-                <div key={value} className="rounded-xl border border-white/15 bg-white/10 p-3 backdrop-blur">
+              ].map(([value, label], index) => (
+                <div
+                  key={value}
+                  className={`wasla-owner-card-horizontal wasla-owner-card-${index + 1} hover:bg-white/20 min-w-0 flex-1 rounded-xl border border-white/15 bg-white/10 p-3 backdrop-blur`}
+                >
                   <div className="text-lg font-black text-white">{value}</div>
                   <div className="mt-1 text-[11px] font-bold text-white/70">{label}</div>
                 </div>

@@ -326,6 +326,17 @@ textarea:disabled,
   }
 }
 
+@keyframes wasla-owner-card-float-horizontal {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(-12px);
+  }
+}
+
 @keyframes wasla-loader-pulse {
   0%,
   100% {
@@ -755,6 +766,10 @@ textarea:disabled,
 
 .wasla-owner-card {
   animation: wasla-owner-card-float 5.4s ease-in-out infinite;
+}
+
+.wasla-owner-card-horizontal {
+  animation: wasla-owner-card-float-horizontal 5.4s ease-in-out infinite;
 }
 
 .wasla-owner-card-2 {
