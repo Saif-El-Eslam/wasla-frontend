@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import '../../styles/globals.css';
+import { ToastProvider } from '@/components/ui/toast-provider';
 import { QueryProvider } from '@/providers/query-provider';
 
 export const metadata: Metadata = {
@@ -26,7 +27,9 @@ export default async function LocaleLayout({
     <html lang={resolvedLocale} dir={dir} suppressHydrationWarning>
       <body suppressHydrationWarning>
         <NextIntlClientProvider locale={resolvedLocale} messages={messages}>
-          <QueryProvider>{children}</QueryProvider>
+          <ToastProvider>
+            <QueryProvider>{children}</QueryProvider>
+          </ToastProvider>
         </NextIntlClientProvider>
       </body>
     </html>

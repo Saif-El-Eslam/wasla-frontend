@@ -181,6 +181,10 @@ export type MenuQrCode = {
   menuId: string;
   shortCode: string;
   targetUrl: string | null;
+  shortUrl?: string;
+  pngUrl?: string;
+  svgUrl?: string;
+  posterUrl?: string;
   imageUrl: string | null;
 };
 
@@ -374,8 +378,12 @@ export type ListQueryOptions = {
 };
 
 export type BranchQrResponse = {
-  branch: Pick<Branch, 'id' | 'name' | 'slug' | 'phone'> & { venueSlug: string | null };
+  branch: Pick<Branch, 'id' | 'name' | 'slug' | 'phone' | 'logoUrl'> & { venueSlug: string | null };
+  venue?: Pick<Venue, 'id' | 'name' | 'slug' | 'logoUrl'>;
   menu: Pick<Menu, 'id' | 'publishedAt' | 'qrCode' | 'analytics'> | null;
+  publicMenuUrl?: string;
+  previewDataUrl?: string;
+  generatedAt?: string;
 };
 
 export type AnalyticsSummary = {

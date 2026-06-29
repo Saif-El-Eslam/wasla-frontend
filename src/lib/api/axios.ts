@@ -1,4 +1,5 @@
 import axios, { AxiosError, type AxiosRequestConfig, type Method } from 'axios';
+import { toast } from '@/components/ui/toast-store';
 import type { ApiEnvelope } from './types';
 import { currentBrowserLocale } from '@/lib/i18n/locale-detection';
 
@@ -16,6 +17,20 @@ const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api
 
 function currentLocale() {
   return currentBrowserLocale();
+}
+
+function actionFailureText(message?: string) {
+  const isArabic = currentLocale() === 'ar';
+
+  return {
+    title: isArabic ? 'تعذر تنفيذ الإجراء' : 'Action failed',
+    description:
+      message && !message.startsWith('errors.')
+        ? message
+        : isArabic
+          ? 'راجع البيانات ثم حاول مرة أخرى.'
+          : 'Please check the form and try again.',
+  };
 }
 
 export const axiosClient = axios.create({
@@ -50,6 +65,14 @@ axiosClient.interceptors.response.use(
   (error: AxiosError) => {
     const status = error.response?.status ?? 0;
     const payload = error.response?.data as { error?: { message?: string } } | undefined;
+    const method = error.config?.method?.toUpperCase() ?? 'GET';
+    const isMutation = !['GET', 'HEAD', 'OPTIONS'].includes(method);
+    const message = payload?.error?.message;
+
+    if (isMutation && status !== 401 && typeof window !== 'undefined') {
+      const feedback = actionFailureText(message);
+      toast.error(feedback.title, feedback.description);
+    }
 
     return Promise.reject(
       new ApiError(payload?.error?.message ?? error.message ?? 'Request failed', status, payload ?? error),

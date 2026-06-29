@@ -70,11 +70,11 @@ export function BranchSelect({
   };
 
   return (
-    <div ref={rootRef} className="relative min-w-0">
+    <div ref={rootRef} className="relative w-full min-w-0 sm:w-auto">
       <button
         type="button"
         className={cx(
-          'group flex h-12 w-full min-w-[230px] items-center gap-3 rounded-3xl border border-teal-100 bg-white/95 ps-1.5 pe-3 text-start shadow-sm shadow-teal-50 outline-none ring-1 ring-transparent backdrop-blur transition',
+          'group flex h-12 w-full min-w-0 items-center gap-3 rounded-3xl border border-teal-100 bg-white/95 ps-1.5 pe-3 text-start shadow-sm shadow-teal-50 outline-none ring-1 ring-transparent backdrop-blur transition sm:min-w-[230px]',
           'hover:-translate-y-0.5 hover:border-teal-200 hover:shadow-md focus:border-primary focus:ring-primary/15',
           open && 'border-primary ring-primary/15',
         )}
@@ -106,7 +106,7 @@ export function BranchSelect({
 
       {open ? (
         <div
-          className="absolute end-0 z-40 mt-2 max-h-72 w-full min-w-[260px] overflow-y-auto rounded-3xl border border-teal-100 bg-white p-1.5 shadow-2xl shadow-stone-200/70"
+          className="absolute end-0 z-40 mt-2 max-h-72 w-full min-w-0 overflow-y-auto rounded-3xl border border-teal-100 bg-white p-1.5 shadow-2xl shadow-stone-200/70 sm:min-w-[260px]"
           role="listbox"
         >
           {options.map((branch) => {

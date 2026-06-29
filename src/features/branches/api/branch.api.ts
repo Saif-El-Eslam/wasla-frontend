@@ -26,6 +26,10 @@ export const branchService = {
   branchManagement: () => apiClient<BranchManagementResponse>('/branches?view=management'),
   branchOverview: () => apiClient<BranchOverviewResponse>('/branches/overview'),
   branchQr: (branchId: string) => apiClient<BranchQrResponse>(`/branches/${branchId}/qr`),
+  regenerateBranchQr: (branchId: string) =>
+    apiClient<BranchQrResponse>(`/branches/${branchId}/qr/regenerate`, {
+      method: 'POST',
+    }),
   branch: (branchId: string) =>
     apiClient<{ branch: Branch }>(`/branches/${branchId}`).then((data) => data.branch),
   createBranch: (input: CreateBranchInput) =>

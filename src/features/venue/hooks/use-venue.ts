@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import { api } from '@/lib/api';
 import { queryKeys } from '@/lib/api/query-keys';
@@ -121,6 +121,18 @@ export function useBranchQr(branchId: string) {
     enabled: Boolean(branchId),
     staleTime: tabStaleTime,
     retry: false,
+  });
+}
+
+export function useRegenerateBranchQr(branchId: string) {
+  const locale = useLocale();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => api.regenerateBranchQr(branchId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: [...queryKeys.branchQr(branchId), locale] });
+    },
   });
 }
 

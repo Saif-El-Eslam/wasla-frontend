@@ -84,6 +84,7 @@ export const api = {
   branchManagement: branchService.branchManagement,
   branchOverview: branchService.branchOverview,
   branchQr: branchService.branchQr,
+  regenerateBranchQr: branchService.regenerateBranchQr,
   branch: branchService.branch,
   createBranch: branchService.createBranch,
   updateBranch: branchService.updateBranch,
