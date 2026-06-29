@@ -1,14 +1,21 @@
 'use client';
 
-import { useState } from 'react';
-import { ArrowUpRight, Building2, Eye, MapPinned, MessageCircle, Phone, QrCode, TrendingUp, UtensilsCrossed } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Building2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { BranchSelect, Card, SectionTitle, TabLoader, cx } from '@/components/ui/dashboard-ui';
+import { EmptyState, TabLoader } from '@/components/ui/dashboard-ui';
 import { useAnalyticsSummary, useBranchOptions } from '@/features/venue/hooks/use-venue';
 import { textForLocale } from '@/lib/localized-text';
-import { MiniBars } from './mini-bars';
-
-type Period = '7d' | '30d';
+import { AnalyticsHero } from './analytics-hero';
+import { AnalyticsMetricGrid } from './analytics-metric-grid';
+import {
+  ContactAndBranchSection,
+  DailyViewsSection,
+  QrScansSection,
+  TopContentSection,
+} from './analytics-chart-sections';
+import type { AnalyticsChartDatum, Period } from './analytics-utils';
+import { branchLabel, metricChange, metricCurrent } from './analytics-utils';
 
 export function AnalyticsTab({
   selectedBranchId,
@@ -27,154 +34,181 @@ export function AnalyticsTab({
     period,
     branchId: selectedBranchId === 'all' ? undefined : selectedBranchId,
   });
-  const metrics = analytics.data?.metrics;
-  const branchBars = analytics.data?.branchActivity.map((branch) => ({
-    label: textForLocale(branch.name, locale) || branch.slug,
-    value: branch.value,
-  })) ?? [];
-  const maxBranch = Math.max(1, ...branchBars.map((bar) => bar.value));
-  const actionTotal = Math.max(1, (metrics?.whatsapp.current ?? 0) + (metrics?.calls.current ?? 0) + (metrics?.maps.current ?? 0));
-  const topItems = analytics.data?.topItems ?? [];
+  const summary = analytics.data;
+  const metrics = summary?.metrics;
+  const series = summary?.series ?? [];
+
+  const viewTotal = metricCurrent(metrics, 'views');
+  const scanTotal = metricCurrent(metrics, 'scans');
+  const itemViewTotal = metricCurrent(metrics, 'itemViews');
+  const contactTotal =
+    metricCurrent(metrics, 'whatsapp') + metricCurrent(metrics, 'calls') + metricCurrent(metrics, 'maps');
+
+  const dailyViews = useMemo<AnalyticsChartDatum[]>(
+    () =>
+      series.map((item) => ({
+        label: item.label,
+        value: item.views,
+        views: item.views,
+        scans: item.scans,
+        percentage: item.views > 0 ? (item.scans / item.views) * 100 : 0,
+        percentageLabel: `${t('qrScans')} / ${t('views')}`,
+      })),
+    [series, t],
+  );
+
+  const dailyScans = useMemo<AnalyticsChartDatum[]>(
+    () =>
+      series.map((item) => ({
+        label: item.label,
+        value: item.scans,
+        views: item.views,
+        scans: item.scans,
+        percentage: item.views > 0 ? (item.scans / item.views) * 100 : 0,
+        percentageLabel: `${t('qrScans')} / ${t('views')}`,
+      })),
+    [series, t],
+  );
+
+  const branchBars = useMemo<AnalyticsChartDatum[]>(
+    () =>
+      (summary?.branchActivity ?? []).map((branch) => ({
+        label: branchLabel(branch.name, branch.slug, locale),
+        value: branch.value,
+        slug: branch.slug,
+      })),
+    [locale, summary?.branchActivity],
+  );
+
+  const topItems = useMemo<AnalyticsChartDatum[]>(
+    () =>
+      (summary?.topItems ?? []).map((item, index) => ({
+        label: textForLocale(item.name, locale) || `${t('item')} ${index + 1}`,
+        value: item.views,
+        rank: index + 1,
+      })),
+    [locale, summary?.topItems, t],
+  );
+
+  const contactData = useMemo(
+    () => [
+      {
+        label: t('whatsappMetric'),
+        value: metricCurrent(metrics, 'whatsapp'),
+        percentage: contactTotal ? (metricCurrent(metrics, 'whatsapp') / contactTotal) * 100 : 0,
+        percentageLabel: t('contactIntent'),
+        tone: '#10b981',
+      },
+      {
+        label: t('calls'),
+        value: metricCurrent(metrics, 'calls'),
+        percentage: contactTotal ? (metricCurrent(metrics, 'calls') / contactTotal) * 100 : 0,
+        percentageLabel: t('contactIntent'),
+        tone: '#1c1917',
+      },
+      {
+        label: t('maps'),
+        value: metricCurrent(metrics, 'maps'),
+        percentage: contactTotal ? (metricCurrent(metrics, 'maps') / contactTotal) * 100 : 0,
+        percentageLabel: t('contactIntent'),
+        tone: '#6366f1',
+      },
+    ],
+    [contactTotal, metrics, t],
+  );
 
   if (branchOptions.isLoading || analytics.isLoading) {
     return <TabLoader label={t('loadingWorkspace')} />;
   }
 
+  if (branches.length === 0) {
+    return <EmptyState icon={Building2} title={t('createBranchFirst')} body={t('menuNeedsBranch')} />;
+  }
+
   return (
     <div className="space-y-5">
-      <SectionTitle eyebrow={selectedBranchId === 'all' ? t('allBranches') : t('branchFilter')} title={t('analytics')}>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <div className="flex rounded-xl bg-stone-100 p-1">
-            {(['7d', '30d'] as const).map((item) => (
-              <button
-                key={item}
-                className={cx('h-9 rounded-lg px-3 text-xs font-black transition', period === item ? 'bg-white text-stone-950 shadow-sm' : 'text-stone-500 hover:text-stone-900')}
-                onClick={() => setPeriod(item)}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-          <BranchSelect branches={branches} value={selectedBranchId} onChange={onBranchChange} locale={locale} includeAll allLabel={t('allBranches')} />
-        </div>
-      </SectionTitle>
+      <AnalyticsHero
+        selectedBranchId={selectedBranchId}
+        onBranchChange={onBranchChange}
+        branches={branches}
+        locale={locale}
+        period={period}
+        onPeriodChange={setPeriod}
+        labels={{
+          allBranches: t('allBranches'),
+          branchFilter: t('branchFilter'),
+          analytics: t('analytics'),
+        }}
+      />
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-7">
-        {[
-          { key: 'venueViews' as const, label: t('venue'), value: metrics?.venueViews.current ?? 0, change: metrics?.venueViews.change ?? 0, icon: Building2, tone: 'text-sky-700 bg-sky-50' },
-          { key: 'views' as const, label: t('views'), value: metrics?.views.current ?? 0, change: metrics?.views.change ?? 0, icon: Eye, tone: 'text-teal-700 bg-teal-50' },
-          { key: 'itemViews' as const, label: t('items'), value: metrics?.itemViews.current ?? 0, change: metrics?.itemViews.change ?? 0, icon: UtensilsCrossed, tone: 'text-rose-700 bg-rose-50' },
-          { key: 'scans' as const, label: t('qrScans'), value: metrics?.scans.current ?? 0, change: metrics?.scans.change ?? 0, icon: QrCode, tone: 'text-amber-700 bg-amber-50' },
-          { key: 'whatsapp' as const, label: t('whatsappMetric'), value: metrics?.whatsapp.current ?? 0, change: metrics?.whatsapp.change ?? 0, icon: MessageCircle, tone: 'text-emerald-700 bg-emerald-50' },
-          { key: 'calls' as const, label: t('calls'), value: metrics?.calls.current ?? 0, change: metrics?.calls.change ?? 0, icon: Phone, tone: 'text-stone-900 bg-stone-50' },
-          { key: 'maps' as const, label: t('maps'), value: metrics?.maps.current ?? 0, change: metrics?.maps.change ?? 0, icon: MapPinned, tone: 'text-indigo-700 bg-indigo-50' },
-        ].map((metric) => {
-          const Icon = metric.icon;
+      <AnalyticsMetricGrid
+        labels={{
+          views: t('views'),
+          qrScans: t('qrScans'),
+          items: t('items'),
+          contactIntent: t('contactIntent'),
+        }}
+        values={{
+          views: viewTotal,
+          scans: scanTotal,
+          itemViews: itemViewTotal,
+          contactTotal,
+        }}
+        changes={{
+          views: metricChange(metrics, 'views'),
+          scans: metricChange(metrics, 'scans'),
+          itemViews: metricChange(metrics, 'itemViews'),
+          contact: Math.max(
+            metricChange(metrics, 'whatsapp'),
+            metricChange(metrics, 'calls'),
+            metricChange(metrics, 'maps'),
+          ),
+        }}
+        period={period}
+      />
 
-          return (
-            <Card key={metric.label}>
-              <div className={cx('rounded-2xl p-3', metric.tone)}>
-                <Icon className="size-4" />
-                <p className="mt-2 text-2xl font-black">{metric.value.toLocaleString()}</p>
-                <p className="text-xs font-bold">{metric.label}</p>
-                <p className="mt-2 flex items-center gap-1 text-xs font-black text-emerald-600">
-                  <TrendingUp className="size-3" />
-                  {t('vsPrevious', { trend: metric.change, period })}
-                </p>
-              </div>
-            </Card>
-          );
-        })}
+      <div className="grid gap-4 2xl:grid-cols-[1fr_0.95fr]">
+        <DailyViewsSection
+          data={dailyViews}
+          title={t('dailyViews')}
+          eyebrow={t('engagement')}
+          change={metricChange(metrics, 'views')}
+          period={period}
+          empty={t('noAnalyticsData')}
+        />
+
+        <QrScansSection
+          data={dailyScans}
+          title={t('dailyScans')}
+          eyebrow={t('qr')}
+          change={metricChange(metrics, 'scans')}
+          period={period}
+          empty={t('noAnalyticsData')}
+        />
       </div>
+      <ContactAndBranchSection
+        contactData={contactData}
+        contactTotal={contactTotal}
+        branchData={branchBars}
+        labels={{
+          actions: t('actions'),
+          contactIntent: t('contactIntent'),
+          branches: t('branches'),
+          activitySplit: t('activitySplit'),
+          noAnalyticsData: t('noAnalyticsData'),
+          views: t('views'),
+        }}
+      />
 
-      <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-        <Card>
-          <div className="flex items-center justify-between gap-3">
-            <SectionTitle eyebrow={t('engagement')} title={t('dailyViews')} />
-            <span className="flex items-center gap-1 text-xs font-black text-emerald-600">
-              <ArrowUpRight className="size-4" />
-              +{metrics?.views.change ?? 0}%
-            </span>
-          </div>
-          <MiniBars data={(analytics.data?.series ?? []).map((item) => ({ label: item.label, value: item.views }))} tone="bg-teal-500" />
-        </Card>
-
-        <Card>
-          <div className="flex items-center justify-between gap-3">
-            <SectionTitle eyebrow={t('qr')} title={t('dailyScans')} />
-            <span className="flex items-center gap-1 text-xs font-black text-amber-600">
-              <ArrowUpRight className="size-4" />
-              +{metrics?.scans.change ?? 0}%
-            </span>
-          </div>
-          <MiniBars data={(analytics.data?.series ?? []).map((item) => ({ label: item.label, value: item.scans }))} tone="bg-amber-500" />
-        </Card>
-      </div>
-
-      <div className="grid gap-4 xl:grid-cols-3">
-        <Card>
-          <SectionTitle eyebrow={t('branches')} title={t('activitySplit')} />
-          <div className="mt-5 space-y-3">
-            {branchBars.length > 0 ? (
-              branchBars.map((bar) => (
-                <div key={bar.label}>
-                  <div className="mb-1 flex items-center justify-between text-xs font-bold text-stone-600">
-                    <span>{bar.label}</span>
-                    <span>{bar.value.toLocaleString()}</span>
-                  </div>
-                  <div className="h-3 overflow-hidden rounded-full bg-stone-100">
-                    <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${Math.max(8, (bar.value / maxBranch) * 100)}%` }} />
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="rounded-xl bg-stone-50 p-4 text-sm text-muted-foreground">{t('noAnalyticsData')}</p>
-            )}
-          </div>
-        </Card>
-
-        <Card>
-          <SectionTitle eyebrow={t('actions')} title={t('contactIntent')} />
-          <div className="mt-5 space-y-3">
-            {[
-              { label: t('whatsappMetric'), value: metrics?.whatsapp.current ?? 0, tone: 'bg-emerald-500' },
-              { label: t('calls'), value: metrics?.calls.current ?? 0, tone: 'bg-stone-800' },
-              { label: t('maps'), value: metrics?.maps.current ?? 0, tone: 'bg-indigo-500' },
-            ].map((item) => (
-              <div key={item.label}>
-                <div className="mb-1 flex items-center justify-between text-xs font-bold text-stone-600">
-                  <span>{item.label}</span>
-                  <span>{Math.round((item.value / actionTotal) * 100)}%</span>
-                </div>
-                <div className="h-3 overflow-hidden rounded-full bg-stone-100">
-                  <div className={cx('h-full rounded-full transition-all', item.tone)} style={{ width: `${Math.max(5, (item.value / actionTotal) * 100)}%` }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        <Card>
-          <SectionTitle eyebrow={t('items')} title={t('topContent')} />
-          <div className="mt-4 space-y-3">
-            {topItems.map((item, index) => (
-              <div key={item.itemId} className="flex items-center gap-3">
-                <span className="w-4 text-center text-xs font-black text-muted-foreground">{index + 1}</span>
-                <div className="min-w-0 flex-1">
-                  <div className="mb-1 flex items-center justify-between gap-3">
-                    <span className="truncate text-sm font-bold text-stone-800">{textForLocale(item.name, locale)}</span>
-                    <span className="text-xs text-muted-foreground">{item.views.toLocaleString()}</span>
-                  </div>
-                  <div className="h-1.5 overflow-hidden rounded-full bg-stone-100">
-                    <div className="h-full rounded-full bg-teal-500" style={{ width: `${Math.max(18, 92 - index * 14)}%` }} />
-                  </div>
-                </div>
-              </div>
-            ))}
-            {topItems.length === 0 ? <p className="rounded-xl bg-stone-50 p-4 text-sm text-muted-foreground">{t('noMenuItemsToRank')}</p> : null}
-          </div>
-        </Card>
-      </div>
+      <TopContentSection
+        data={topItems}
+        labels={{
+          items: t('items'),
+          topContent: t('topContent'),
+          noMenuItemsToRank: t('noMenuItemsToRank'),
+          views: t('views'),
+        }}
+      />
     </div>
   );
 }
