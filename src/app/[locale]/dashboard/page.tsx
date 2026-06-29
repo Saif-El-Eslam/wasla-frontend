@@ -68,8 +68,27 @@ export default function DashboardPage() {
     );
   }
 
+  const hasNoBranchAccess =
+    !isAdmin && Boolean(me.data?.venueId) && (me.data?.branches?.filter((branch) => branch.active).length ?? 0) === 0;
+
+  if (hasNoBranchAccess) {
+    return (
+      <main className="grid min-h-dvh place-items-center bg-[#f8fafa] px-4">
+        <Card className="w-full max-w-md border-teal-100 bg-white p-5">
+          <Badge tone="amber">{t('branchAccessRequired')}</Badge>
+          <h1 className="mt-3 text-2xl font-black text-stone-950">{t('noBranchAccessTitle')}</h1>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">{t('noBranchAccessBody')}</p>
+          <div className="mt-4">
+            <PrimaryButton onClick={() => logoutMutation.mutate()} loading={logoutMutation.isPending}>
+              {t('logout')}
+            </PrimaryButton>
+          </div>
+        </Card>
+      </main>
+    );
+  }
+
   const venueName = textForLocale(venue.data?.name, locale) || t('waslaWorkspace');
-  const previewBranchId = selectedMenuBranchId || selectedQrBranchId || '';
 
   return (
     <>

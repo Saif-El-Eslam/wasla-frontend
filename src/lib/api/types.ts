@@ -17,6 +17,13 @@ export type CurrentUser = {
   verified: boolean;
   role: string;
   venueId: string | null;
+  branches: Array<{
+    id: string;
+    name: LocalizedValue;
+    slug: string;
+    isMain: boolean;
+    active: boolean;
+  }>;
 };
 
 export type UpdateMeInput = {
@@ -368,6 +375,22 @@ export type SetupVenueInput = {
   branchName: LocalizedText;
   branchSlug: string;
 };
+
+export type UpdateVenueInput = Partial<
+  Pick<
+    SetupVenueInput,
+    | 'type'
+    | 'name'
+    | 'description'
+    | 'defaultLocale'
+    | 'supportedLocales'
+    | 'phone'
+    | 'whatsapp'
+    | 'address'
+    | 'googleMapsUrl'
+    | 'instagramUrl'
+  >
+>;
 
 export type ListQueryOptions = {
   paginate?: boolean;

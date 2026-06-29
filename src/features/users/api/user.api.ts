@@ -27,4 +27,8 @@ export const userService = {
       method: 'PATCH',
       body: JSON.stringify(input),
     }),
+  deleteUser: (userId: string) =>
+    apiClient<{ deleted: boolean }>(`/users/${userId}`, {
+      method: 'DELETE',
+    }),
 };
