@@ -106,7 +106,7 @@ export function BranchSelect({
 
       {open ? (
         <div
-          className="absolute end-0 z-40 mt-2 max-h-72 w-full min-w-0 overflow-y-auto rounded-3xl border border-teal-100 bg-white p-1.5 shadow-2xl shadow-stone-200/70 sm:min-w-[260px]"
+          className="absolute end-0 z-999 mt-2 max-h-72 w-full min-w-0 overflow-y-auto rounded-3xl border border-teal-100 bg-white p-1.5 shadow-2xl shadow-stone-200/70 sm:min-w-[260px]"
           role="listbox"
         >
           {options.map((branch) => {

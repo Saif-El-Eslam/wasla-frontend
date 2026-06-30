@@ -340,6 +340,7 @@
     "password": "كلمة المرور",
     "venue": "المنشأة",
     "team": "الفريق",
+    "subscription": "الاشتراك",
     "support": "الدعم",
     "userSettings": "إعدادات المستخدم",
     "profileSettingsBody": "حافظ على بيانات التواصل مرتبة لتسهيل استعادة الحساب وإدارة الفريق.",
@@ -452,5 +453,89 @@
     "prices": "الأسعار",
     "back": "رجوع",
     "members": "الاعضاء"
+  },
+  "subscription": {
+    "currentPlanBody": "تبقى القوائم العامة متاحة في كل الخطط. تغييرات مساحة العمل، واستخراج الذكاء الاصطناعي، وعمق التحليلات، وهوية QR تتبع حدود الخطة النشطة.",
+    "pastDueBanner": "الفوترة متأخرة. روابط القوائم تبقى online، لكن التعديلات والتنزيلات متوقفة مؤقتا.",
+    "ownerOnlyBilling": "المالك فقط يدير الفوترة والترقيات. يمكنك مراجعة الحدود والخطط المتاحة من هنا.",
+    "planMatrixEyebrow": "مصفوفة الخطط",
+    "menuSaasPlans": "خطط قوائم Wasla",
+    "upgrade": "ترقية",
+    "upgradeWhatsapp": "ترقية عبر واتساب",
+    "activePlan": "الخطة الحالية",
+    "current": "الحالية",
+    "comingSoon": "قريبا",
+    "premium": "خطة مميزة",
+    "priceAnnual": "{price} جنيه/سنة",
+    "included": "متاح",
+    "notIncluded": "غير متاح",
+    "unlimited": "غير محدود",
+    "usage": {
+      "branches": "الفروع",
+      "aiExtractions": "استخراج AI",
+      "teamUsers": "أعضاء الفريق",
+      "languages": "اللغات"
+    },
+    "planBullets": {
+      "branches": "{value} فروع",
+      "extractions": "{value} استخراج",
+      "analytics": "{value} يوم تحليلات",
+      "qrBranding": "{value}"
+    }
+  },
+  "admin": {
+    "eyebrow": "مشرف المنصة",
+    "title": "إدارة الاشتراكات",
+    "body": "إدارة اشتراكات المنشآت، ومتابعة التجديدات، وتعديل ربط الخطط بالميزات من مساحة إدارية واحدة.",
+    "languageToggle": "English",
+    "signOut": "تسجيل الخروج",
+    "notSet": "غير محدد",
+    "restricted": {
+      "badge": "مقيد",
+      "title": "لمشرف المنصة فقط",
+      "body": "هذه المساحة تدير اشتراكات المنشآت وربط الخطط بالميزات عبر Wasla."
+    },
+    "tabs": {
+      "venues": "اشتراكات المنشآت",
+      "matrix": "مصفوفة ميزات الخطط"
+    },
+    "metrics": {
+      "venues": "المنشآت",
+      "paidSubscriptions": "الاشتراكات المدفوعة",
+      "pastDue": "متأخر",
+      "annualRunRate": "الإيراد السنوي"
+    },
+    "expiring": {
+      "title": "تنتهي قريبا",
+      "window": "14 يوم",
+      "item": "{plan} تنتهي في {date}",
+      "message": "إرسال رسالة تجديد",
+      "noPhone": "لا يوجد هاتف",
+      "empty": "لا توجد اشتراكات مدفوعة تنتهي خلال 14 يوم."
+    },
+    "venueCrm": {
+      "title": "إدارة المنشآت",
+      "body": "ابحث، راجع الاستخدام، وعدل الخطة أو الحالة مباشرة.",
+      "searchPlaceholder": "ابحث في المنشآت",
+      "venue": "المنشأة",
+      "branches": "الفروع",
+      "users": "المستخدمون",
+      "plan": "الخطة",
+      "status": "الحالة",
+      "expires": "تنتهي",
+      "save": "حفظ الاشتراك",
+      "empty": "لا توجد منشآت مطابقة للبحث."
+    },
+    "matrix": {
+      "title": "مصفوفة ميزات الخطط",
+      "body": "أي تعديل هنا ينعكس على بوابات الخطة في أول طلب API لاحق.",
+      "feature": "الميزة",
+      "missing": "غير موجود",
+      "empty": "لا توجد روابط ميزات متاحة بعد."
+    },
+    "toasts": {
+      "subscriptionUpdated": "تم تحديث الاشتراك",
+      "mappingUpdated": "تم تحديث ربط الميزة"
+    }
   }
 }

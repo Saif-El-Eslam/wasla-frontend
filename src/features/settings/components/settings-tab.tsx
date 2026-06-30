@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { SectionTitle } from '@/components/ui/dashboard-ui';
 import { TabLoader } from '@/components/ui/tab-loader';
 import { toast } from '@/components/ui/toast-store';
@@ -28,6 +29,7 @@ import { useBranchOptions, useUsers, useVenue } from '@/features/venue/hooks/use
 import { api } from '@/lib/api';
 import { queryKeys } from '@/lib/api/query-keys';
 import type { LocalizedValue, Venue } from '@/lib/api';
+import { SubscriptionSettingsPanel } from '@/features/subscription/components/subscription-settings-panel';
 import { PasswordSettingsSection } from './password-settings-section';
 import { SettingsOverviewCard } from './settings-overview-card';
 import { SettingsTabs, type SettingsTabId } from './settings-tabs';
@@ -67,6 +69,8 @@ function venueDefaults(venue: Venue | undefined, locale: string): VenueSettingsF
   };
 }
 
+const validSettingsTabs: SettingsTabId[] = ['user', 'password', 'venue', 'team', 'subscription', 'support'];
+
 export function SettingsTab({
   isAdmin,
   me,
@@ -78,7 +82,13 @@ export function SettingsTab({
 }) {
   const t = useTranslations('dashboard');
   const queryClient = useQueryClient();
-  const [activeSettingsTab, setActiveSettingsTab] = useState<SettingsTabId>('user');
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const requestedSettingsTab = searchParams.get('settings') as SettingsTabId | null;
+  const [activeSettingsTab, setActiveSettingsTab] = useState<SettingsTabId>(
+    requestedSettingsTab && validSettingsTabs.includes(requestedSettingsTab) ? requestedSettingsTab : 'user',
+  );
   const venue = useVenue();
   const branchesQuery = useBranchOptions(isAdmin);
   const usersQuery = useUsers({
@@ -114,6 +124,24 @@ export function SettingsTab({
   useEffect(() => {
     venueForm.reset(venueDefaults(venue.data, locale));
   }, [locale, venue.data, venueForm]);
+
+  useEffect(() => {
+    if (requestedSettingsTab && validSettingsTabs.includes(requestedSettingsTab)) {
+      setActiveSettingsTab(requestedSettingsTab);
+    }
+  }, [requestedSettingsTab, validSettingsTabs]);
+
+  const changeSettingsTab = (tab: SettingsTabId) => {
+    setActiveSettingsTab(tab);
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.set('tab', 'settings');
+    if (tab === 'user') {
+      nextParams.delete('settings');
+    } else {
+      nextParams.set('settings', tab);
+    }
+    router.replace(`${pathname}?${nextParams.toString()}`, { scroll: false });
+  };
 
   const updateMeMutation = useMutation({
     mutationFn: (values: ProfileFormValues) => api.updateMe(values),
@@ -188,7 +216,7 @@ export function SettingsTab({
         isAdmin={isAdmin}
         userCount={users.length}
       />
-      <SettingsTabs activeTab={activeSettingsTab} onChange={setActiveSettingsTab} isAdmin={isAdmin} />
+      <SettingsTabs activeTab={activeSettingsTab} onChange={changeSettingsTab} isAdmin={isAdmin} />
 
       {activeSettingsTab === 'user' ? (
         <UserSettingsSection me={me.data} form={profileForm} mutation={updateMeMutation} />
@@ -216,6 +244,7 @@ export function SettingsTab({
           locale={locale}
         />
       ) : null}
+      {activeSettingsTab === 'subscription' ? <SubscriptionSettingsPanel locale={locale} /> : null}
       {activeSettingsTab === 'support' ? <SupportSettingsSection /> : null}
     </div>
   );

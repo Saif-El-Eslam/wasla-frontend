@@ -15,8 +15,15 @@ export function DashboardGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isLoading || !me) return;
 
-    const hasVenue = !!me.venueId;
     const locale = currentBrowserLocale(pathname);
+    const superAdmin = me.role === 'SUPER_ADMIN';
+
+    if (superAdmin) {
+      router.replace(`/${locale}/admin`);
+      return;
+    }
+
+    const hasVenue = !!me.venueId;
 
     if (!hasVenue && !isSetupPage) {
       router.replace(`/${locale}/dashboard/setup`);

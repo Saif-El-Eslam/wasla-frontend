@@ -2,12 +2,17 @@ import { analyticsService } from '@/features/analytics/api/analytics.api';
 import { authService } from '@/features/auth/api/auth.api';
 import { branchService } from '@/features/branches/api/branch.api';
 import { menuService } from '@/features/menu/api/menu.api';
+import { subscriptionService } from '@/features/subscription/api/subscription.api';
 import { userService } from '@/features/users/api/user.api';
 import { venueService } from '@/features/venue/api/venue.api';
 
 export { ApiError, apiClient, toQueryString } from './axios';
 export type {
   ApiEnvelope,
+  AdminFeaturesResponse,
+  AdminPlansResponse,
+  AdminSubscriptionOverview,
+  AdminVenuesResponse,
   AnalyticsSummary,
   Branch,
   BranchManagement,
@@ -22,6 +27,7 @@ export type {
   CreateCategoryInput,
   CreateItemInput,
   CreateMenuInput,
+  CreatePlanFeatureMappingInput,
   CreateVenueUserInput,
   CurrentUser,
   ApproveExtractionResponse,
@@ -40,6 +46,7 @@ export type {
   LocalizedValue,
   OpeningHours,
   Menu,
+  MenuPlanCode,
   MenuAnalytics,
   MenuCategory,
   MenuItem,
@@ -55,15 +62,20 @@ export type {
   PublicVenueResponse,
   SetupVenueInput,
   StartExtractionResponse,
+  SubscriptionStatus,
+  TenantSubscriptionResponse,
   UpdateBranchInput,
   UpdateCategoryInput,
   UpdateItemInput,
   UpdateMeInput,
   UpdateUserBranchesInput,
   UpdatePasswordInput,
+  UpdateVenueSubscriptionInput,
   UpdateVenueInput,
   UserListResponse,
   UpdateMenuInput,
+  UpdatePlanFeatureMappingInput,
+  UpdatePlanInput,
   Venue,
   VenueUser,
 } from './types';
@@ -77,6 +89,15 @@ export const api = {
   updateMe: authService.updateMe,
   updatePassword: authService.updatePassword,
   analyticsSummary: analyticsService.summary,
+  subscription: subscriptionService.tenant,
+  adminSubscriptionOverview: subscriptionService.adminOverview,
+  adminSubscriptionVenues: subscriptionService.adminVenues,
+  updateVenueSubscription: subscriptionService.updateVenueSubscription,
+  adminPlans: subscriptionService.adminPlans,
+  adminFeatures: subscriptionService.adminFeatures,
+  updatePlan: subscriptionService.updatePlan,
+  createPlanFeatureMapping: subscriptionService.createMapping,
+  updatePlanFeatureMapping: subscriptionService.updateMapping,
   myVenue: venueService.myVenue,
   setupVenue: venueService.setupVenue,
   updateVenue: venueService.updateVenue,

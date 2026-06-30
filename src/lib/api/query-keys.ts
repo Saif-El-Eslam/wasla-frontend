@@ -15,4 +15,10 @@ export const queryKeys = {
   analytics: (branchId: string, filters?: Record<string, unknown>) =>
     ['branch', branchId, 'analytics', filters ?? {}] as const,
   analyticsSummary: (filters?: Record<string, unknown>) => ['analytics', 'summary', filters ?? {}] as const,
+  subscription: ['subscription'] as const,
+  adminSubscriptionOverview: ['admin', 'subscriptions', 'overview'] as const,
+  adminSubscriptionVenues: (filters?: Record<string, unknown>) =>
+    ['admin', 'subscriptions', 'venues', filters ?? {}] as const,
+  adminPlans: ['admin', 'subscriptions', 'plans'] as const,
+  adminFeatures: ['admin', 'subscriptions', 'features'] as const,
 };

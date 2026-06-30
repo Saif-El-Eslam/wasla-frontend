@@ -173,7 +173,7 @@ export type VenueUser = {
   phone: string;
   email: string | null;
   name: string | null;
-  role: 'OWNER' | 'MANAGER' | 'STAFF';
+  role: 'SUPER_ADMIN' | 'OWNER' | 'MANAGER' | 'STAFF';
   verified: boolean;
   branches: AssignedBranch[];
 };
@@ -503,4 +503,155 @@ export type CreateVenueUserInput = {
 
 export type UpdateUserBranchesInput = {
   branchIds: string[];
+};
+
+export type MenuPlanCode = 'FREE' | 'MENU_STARTER' | 'MENU_PRO' | 'MENU_MULTI_BRANCH' | 'WASLA_COMPLETE';
+export type SubscriptionStatus = 'TRIALING' | 'ACTIVE' | 'PAST_DUE' | 'CANCELED' | 'EXPIRED';
+
+export type PlanFeature = {
+  id: string;
+  key: string;
+  name: LocalizedValue;
+  description: LocalizedValue | null;
+  valueType: 'BOOLEAN' | 'NUMBER' | 'TEXT' | 'JSON' | string;
+  unit: string | null;
+  displayOrder: number;
+  active: boolean;
+};
+
+export type PlanFeatureMapping = {
+  id: string;
+  planId: string;
+  featureId: string;
+  enabled: boolean;
+  valueInt: number | null;
+  valueBool: boolean | null;
+  valueString: string | null;
+  valueJson: unknown;
+  feature: PlanFeature;
+};
+
+export type Plan = {
+  id: string;
+  code: MenuPlanCode;
+  publicName: LocalizedValue;
+  internalName: string;
+  description: LocalizedValue | null;
+  priceAnnualEgp: number | null;
+  displayOrder: number;
+  active: boolean;
+  comingSoon: boolean;
+  featureMappings: PlanFeatureMapping[];
+  upgradeUrl?: string;
+};
+
+export type TenantSubscriptionResponse = {
+  canManageBilling: boolean;
+  subscription: {
+    id: string;
+    venueId: string;
+    plan: MenuPlanCode;
+    status: SubscriptionStatus;
+    paymentProvider: 'MANUAL' | 'PAYMOB';
+    currentPeriodEnds: string | null;
+    limits: {
+      branches: number | null;
+      unlimitedBranches: boolean;
+      monthlyExtractions: number | null;
+      unlimitedExtractions: boolean;
+      imagesPerExtraction: number;
+      analyticsHistoryDays: number | null;
+      allTimeAnalytics: boolean;
+      staffUsers: number | null;
+      unlimitedStaffUsers: boolean;
+      languages: number | null;
+      unlimitedLanguages: boolean;
+      advancedAnalytics: boolean;
+      qrBranding: string;
+      customQrAssets: boolean;
+    };
+  };
+  usage: {
+    branches: number;
+    users: number;
+    extractionsThisMonth: number;
+    languages: number;
+  };
+  plans: Plan[];
+  features: PlanFeature[];
+};
+
+export type AdminSubscriptionOverview = {
+  metrics: {
+    venues: number;
+    subscriptions: number;
+    activeRevenueAnnualEgp: number;
+    paidSubscriptions: number;
+    pastDue: number;
+  };
+  expiringSoon: Array<{
+    id: string;
+    plan: MenuPlanCode;
+    status: SubscriptionStatus;
+    currentPeriodEnds: string | null;
+    venue: Venue;
+    planRecord: Plan;
+  }>;
+};
+
+export type AdminVenueSubscriptionRow = Venue & {
+  subscription: ({ planRecord: Plan } & TenantSubscriptionResponse['subscription']) | null;
+  _count: {
+    branches: number;
+    users: number;
+  };
+};
+
+export type AdminVenuesResponse = {
+  venues: AdminVenueSubscriptionRow[];
+};
+
+export type UpdateVenueSubscriptionInput = {
+  plan: MenuPlanCode;
+  status: SubscriptionStatus;
+  currentPeriodEnds?: string | null;
+  paymentProvider?: 'MANUAL' | 'PAYMOB';
+  notes?: string | null;
+};
+
+export type UpdatePlanInput = {
+  code?: MenuPlanCode;
+  publicName?: LocalizedText;
+  internalName?: string;
+  description?: {
+    en?: string;
+    ar?: string;
+  };
+  priceAnnualEgp?: number | null;
+  displayOrder?: number;
+  active?: boolean;
+  comingSoon?: boolean;
+};
+
+export type CreatePlanFeatureMappingInput = {
+  planId: string;
+  featureId: string;
+  enabled?: boolean;
+  valueInt?: number | null;
+  valueBool?: boolean | null;
+  valueString?: string | null;
+  valueJson?: unknown;
+};
+
+export type UpdatePlanFeatureMappingInput = Omit<
+  Partial<CreatePlanFeatureMappingInput>,
+  'planId' | 'featureId'
+>;
+
+export type AdminPlansResponse = {
+  plans: Plan[];
+};
+
+export type AdminFeaturesResponse = {
+  features: PlanFeature[];
 };

@@ -15,6 +15,7 @@ import {
   type AuthPanelFormInput,
   type AuthPanelFormValues,
 } from '@/features/auth/schemas/auth.schema';
+import { postAuthDestination } from '@/features/auth/utils/auth-redirect';
 
 type Mode = 'login' | 'register' | 'verify';
 
@@ -66,7 +67,7 @@ export function AuthPanel({ mode }: { mode: Mode }) {
   const loginMutation = useMutation({
     mutationFn: api.login,
     onSuccess: ({ user }) => {
-      router.push(user.venueId ? `/${locale}/dashboard` : `/${locale}/dashboard/setup`);
+      router.push(postAuthDestination(user, locale));
     },
   });
 
@@ -81,7 +82,7 @@ export function AuthPanel({ mode }: { mode: Mode }) {
   const verifyMutation = useMutation({
     mutationFn: api.verifyOtp,
     onSuccess: ({ user }) => {
-      router.push(user.venueId ? `/${locale}/dashboard` : `/${locale}/dashboard/setup`);
+      router.push(postAuthDestination(user, locale));
     },
   });
 

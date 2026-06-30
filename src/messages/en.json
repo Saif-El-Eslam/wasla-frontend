@@ -340,6 +340,7 @@
     "password": "Password",
     "venue": "Venue",
     "team": "Team",
+    "subscription": "Subscription",
     "support": "Support",
     "userSettings": "User settings",
     "profileSettingsBody": "Keep owner contact details tidy so account recovery and team workflows stay smooth.",
@@ -452,5 +453,129 @@
     "prices": "Prices",
     "back": "Back",
     "members": "Members"
+  },
+  "subscription": {
+    "currentPlanBody": "Public menus stay available across every plan. Workspace changes, AI extraction, analytics history, and QR branding follow the active plan limits.",
+    "pastDueBanner": "Billing is past due. Menu links remain online, but changes and downloads are paused.",
+    "ownerOnlyBilling": "Owners manage billing and upgrades. You can still review limits and plan availability here.",
+    "planMatrixEyebrow": "Plan matrix",
+    "menuSaasPlans": "Menu SaaS plans",
+    "upgrade": "Upgrade",
+    "upgradeWhatsapp": "Upgrade on WhatsApp",
+    "activePlan": "Active plan",
+    "current": "Current",
+    "comingSoon": "Coming soon",
+    "premium": "Premium",
+    "priceAnnual": "{price} EGP/year",
+    "included": "Included",
+    "notIncluded": "Not included",
+    "unlimited": "Unlimited",
+    "usage": {
+      "branches": "Branches",
+      "aiExtractions": "AI extractions",
+      "teamUsers": "Team users",
+      "languages": "Languages"
+    },
+    "planBullets": {
+      "branches": "{value} branches",
+      "extractions": "{value} extractions",
+      "analytics": "{value} analytics days",
+      "qrBranding": "{value}"
+    }
+  },
+  "admin": {
+    "eyebrow": "Super admin",
+    "title": "Subscription dashboard",
+    "body": "Monitor subscription health, manage venue plans, and maintain the live plan catalog from one scalable admin area.",
+    "languageToggle": "Arabic",
+    "signOut": "Sign out",
+    "notSet": "Not set",
+    "cancel": "Cancel",
+    "restricted": {
+      "badge": "Restricted",
+      "title": "Platform admin only",
+      "body": "This portal manages venue subscriptions and plan mappings across Wasla."
+    },
+    "tabs": {
+      "home": "Home",
+      "venues": "Venue subscriptions",
+      "matrix": "Plan feature matrix",
+      "plans": "Plans"
+    },
+    "home": {
+      "quickActionsEyebrow": "Quick actions",
+      "quickActionsTitle": "Jump into operations",
+      "quickActionsBody": "Each area owns one workflow so the subscription console can grow without getting crowded.",
+      "actions": {
+        "venuesTitle": "Manage venue subscriptions",
+        "venuesBody": "Change plans, statuses, and renewal dates for venues.",
+        "matrixTitle": "Tune feature values",
+        "matrixBody": "Edit limits and gate values across plans.",
+        "plansTitle": "Manage plans",
+        "plansBody": "Update plan names, prices, states, and assigned features."
+      }
+    },
+    "metrics": {
+      "venues": "Venues",
+      "paidSubscriptions": "Paid subscriptions",
+      "pastDue": "Past due",
+      "annualRunRate": "Annual run-rate"
+    },
+    "expiring": {
+      "title": "Expiring soon",
+      "window": "14 days",
+      "item": "{plan} expires {date}",
+      "message": "Message renewal",
+      "noPhone": "No phone available",
+      "empty": "No paid venues expire in the next 14 days."
+    },
+    "venueCrm": {
+      "title": "Venue CRM",
+      "body": "Search, review usage shape, and force plan changes.",
+      "searchPlaceholder": "Search venues",
+      "venue": "Venue",
+      "branches": "Branches",
+      "users": "Users",
+      "plan": "Plan",
+      "status": "Status",
+      "expires": "Expires",
+      "save": "Save subscription",
+      "empty": "No venues match this search."
+    },
+    "matrix": {
+      "title": "Dynamic plan-feature matrix",
+      "body": "Edits here update backend gates immediately after the next API request.",
+      "feature": "Feature",
+      "missing": "Missing",
+      "empty": "No feature mappings are available yet."
+    },
+    "plans": {
+      "title": "Plan management",
+      "body": "Edit the customer-facing plan catalog and control which features belong to each plan.",
+      "count": "{count} plans",
+      "empty": "No plans are available yet.",
+      "active": "Active",
+      "inactive": "Inactive",
+      "comingSoon": "Coming soon",
+      "priceCustom": "Custom",
+      "save": "Save plan",
+      "publicNameEn": "English name",
+      "publicNameAr": "Arabic name",
+      "internalName": "Internal name",
+      "priceAnnualEgp": "Annual price EGP",
+      "displayOrder": "Display order",
+      "descriptionEn": "English description",
+      "descriptionAr": "Arabic description",
+      "featuresTitle": "Assigned features",
+      "featuresCount": "{assigned} of {total} enabled",
+      "noFeatures": "No features are available yet."
+    },
+    "toasts": {
+      "subscriptionUpdated": "Subscription updated",
+      "mappingUpdated": "Feature mapping updated",
+      "planUpdated": "Plan updated",
+      "featureAssigned": "Feature assigned to plan",
+      "featureUnassigned": "Feature removed from plan"
+    }
   }
 }

@@ -1,0 +1,238 @@
+'use client';
+
+import { useQuery } from '@tanstack/react-query';
+import { ArrowUpRight, Check, Crown, MessageCircle, ShieldAlert } from 'lucide-react';
+import { Badge, Card, PrimaryButton, cx } from '@/components/ui/dashboard-ui';
+import { api } from '@/lib/api';
+import { queryKeys } from '@/lib/api/query-keys';
+import type { Plan, PlanFeatureMapping, TenantSubscriptionResponse } from '@/lib/api/types';
+import { textForLocale } from '@/lib/localized-text';
+
+function displayLimit(value: number | null, unlimited: boolean, suffix = '') {
+  if (unlimited) {
+    return 'Unlimited';
+  }
+
+  return `${value ?? 0}${suffix}`;
+}
+
+function featureValue(mapping: PlanFeatureMapping | undefined) {
+  if (!mapping || !mapping.enabled) {
+    return 'Not included';
+  }
+
+  if (mapping.valueBool !== null) {
+    return mapping.valueBool ? 'Included' : 'Not included';
+  }
+
+  if (mapping.valueString) {
+    return mapping.valueString.replaceAll('_', ' ').toLowerCase();
+  }
+
+  if (mapping.valueInt !== null) {
+    return mapping.valueInt >= 999999 ? 'Unlimited' : String(mapping.valueInt);
+  }
+
+  return 'Included';
+}
+
+function usagePercent(used: number, limit: number | null, unlimited: boolean) {
+  if (unlimited || !limit) {
+    return 35;
+  }
+
+  return Math.min(Math.round((used / limit) * 100), 100);
+}
+
+function UsageMeter({
+  label,
+  used,
+  limit,
+  unlimited,
+}: {
+  label: string;
+  used: number;
+  limit: number | null;
+  unlimited: boolean;
+}) {
+  const percent = usagePercent(used, limit, unlimited);
+
+  return (
+    <div className="rounded-2xl border border-teal-100 bg-white p-4">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm font-black text-stone-800">{label}</p>
+        <p className="text-xs font-black text-stone-500">
+          {used} / {unlimited ? '∞' : limit}
+        </p>
+      </div>
+      <div className="mt-3 h-2 rounded-full bg-stone-100">
+        <div
+          className={cx('h-full rounded-full', percent > 90 ? 'bg-amber-500' : 'bg-teal-500')}
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function CurrentPlanCard({ data }: { data: TenantSubscriptionResponse }) {
+  const statusTone = data.subscription.status === 'PAST_DUE' ? 'amber' : 'teal';
+  const currentPlan = data.plans.find((plan) => plan.code === data.subscription.plan);
+
+  return (
+    <Card className="border-teal-100 bg-white p-5">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <Badge tone={statusTone}>{data.subscription.status.replaceAll('_', ' ')}</Badge>
+          <h2 className="mt-3 text-2xl font-black text-stone-950">
+            {currentPlan ? textForLocale(currentPlan.publicName, 'en') : data.subscription.plan}
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+            Public menus stay available across every plan. Workspace changes, AI extraction, analytics
+            history, and QR branding follow the active plan limits.
+          </p>
+        </div>
+        {data.subscription.status === 'PAST_DUE' ? (
+          <div className="flex max-w-md gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            <ShieldAlert className="mt-0.5 size-5 shrink-0" />
+            <p className="font-bold leading-6">
+              Billing is past due. Menu links remain online, but changes and downloads are paused.
+            </p>
+          </div>
+        ) : null}
+      </div>
+      <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <UsageMeter
+          label="Branches"
+          used={data.usage.branches}
+          limit={data.subscription.limits.branches}
+          unlimited={data.subscription.limits.unlimitedBranches}
+        />
+        <UsageMeter
+          label="AI extractions"
+          used={data.usage.extractionsThisMonth}
+          limit={data.subscription.limits.monthlyExtractions}
+          unlimited={data.subscription.limits.unlimitedExtractions}
+        />
+        <UsageMeter
+          label="Team users"
+          used={data.usage.users}
+          limit={data.subscription.limits.staffUsers}
+          unlimited={data.subscription.limits.unlimitedStaffUsers}
+        />
+        <UsageMeter
+          label="Languages"
+          used={data.usage.languages}
+          limit={data.subscription.limits.languages}
+          unlimited={data.subscription.limits.unlimitedLanguages}
+        />
+      </div>
+    </Card>
+  );
+}
+
+function PricingCard({ plan, active }: { plan: Plan; active: boolean }) {
+  const yearlyPrice = plan.priceAnnualEgp === null ? 'Premium' : `${plan.priceAnnualEgp} EGP/year`;
+  const branchLimit = featureValue(plan.featureMappings.find((item) => item.feature.key === 'BRANCH_LIMIT'));
+  const extractionLimit = featureValue(
+    plan.featureMappings.find((item) => item.feature.key === 'GEMINI_EXTRACTIONS_MONTHLY'),
+  );
+  const analyticsLimit = featureValue(
+    plan.featureMappings.find((item) => item.feature.key === 'ANALYTICS_HISTORY_DAYS'),
+  );
+  const qrBranding = featureValue(plan.featureMappings.find((item) => item.feature.key === 'QR_BRANDING'));
+
+  return (
+    <Card
+      className={cx(
+        'flex h-full flex-col border-teal-100 bg-white p-5',
+        active ? 'ring-2 ring-teal-400' : '',
+        plan.comingSoon ? 'opacity-75' : '',
+      )}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h3 className="text-lg font-black text-stone-950">{textForLocale(plan.publicName, 'en')}</h3>
+          <p className="mt-1 text-sm font-black text-primary">{yearlyPrice}</p>
+        </div>
+        {active ? (
+          <Badge tone="teal">Current</Badge>
+        ) : plan.comingSoon ? (
+          <Badge tone="amber">Coming soon</Badge>
+        ) : null}
+      </div>
+      <div className="mt-4 space-y-3 text-sm font-bold text-stone-600">
+        {[
+          `${branchLimit} branches`,
+          `${extractionLimit} extractions`,
+          `${analyticsLimit} analytics days`,
+          qrBranding,
+        ].map((item) => (
+          <div key={item} className="flex gap-2">
+            <Check className="mt-0.5 size-4 shrink-0 text-teal-500" />
+            <span className="capitalize">{item}</span>
+          </div>
+        ))}
+      </div>
+      <div className="mt-auto pt-5">
+        <a
+          className={cx(
+            'inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl text-sm font-black transition',
+            active || plan.comingSoon
+              ? 'border border-stone-200 bg-stone-50 text-stone-400'
+              : 'bg-primary text-white shadow-lg shadow-teal-100 hover:bg-teal-700',
+          )}
+          href={active || plan.comingSoon ? undefined : plan.upgradeUrl}
+          target="_blank"
+          rel="noreferrer"
+          aria-disabled={active || plan.comingSoon}
+        >
+          <MessageCircle className="size-4" />
+          {active ? 'Active plan' : plan.comingSoon ? 'Coming soon' : 'Upgrade on WhatsApp'}
+        </a>
+      </div>
+    </Card>
+  );
+}
+
+export function SubscriptionSettingsSection() {
+  const subscription = useQuery({
+    queryKey: queryKeys.subscription,
+    queryFn: api.subscription,
+  });
+
+  if (subscription.isLoading) {
+    return <Card className="h-72 animate-pulse border-teal-100 bg-white">{null}</Card>;
+  }
+
+  if (!subscription.data) {
+    return null;
+  }
+
+  return (
+    <div className="space-y-5">
+      <CurrentPlanCard data={subscription.data} />
+      {!subscription.data.canManageBilling ? (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-900">
+          Owners manage billing and upgrades. You can still review limits and plan availability here.
+        </div>
+      ) : null}
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">Plan matrix</p>
+          <h2 className="mt-1 text-2xl font-black text-stone-950">Menu SaaS plans</h2>
+        </div>
+        <PrimaryButton onClick={() => window.open(subscription.data.plans[1]?.upgradeUrl, '_blank')}>
+          <Crown className="size-4" />
+          Upgrade
+          <ArrowUpRight className="size-4" />
+        </PrimaryButton>
+      </div>
+      <div className="grid gap-4 lg:grid-cols-5">
+        {subscription.data.plans.map((plan) => (
+          <PricingCard key={plan.id} plan={plan} active={plan.code === subscription.data.subscription.plan} />
+        ))}
+      </div>
+    </div>
+  );
+}
