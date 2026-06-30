@@ -60,7 +60,6 @@ export function AuthPanel({ mode }: { mode: Mode }) {
   const completeAuth = (user: CurrentUser) => {
     queryClient.setQueryData(queryKeys.me, user);
     router.replace(postAuthDestination(user, locale));
-    router.refresh();
   };
 
   useEffect(() => {
