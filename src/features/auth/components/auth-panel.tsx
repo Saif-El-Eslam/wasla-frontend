@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowRight, CheckCircle2, KeyRound, LogIn, PlusCircle, ShieldCheck, Store } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { api, ApiError } from '@/lib/api';
@@ -16,6 +16,8 @@ import {
   type AuthPanelFormValues,
 } from '@/features/auth/schemas/auth.schema';
 import { postAuthDestination } from '@/features/auth/utils/auth-redirect';
+import { queryKeys } from '@/lib/api/query-keys';
+import type { CurrentUser } from '@/lib/api';
 
 type Mode = 'login' | 'register' | 'verify';
 
@@ -30,6 +32,7 @@ export function AuthPanel({ mode }: { mode: Mode }) {
   const publicT = useTranslations('public');
   const dashboardT = useTranslations('dashboard');
   const router = useRouter();
+  const queryClient = useQueryClient();
   const params = useParams<{ locale: string }>();
   const searchParams = useSearchParams();
   const locale = params.locale ?? 'en';
@@ -54,6 +57,12 @@ export function AuthPanel({ mode }: { mode: Mode }) {
     formState: { errors },
   } = form;
 
+  const completeAuth = (user: CurrentUser) => {
+    queryClient.setQueryData(queryKeys.me, user);
+    router.replace(postAuthDestination(user, locale));
+    router.refresh();
+  };
+
   useEffect(() => {
     reset({
       mode,
@@ -67,7 +76,7 @@ export function AuthPanel({ mode }: { mode: Mode }) {
   const loginMutation = useMutation({
     mutationFn: api.login,
     onSuccess: ({ user }) => {
-      router.push(postAuthDestination(user, locale));
+      completeAuth(user);
     },
   });
 
@@ -82,7 +91,7 @@ export function AuthPanel({ mode }: { mode: Mode }) {
   const verifyMutation = useMutation({
     mutationFn: api.verifyOtp,
     onSuccess: ({ user }) => {
-      router.push(postAuthDestination(user, locale));
+      completeAuth(user);
     },
   });
 
