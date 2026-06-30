@@ -20,18 +20,6 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(request.nextUrl);
   }
 
-  const isProtectedRoute = locales.some(
-    (locale) =>
-      pathname.startsWith(`/${locale}/dashboard`) || pathname.startsWith(`/${locale}/dashboard/setup`),
-  );
-  const hasSession = Boolean(request.cookies.get('wasla_session'));
-
-  if (isProtectedRoute && !hasSession) {
-    const locale = pathname.split('/')[1] ?? defaultLocale;
-    const loginUrl = new URL(`/${locale}/login`, request.url);
-    return NextResponse.redirect(loginUrl);
-  }
-
   return NextResponse.next();
 }
 
