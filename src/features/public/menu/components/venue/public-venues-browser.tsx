@@ -8,6 +8,7 @@ import { Filter, GitBranch, MapPin, Search, Star } from 'lucide-react';
 import type { PublicVenue, PublicVenueListResponse } from '@/lib/api';
 import { publicMenuApi } from '@/features/public/menu/api/public-menu.api';
 import { textForLocale } from '@/lib/localized-text';
+import { optimizedImageUrl } from '@/lib/image-url';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useThrottle } from '@/hooks/use-throttle';
 
@@ -37,7 +38,7 @@ function VenueCard({ venue, locale }: { venue: PublicVenue; locale: string }) {
     >
       <div className="relative h-40 overflow-hidden bg-stone-100">
         <img
-          src={cover}
+          src={optimizedImageUrl(cover, { width: 900, height: 500, crop: 'fill' })}
           alt=""
           className="size-full object-cover transition duration-300 group-hover:scale-105"
         />

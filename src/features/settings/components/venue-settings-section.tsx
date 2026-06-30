@@ -7,8 +7,10 @@ import type { UseMutationResult } from '@tanstack/react-query';
 import type { UseFormReturn } from 'react-hook-form';
 import { Card, PrimaryButton, SecondaryButton } from '@/components/ui/dashboard-ui';
 import { FormInput } from '@/components/ui/form-input';
+import { ImageUploadField } from '@/components/ui/image-upload-field';
 import { readError } from '@/features/dashboard/utils/dashboard-utils';
 import type { UpdateVenueInput, Venue } from '@/lib/api';
+import { cleanupUploadedImages, uploadImageDirect } from '@/lib/api/image-upload';
 import { textForLocale } from '@/lib/localized-text';
 import type { VenueSettingsFormInput, VenueSettingsFormValues } from '@/features/settings/schemas/settings.schema';
 import { DetailTile, SettingsPanelHeader, settingsInputClassName } from './settings-ui';
@@ -53,6 +55,59 @@ export function VenueSettingsSection({
   const t = useTranslations('dashboard');
   const commonT = useTranslations('common');
   const [editing, setEditing] = useState(false);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [imageError, setImageError] = useState('');
+  const pending = mutation.isPending || uploadingImages;
+
+  const closeEditor = () => {
+    setLogoFile(null);
+    setCoverFile(null);
+    setImageError('');
+    setEditing(false);
+  };
+
+  const submitVenueSettings = async (values: VenueSettingsFormValues) => {
+    const uploadedUrls: string[] = [];
+
+    try {
+      setUploadingImages(true);
+      setImageError('');
+
+      const logoUrl = logoFile ? (await uploadImageDirect(logoFile, 'venue')).url : values.logoUrl;
+      if (logoFile && logoUrl) {
+        uploadedUrls.push(logoUrl);
+      }
+
+      const coverUrl = coverFile ? (await uploadImageDirect(coverFile, 'venue')).url : values.coverUrl;
+      if (coverFile && coverUrl) {
+        uploadedUrls.push(coverUrl);
+      }
+
+      await mutation.mutateAsync({
+        type: values.type,
+        name: cleanLocalized(values.name),
+        description: cleanLocalized(values.description ?? {}),
+        defaultLocale: values.defaultLocale === 'en' ? 'en' : 'ar',
+        supportedLocales: ['ar', 'en'],
+        logoUrl,
+        coverUrl,
+        phone: values.phone,
+        whatsapp: values.whatsapp,
+        address: cleanLocalized(values.address ?? {}),
+        googleMapsUrl: values.googleMapsUrl,
+        instagramUrl: values.instagramUrl,
+      });
+
+      closeEditor();
+    } catch (error) {
+      await cleanupUploadedImages(uploadedUrls);
+      setImageError(error instanceof Error ? error.message : 'Could not save images. Please try again.');
+    } finally {
+      setUploadingImages(false);
+    }
+  };
 
   if (!editing) {
     return (
@@ -89,23 +144,7 @@ export function VenueSettingsSection({
       <SettingsPanelHeader icon={Store} title={t('venueSettings')} body={t('venueSettingsBody')} />
       <form
         className="grid gap-4"
-        onSubmit={form.handleSubmit((values) =>
-          mutation.mutate(
-            {
-              type: values.type,
-              name: cleanLocalized(values.name),
-              description: cleanLocalized(values.description ?? {}),
-              defaultLocale: values.defaultLocale === 'en' ? 'en' : 'ar',
-              supportedLocales: ['ar', 'en'],
-              phone: values.phone,
-              whatsapp: values.whatsapp,
-              address: cleanLocalized(values.address ?? {}),
-              googleMapsUrl: values.googleMapsUrl,
-              instagramUrl: values.instagramUrl,
-            },
-            { onSuccess: () => setEditing(false) },
-          ),
-        )}
+        onSubmit={form.handleSubmit(submitVenueSettings)}
       >
         <div className="grid gap-3 lg:grid-cols-3">
           <label className="flex min-w-0 flex-col gap-1">
@@ -125,6 +164,29 @@ export function VenueSettingsSection({
               <option value="en">EN</option>
             </select>
           </label>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2">
+          <ImageUploadField
+            label={t('logoUrl')}
+            value={(form.watch('logoUrl') as string) ?? ''}
+            file={logoFile}
+            onFileChange={setLogoFile}
+            onChange={(value) => form.setValue('logoUrl', value, { shouldDirty: true, shouldValidate: true })}
+            aspect="aspect-[5/2]"
+            disabled={pending}
+            pending={pending}
+          />
+          <ImageUploadField
+            label={t('coverUrl')}
+            value={(form.watch('coverUrl') as string) ?? ''}
+            file={coverFile}
+            onFileChange={setCoverFile}
+            onChange={(value) => form.setValue('coverUrl', value, { shouldDirty: true, shouldValidate: true })}
+            aspect="aspect-[5/2]"
+            disabled={pending}
+            pending={pending}
+          />
         </div>
 
         <div className="grid gap-3 md:grid-cols-2">
@@ -211,12 +273,13 @@ export function VenueSettingsSection({
         </div>
 
         {mutation.error ? <p className="text-sm text-red-700">{readError(mutation.error)}</p> : null}
+        {imageError ? <p className="text-sm text-red-700">{imageError}</p> : null}
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-          <SecondaryButton type="button" onClick={() => setEditing(false)} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-border bg-white px-4 text-sm font-bold transition hover:brightness-95">
+          <SecondaryButton type="button" onClick={closeEditor} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-border bg-white px-4 text-sm font-bold transition hover:brightness-95">
             <X className="size-4" />
             {commonT('cancel')}
           </SecondaryButton>
-          <PrimaryButton type="submit" loading={mutation.isPending} className="sm:min-w-40">
+          <PrimaryButton type="submit" loading={pending} className="sm:min-w-40">
             <Save className="size-4" />
             {t('saveVenue')}
           </PrimaryButton>

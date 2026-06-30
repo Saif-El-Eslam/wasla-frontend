@@ -8,6 +8,7 @@ import { ArrowRight, GitBranch, Loader2, Search, Store } from 'lucide-react';
 import type { LocalizedValue, PublicBranch, PublicVenue } from '@/lib/api';
 import { publicMenuApi } from '@/features/public/menu/api/public-menu.api';
 import { textForLocale } from '@/lib/localized-text';
+import { optimizedImageUrl } from '@/lib/image-url';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useThrottle } from '@/hooks/use-throttle';
 
@@ -189,7 +190,11 @@ export function LandingQuickSearch({ locale }: { locale: string }) {
                             >
                               <span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-teal-50">
                                 {venue.logoUrl ? (
-                                  <img src={venue.logoUrl} alt="" className="size-full object-cover" />
+                                  <img
+                                    src={optimizedImageUrl(venue.logoUrl, { width: 120, height: 120, crop: 'fill' })}
+                                    alt=""
+                                    className="size-full object-cover"
+                                  />
                                 ) : (
                                   <Store className="size-4 text-teal-700" />
                                 )}

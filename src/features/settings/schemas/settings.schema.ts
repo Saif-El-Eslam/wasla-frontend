@@ -36,6 +36,8 @@ export const venueSettingsSchema = z.object({
   description: fieldValidations.optionalLocalizedDraft(),
   address: fieldValidations.optionalLocalizedDraft(),
   defaultLocale: fieldValidations.select(['ar', 'en']),
+  logoUrl: fieldValidations.url(),
+  coverUrl: fieldValidations.url(),
   phone: fieldValidations.optionalEgyptPhone(),
   whatsapp: fieldValidations.optionalEgyptPhone(),
   googleMapsUrl: fieldValidations.url(),

@@ -6,6 +6,7 @@ import type { MenuItem } from '@/lib/api';
 import { IconButton, itemPriceText } from '@/components/ui/dashboard-ui';
 import { textForLocale } from '@/lib/localized-text';
 import { ItemPrices } from '@/components/ui/item-prices';
+import { optimizedImageUrl } from '@/lib/image-url';
 
 export function PublicItemModal({
   item,
@@ -27,7 +28,11 @@ export function PublicItemModal({
         onClick={(event) => event.stopPropagation()}
       >
         {item.imageUrl ? (
-          <img src={item.imageUrl} alt="" className="h-64 w-full object-cover" />
+          <img
+            src={optimizedImageUrl(item.imageUrl, { width: 960, height: 512, crop: 'fill' })}
+            alt=""
+            className="h-64 w-full object-cover"
+          />
         ) : (
           <div className="grid h-40 place-items-center bg-stone-100">
             <ImageIcon className="size-10 text-stone-300" />

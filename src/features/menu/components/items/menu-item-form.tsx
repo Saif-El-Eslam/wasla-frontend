@@ -5,6 +5,7 @@ import { X, CheckCircle2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { FormPanel, PrimaryButton, IconButton } from '@/components/ui/dashboard-ui';
 import { FormInput } from '@/components/ui/form-input';
+import { ImageUploadField } from '@/components/ui/image-upload-field';
 import { FormListbox } from '@/components/ui/form-select';
 import { FormTextarea } from '@/components/ui/form-textarea';
 import type { UseFormReturn, UseFieldArrayRemove, UseFieldArrayAppend } from 'react-hook-form';
@@ -21,6 +22,8 @@ export function MenuItemForm({
   categories,
   locale,
   onSubmit,
+  imageFile = null,
+  onImageFileChange = () => undefined,
   pending,
   error,
   isEditing,
@@ -32,6 +35,8 @@ export function MenuItemForm({
   categories: MenuCategory[];
   locale: string;
   onSubmit: (values: ItemFormValues) => void;
+  imageFile?: File | null;
+  onImageFileChange?: (file: File | null) => void;
   pending: boolean;
   error?: unknown;
   isEditing: boolean;
@@ -105,12 +110,15 @@ export function MenuItemForm({
               placeholder={t('descriptionInArabic')}
             />
             <div className="sm:col-span-2">
-              <FormInput
-                name="imageUrl"
-                type="url"
-                register={form.register}
-                errors={form.formState.errors}
-                placeholder={t('imageUrl')}
+              <ImageUploadField
+                label={t('imageUrl')}
+                value={(form.watch('imageUrl') as string) ?? ''}
+                file={imageFile}
+                onFileChange={onImageFileChange}
+                onChange={(value) => form.setValue('imageUrl', value, { shouldDirty: true, shouldValidate: true })}
+                aspect="aspect-[5/2]"
+                disabled={pending}
+                pending={pending}
               />
             </div>
             <div className="sm:col-span-2">

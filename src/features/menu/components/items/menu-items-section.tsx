@@ -6,6 +6,7 @@ import { EmptyState } from '@/components/ui/dashboard-ui';
 import { useTranslations } from 'next-intl';
 import { Edit3, Eye, EyeOff, ImageIcon, MoreVertical, Plus, Trash2 } from 'lucide-react';
 import { textForLocale } from '@/lib/localized-text';
+import { optimizedImageUrl } from '@/lib/image-url';
 import type { Menu, MenuCategory, MenuItem } from '@/lib/api';
 import { MenuItemForm } from './menu-item-form';
 import { MenuCategoryForm } from '../categories/menu-category-form';
@@ -29,6 +30,8 @@ export function MenuItemsSection({
   onToggleCategory,
   toggleCategoryPending,
   onSubmitCategoryForm,
+  categoryImageFile,
+  onCategoryImageFileChange,
   onOpenCreateCategoryForm,
   onCloseCategoryForm,
   onEditCategory,
@@ -39,6 +42,8 @@ export function MenuItemsSection({
   itemForm,
   onCloseItemForm,
   onSubmitItemForm,
+  imageFile,
+  onImageFileChange,
   createItemPending,
   saveItemPending,
   toggleItemPending,
@@ -58,6 +63,8 @@ export function MenuItemsSection({
   onEditCategory: (category: MenuCategory) => void;
   onDeleteCategory: (categoryId: string) => void;
   onSubmitCategoryForm: (values: CategoryFormValues) => void;
+  categoryImageFile: File | null;
+  onCategoryImageFileChange: (file: File | null) => void;
   saveCategoryPending: boolean;
   createCategoryPending: boolean;
   editingCategoryId: string | null;
@@ -67,6 +74,8 @@ export function MenuItemsSection({
   onOpenCreateItemForm: () => void;
   onCloseItemForm: () => void;
   onSubmitItemForm: (values: ItemFormValues) => void;
+  imageFile: File | null;
+  onImageFileChange: (file: File | null) => void;
   createItemPending: boolean;
   saveItemPending: boolean;
   toggleItemPending: boolean;
@@ -142,6 +151,8 @@ export function MenuItemsSection({
             categories={menu.categories}
             locale={locale}
             onSubmit={onSubmitItemForm}
+            imageFile={imageFile}
+            onImageFileChange={onImageFileChange}
             pending={editingItemContext ? saveItemPending : createItemPending}
             error={error}
             isEditing={Boolean(editingItemContext)}
@@ -157,6 +168,8 @@ export function MenuItemsSection({
             onClose={onCloseCategoryForm}
             form={categoryForm}
             onSubmit={onSubmitCategoryForm}
+            imageFile={categoryImageFile}
+            onImageFileChange={onCategoryImageFileChange}
             pending={editingCategoryId ? saveCategoryPending : createCategoryPending}
             error={error}
             isEditing={Boolean(editingCategoryId)}
@@ -200,7 +213,11 @@ export function MenuItemsSection({
                           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
                             <div className="flex size-14 items-center justify-center overflow-hidden rounded-xl bg-stone-100">
                               {item.imageUrl ? (
-                                <img src={item.imageUrl} alt="" className="size-full object-cover" />
+                                <img
+                                  src={optimizedImageUrl(item.imageUrl, { width: 160, height: 160, crop: 'fill' })}
+                                  alt=""
+                                  className="size-full object-cover"
+                                />
                               ) : (
                                 <ImageIcon className="size-5 text-stone-300" />
                               )}

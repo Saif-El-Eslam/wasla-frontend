@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Building2, Menu as MenuIcon, CheckCircle2, GitBranch, Plus, UtensilsCrossed } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { api, type Menu, type MenuCategory, type MenuItem } from '@/lib/api';
+import { api, type CreateCategoryInput, type CreateItemInput, type Menu, type MenuCategory, type MenuItem } from '@/lib/api';
 import {
   Badge,
   BranchSelect,
@@ -45,6 +45,7 @@ import {
   type MenuFormValues,
 } from '@/features/menu/schemas/menu.schema';
 import { PublicPreview } from '@/features/public/menu/components/menu/public-preview';
+import { cleanupUploadedImages, uploadImageDirect } from '@/lib/api/image-upload';
 
 const emptyLocalizedDraft: LocalizedDraft = { en: '', ar: '' };
 
@@ -105,6 +106,8 @@ export function MenuTab({
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
   const [itemToDelete, setItemToDelete] = useState<{ categoryId: string; itemId: string } | null>(null);
   const [activeTab, setActiveTab] = useState<'build' | 'preview'>('build');
+  const [categoryImageFile, setCategoryImageFile] = useState<File | null>(null);
+  const [itemImageFile, setItemImageFile] = useState<File | null>(null);
   const menuForm = useForm<MenuFormInput, unknown, MenuFormValues>({
     resolver: zodResolver(menuFormSchema),
     defaultValues: {},
@@ -151,6 +154,7 @@ export function MenuTab({
   };
   const resetCategoryForm = () => {
     setEditingCategoryId(null);
+    setCategoryImageFile(null);
     categoryForm.reset({
       name: draftWithFallback(),
       description: draftWithFallback(),
@@ -161,6 +165,7 @@ export function MenuTab({
 
   const resetItemForm = () => {
     setEditingItemContext(null);
+    setItemImageFile(null);
     itemForm.reset({
       categoryId: effectiveCategoryId,
       name: draftWithFallback(),
@@ -188,6 +193,7 @@ export function MenuTab({
 
   const openEditCategoryForm = (category: MenuCategory) => {
     setEditingCategoryId(category.id);
+    setCategoryImageFile(null);
     categoryForm.reset({
       name: draftFromLocalized(category.name, locale),
       description: draftFromLocalized(category.description, locale),
@@ -210,6 +216,7 @@ export function MenuTab({
     const useMultiPrices = itemPrices.length > 1;
 
     setEditingItemContext({ categoryId: category.id, itemId: item.id });
+    setItemImageFile(null);
     itemForm.reset({
       categoryId: category.id,
       name: draftFromLocalized(item.name, locale),
@@ -248,20 +255,36 @@ export function MenuTab({
     },
   });
 
-  const categoryPayload = (values: CategoryFormValues) => {
+  const categoryPayload = (values: CategoryFormValues, imageUrl = values.imageUrl || undefined) => {
     const description = draftWithFallback(values.description);
 
     return {
       name: toLocalized(values.name, t('addCategory')),
       description: description.en || description.ar ? toLocalized(description, '') : undefined,
-      imageUrl: values.imageUrl || undefined,
+      imageUrl,
       active: values.active,
-    };
+    } satisfies CreateCategoryInput;
   };
 
-  const categoryCachePatch = (values: CategoryFormValues): Partial<MenuCategory> => {
-    const payload = categoryPayload(values);
+  const buildCategoryPayload = async (values: CategoryFormValues) => {
+    const uploadedUrls: string[] = [];
 
+    try {
+      const imageUrl = categoryImageFile
+        ? (await uploadImageDirect(categoryImageFile, 'menu-category')).url
+        : values.imageUrl || undefined;
+      if (categoryImageFile && imageUrl) {
+        uploadedUrls.push(imageUrl);
+      }
+
+      return { payload: categoryPayload(values, imageUrl), uploadedUrls };
+    } catch (error) {
+      await cleanupUploadedImages(uploadedUrls);
+      throw error;
+    }
+  };
+
+  const categoryCachePatch = (payload: CreateCategoryInput): Partial<MenuCategory> => {
     return {
       ...payload,
       description: payload.description ?? null,
@@ -270,10 +293,21 @@ export function MenuTab({
   };
 
   const createCategoryMutation = useMutation({
-    mutationFn: (values: CategoryFormValues) =>
-      api.createCategory(effectiveBranchId, categoryPayload(values)),
-    onSuccess: ({ category }, values) => {
-      const patch = categoryCachePatch(values);
+    mutationFn: async (values: CategoryFormValues) => {
+      const { payload, uploadedUrls } = await buildCategoryPayload(values);
+
+      try {
+        const result = await api.createCategory(effectiveBranchId, payload);
+
+        return { result, payload };
+      } catch (error) {
+        await cleanupUploadedImages(uploadedUrls);
+        throw error;
+      }
+    },
+    onSuccess: ({ result, payload }) => {
+      const { category } = result;
+      const patch = categoryCachePatch(payload);
       addCachedCategory(queryClient, effectiveBranchId, {
         ...category,
         ...patch,
@@ -285,18 +319,28 @@ export function MenuTab({
   });
 
   const saveCategoryMutation = useMutation({
-    mutationFn: (values: CategoryFormValues) => {
+    mutationFn: async (values: CategoryFormValues) => {
       if (!editingCategoryId) {
         throw new Error('No category selected');
       }
 
-      return api.updateCategory(effectiveBranchId, editingCategoryId, categoryPayload(values));
+      const { payload, uploadedUrls } = await buildCategoryPayload(values);
+
+      try {
+        const result = await api.updateCategory(effectiveBranchId, editingCategoryId, payload);
+
+        return { result, payload };
+      } catch (error) {
+        await cleanupUploadedImages(uploadedUrls);
+        throw error;
+      }
     },
-    onSuccess: ({ category }, values) => {
+    onSuccess: ({ result, payload }) => {
+      const { category } = result;
       if (editingCategoryId) {
         replaceCachedCategory(queryClient, effectiveBranchId, editingCategoryId, {
           ...category,
-          ...categoryCachePatch(values),
+          ...categoryCachePatch(payload),
         });
       }
       resetCategoryForm();
@@ -335,7 +379,7 @@ export function MenuTab({
     }
   }, [effectiveCategoryId, itemForm]);
 
-  const itemPayload = (values: ItemFormValues) => {
+  const itemPayload = (values: ItemFormValues, imageUrl = values.imageUrl || undefined) => {
     const description = draftWithFallback(values.description);
     const pricePayload =
       values.priceMode === 'multi'
@@ -350,7 +394,7 @@ export function MenuTab({
     return {
       name: toLocalized(values.name, t('addItem')),
       description: description.en || description.ar ? toLocalized(description, '') : undefined,
-      imageUrl: values.imageUrl || undefined,
+      imageUrl,
       prices: pricePayload,
       available: values.available,
       tags: (values.tags ?? '')
@@ -358,12 +402,28 @@ export function MenuTab({
         .map((tag) => tag.trim())
         .filter(Boolean),
       calories: values.calories,
-    };
+    } satisfies CreateItemInput;
   };
 
-  const itemCachePatch = (values: ItemFormValues): Partial<MenuItem> => {
-    const payload = itemPayload(values);
+  const buildItemPayload = async (values: ItemFormValues) => {
+    const uploadedUrls: string[] = [];
 
+    try {
+      const imageUrl = itemImageFile
+        ? (await uploadImageDirect(itemImageFile, 'menu-item')).url
+        : values.imageUrl || undefined;
+      if (itemImageFile && imageUrl) {
+        uploadedUrls.push(imageUrl);
+      }
+
+      return { payload: itemPayload(values, imageUrl), uploadedUrls };
+    } catch (error) {
+      await cleanupUploadedImages(uploadedUrls);
+      throw error;
+    }
+  };
+
+  const itemCachePatch = (payload: CreateItemInput): Partial<MenuItem> => {
     return {
       name: payload.name,
       description: payload.description ?? null,
@@ -375,30 +435,51 @@ export function MenuTab({
   };
 
   const createItemMutation = useMutation({
-    mutationFn: (values: ItemFormValues) =>
-      api.createItem(effectiveBranchId, values.categoryId, itemPayload(values)),
-    onSuccess: ({ item }, values) => {
-      const patch = itemCachePatch(values);
-      addCachedItem(queryClient, effectiveBranchId, values.categoryId, { ...item, ...patch });
+    mutationFn: async (values: ItemFormValues) => {
+      const { payload, uploadedUrls } = await buildItemPayload(values);
+
+      try {
+        const result = await api.createItem(effectiveBranchId, values.categoryId, payload);
+
+        return { result, payload, categoryId: values.categoryId };
+      } catch (error) {
+        await cleanupUploadedImages(uploadedUrls);
+        throw error;
+      }
+    },
+    onSuccess: ({ result, payload, categoryId }) => {
+      const { item } = result;
+      const patch = itemCachePatch(payload);
+      addCachedItem(queryClient, effectiveBranchId, categoryId, { ...item, ...patch });
       resetItemForm();
       setFormMode(null);
     },
   });
 
   const saveItemMutation = useMutation({
-    mutationFn: (values: ItemFormValues) => {
+    mutationFn: async (values: ItemFormValues) => {
       if (!editingItemContext) {
         throw new Error('No item selected');
       }
 
-      return api.updateItem(
-        effectiveBranchId,
-        editingItemContext.categoryId,
-        editingItemContext.itemId,
-        itemPayload(values),
-      );
+      const { payload, uploadedUrls } = await buildItemPayload(values);
+
+      try {
+        const result = await api.updateItem(
+          effectiveBranchId,
+          editingItemContext.categoryId,
+          editingItemContext.itemId,
+          payload,
+        );
+
+        return { result, payload };
+      } catch (error) {
+        await cleanupUploadedImages(uploadedUrls);
+        throw error;
+      }
     },
-    onSuccess: ({ item }, values) => {
+    onSuccess: ({ result, payload }) => {
+      const { item } = result;
       if (editingItemContext) {
         replaceCachedItem(
           queryClient,
@@ -407,7 +488,7 @@ export function MenuTab({
           editingItemContext.itemId,
           {
             ...item,
-            ...itemCachePatch(values),
+            ...itemCachePatch(payload),
           },
         );
       }
@@ -638,6 +719,8 @@ export function MenuTab({
                     setItemToDelete={setItemToDelete}
                     itemToDelete={itemToDelete}
                     error={createItemMutation.error ?? saveItemMutation.error ?? deleteItemMutation.error}
+                    imageFile={itemImageFile}
+                    onImageFileChange={setItemImageFile}
                     categoryForm={categoryForm}
                     editingCategoryId={editingCategoryId}
                     toggleCategoryPending={toggleCategoryMutation.isPending}
@@ -652,6 +735,8 @@ export function MenuTab({
                     onCloseCategoryForm={closeForm}
                     createCategoryPending={createCategoryMutation.isPending}
                     saveCategoryPending={saveCategoryMutation.isPending}
+                    categoryImageFile={categoryImageFile}
+                    onCategoryImageFileChange={setCategoryImageFile}
                     onToggleCategory={(categoryId, active) =>
                       toggleCategoryMutation.mutate({ categoryId, active })
                     }

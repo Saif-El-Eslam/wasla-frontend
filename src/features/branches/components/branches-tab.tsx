@@ -18,7 +18,7 @@ import {
   UtensilsCrossed,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { api, type BranchManagement, type OpeningHours } from '@/lib/api';
+import { api, type BranchManagement, type CreateBranchInput, type OpeningHours } from '@/lib/api';
 import {
   Badge,
   Card,
@@ -30,6 +30,7 @@ import {
   slugify,
 } from '@/components/ui/dashboard-ui';
 import { ConfirmationModal } from '@/components/ui/confirmation-modal';
+import { ImageUploadField } from '@/components/ui/image-upload-field';
 import {
   readError,
   toLocalized,
@@ -52,6 +53,7 @@ import {
   type BranchFormValues,
 } from '@/features/branches/schemas/branch.schema';
 import { FormInput } from '@/components/ui/form-input';
+import { cleanupUploadedImages, uploadImageDirect } from '@/lib/api/image-upload';
 
 function normalizeOpeningHours(openingHours: BranchManagement['openingHours']): OpeningHours | undefined {
   if (!openingHours) {
@@ -83,6 +85,8 @@ export function BranchesTab({
   const [search, setSearch] = useState('');
   const [formOpen, setFormOpen] = useState(false);
   const [editingBranch, setEditingBranch] = useState<BranchManagement | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
   const form = useForm<BranchFormInput, unknown, BranchFormValues>({
     resolver: zodResolver(branchSchema),
     defaultValues: {
@@ -133,6 +137,8 @@ export function BranchesTab({
 
   const resetForm = () => {
     setEditingBranch(null);
+    setLogoFile(null);
+    setCoverFile(null);
     reset({
       name: { en: '', ar: '' },
       slug: '',
@@ -157,6 +163,8 @@ export function BranchesTab({
 
   const openEditForm = (branch: BranchManagement) => {
     setEditingBranch(branch);
+    setLogoFile(null);
+    setCoverFile(null);
     setOpenActionsBranchId(null);
 
     reset({
@@ -176,7 +184,7 @@ export function BranchesTab({
     setFormOpen(true);
   };
 
-  const branchPayload = (values: BranchFormValues) => {
+  const buildBranchPayload = async (values: BranchFormValues) => {
     const address: LocalizedDraft = {
       en: values.address.en ?? '',
       ar: values.address.ar ?? '',
@@ -185,26 +193,58 @@ export function BranchesTab({
       values.openingHours?.from || values.openingHours?.to
         ? { from: values.openingHours.from, to: values.openingHours.to }
         : undefined;
+    const uploadedUrls: string[] = [];
 
-    return {
-      name: toLocalized(values.name, t('branches')),
-      slug: values.slug || slugify(values.name.en || values.name.ar || 'branch'),
-      active: values.active,
-      phone: values.phone || undefined,
-      whatsapp: values.whatsapp || undefined,
-      address: address.en || address.ar ? toLocalized(address, '') : undefined,
-      logoUrl: values.logoUrl || undefined,
-      coverUrl: values.coverUrl || undefined,
-      googleMapsUrl: values.googleMapsUrl || undefined,
-      instagramUrl: values.instagramUrl || undefined,
-      openingHours,
-    };
+    try {
+      const logoUrl = logoFile ? (await uploadImageDirect(logoFile, 'branch')).url : values.logoUrl || undefined;
+      if (logoFile && logoUrl) {
+        uploadedUrls.push(logoUrl);
+      }
+
+      const coverUrl = coverFile
+        ? (await uploadImageDirect(coverFile, 'branch')).url
+        : values.coverUrl || undefined;
+      if (coverFile && coverUrl) {
+        uploadedUrls.push(coverUrl);
+      }
+
+      return {
+        payload: {
+          name: toLocalized(values.name, t('branches')),
+          slug: values.slug || slugify(values.name.en || values.name.ar || 'branch'),
+          active: values.active,
+          phone: values.phone || undefined,
+          whatsapp: values.whatsapp || undefined,
+          address: address.en || address.ar ? toLocalized(address, '') : undefined,
+          logoUrl,
+          coverUrl,
+          googleMapsUrl: values.googleMapsUrl || undefined,
+          instagramUrl: values.instagramUrl || undefined,
+          openingHours,
+        } satisfies CreateBranchInput,
+        uploadedUrls,
+      };
+    } catch (error) {
+      await cleanupUploadedImages(uploadedUrls);
+      throw error;
+    }
   };
 
   const createBranchMutation = useMutation({
-    mutationFn: (values: BranchFormValues) => api.createBranch(branchPayload(values)),
-    onSuccess: ({ branch }, values) => {
-      const payload = branchPayload(values);
+    mutationFn: async (values: BranchFormValues) => {
+      const { payload, uploadedUrls } = await buildBranchPayload(values);
+
+      try {
+        const result = await api.createBranch(payload);
+
+        return { result, payload };
+      } catch (error) {
+        await cleanupUploadedImages(uploadedUrls);
+        throw error;
+      }
+    },
+    onSuccess: ({ result, payload }) => {
+      const { branch } = result;
 
       addBranchToCaches(queryClient, {
         ...branch,
@@ -237,16 +277,25 @@ export function BranchesTab({
   });
 
   const updateBranchMutation = useMutation({
-    mutationFn: (values: BranchFormValues) => {
+    mutationFn: async (values: BranchFormValues) => {
       if (!editingBranch) {
         throw new Error('No branch selected');
       }
 
-      return api.updateBranch(editingBranch.id, branchPayload(values));
+      const { payload, uploadedUrls } = await buildBranchPayload(values);
+
+      try {
+        const result = await api.updateBranch(editingBranch.id, payload);
+
+        return { result, payload };
+      } catch (error) {
+        await cleanupUploadedImages(uploadedUrls);
+        throw error;
+      }
     },
-    onSuccess: (_result, values) => {
+    onSuccess: ({ payload }) => {
       if (editingBranch) {
-        updateBranchCaches(queryClient, editingBranch.id, branchPayload(values));
+        updateBranchCaches(queryClient, editingBranch.id, payload);
       }
       resetForm();
     },
@@ -352,20 +401,26 @@ export function BranchesTab({
                 placeholder={t('addressInArabic')}
               />
 
-              <FormInput
-                name="logoUrl"
-                type="url"
-                register={register}
-                errors={errors}
-                placeholder={t('logoUrl')}
+              <ImageUploadField
+                label={t('logoUrl')}
+                value={(form.watch('logoUrl') as string) ?? ''}
+                file={logoFile}
+                onFileChange={setLogoFile}
+                onChange={(value) => form.setValue('logoUrl', value, { shouldDirty: true, shouldValidate: true })}
+                aspect="aspect-[5/2]"
+                disabled={createBranchMutation.isPending || updateBranchMutation.isPending}
+                pending={createBranchMutation.isPending || updateBranchMutation.isPending}
               />
 
-              <FormInput
-                name="coverUrl"
-                type="url"
-                register={register}
-                errors={errors}
-                placeholder={t('coverUrl')}
+              <ImageUploadField
+                label={t('coverUrl')}
+                value={(form.watch('coverUrl') as string) ?? ''}
+                file={coverFile}
+                onFileChange={setCoverFile}
+                onChange={(value) => form.setValue('coverUrl', value, { shouldDirty: true, shouldValidate: true })}
+                aspect="aspect-[5/2]"
+                disabled={createBranchMutation.isPending || updateBranchMutation.isPending}
+                pending={createBranchMutation.isPending || updateBranchMutation.isPending}
               />
 
               <FormInput
@@ -404,6 +459,7 @@ export function BranchesTab({
 
             <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
               <button
+                type="button"
                 className="h-11 rounded-xl border border-border bg-white px-4 text-sm font-bold"
                 onClick={resetForm}
               >

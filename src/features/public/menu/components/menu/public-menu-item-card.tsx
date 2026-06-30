@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import type { MenuItem } from '@/lib/api';
 import { textForLocale } from '@/lib/localized-text';
 import { ItemPrices } from '@/components/ui/item-prices';
+import { optimizedImageUrl } from '@/lib/image-url';
 
 export function PublicMenuItemCard({
   item,
@@ -41,7 +42,7 @@ export function PublicMenuItemCard({
         <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-stone-100 sm:size-24 lg:size-[76px]">
           {item.imageUrl ? (
             <img
-              src={item.imageUrl}
+              src={optimizedImageUrl(item.imageUrl, { width: 240, height: 240, crop: 'fill' })}
               alt=""
               className="size-full object-cover transition duration-300 group-hover:scale-105"
             />

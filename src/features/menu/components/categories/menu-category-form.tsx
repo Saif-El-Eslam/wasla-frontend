@@ -4,6 +4,7 @@ import { CheckCircle2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { FormPanel, PrimaryButton } from '@/components/ui/dashboard-ui';
 import { FormInput } from '@/components/ui/form-input';
+import { ImageUploadField } from '@/components/ui/image-upload-field';
 import type { UseFormReturn } from 'react-hook-form';
 import type { CategoryFormInput, CategoryFormValues } from '@/features/menu/schemas/menu.schema';
 
@@ -13,6 +14,8 @@ export function MenuCategoryForm({
   onClose,
   form,
   onSubmit,
+  imageFile = null,
+  onImageFileChange = () => undefined,
   pending,
   error,
   isEditing,
@@ -22,6 +25,8 @@ export function MenuCategoryForm({
   onClose: () => void;
   form: UseFormReturn<CategoryFormInput, unknown, CategoryFormValues>;
   onSubmit: (values: CategoryFormValues) => void;
+  imageFile?: File | null;
+  onImageFileChange?: (file: File | null) => void;
   pending: boolean;
   error?: unknown;
   isEditing: boolean;
@@ -66,13 +71,18 @@ export function MenuCategoryForm({
             errors={form.formState.errors}
             placeholder={t('descriptionInArabic')}
           />
-          <FormInput
-            name="imageUrl"
-            type="url"
-            register={form.register}
-            errors={form.formState.errors}
-            placeholder={t('categoryImageUrl')}
-          />
+          <div className="sm:col-span-2">
+              <ImageUploadField
+                label={t('categoryImageUrl')}
+                value={(form.watch('imageUrl') as string) ?? ''}
+                file={imageFile}
+                onFileChange={onImageFileChange}
+                onChange={(value) => form.setValue('imageUrl', value, { shouldDirty: true, shouldValidate: true })}
+                aspect="aspect-[5/2]"
+                disabled={pending}
+                pending={pending}
+              />
+          </div>
         </div>
 
         <div className="flex mt-4 gap-2 justify-end">

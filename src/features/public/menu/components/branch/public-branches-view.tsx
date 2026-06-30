@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight, GitBranch, MapPin } from 'lucide-react';
 import type { PublicBranch, PublicVenue } from '@/lib/api';
 import { publicMenuApi } from '@/features/public/menu/api/public-menu.api';
 import { textForLocale } from '@/lib/localized-text';
+import { optimizedImageUrl } from '@/lib/image-url';
 
 export function PublicBranchesView({
   venue,
@@ -32,7 +33,11 @@ export function PublicBranchesView({
   return (
     <main className="min-h-dvh bg-[#f8fafa]" dir={isRtl ? 'rtl' : 'ltr'}>
       <section className="relative h-[46dvh] min-h-80 overflow-hidden bg-stone-200">
-        <img src={cover} alt="" className="absolute inset-0 size-full object-cover" />
+        <img
+          src={optimizedImageUrl(cover, { width: 1600, height: 800, crop: 'fill' })}
+          alt=""
+          className="absolute inset-0 size-full object-cover"
+        />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_86%_20%,rgba(251,191,36,0.22),transparent_26%),linear-gradient(0deg,rgba(4,47,46,0.84),rgba(4,47,46,0.18))]" />
         <div className="absolute inset-x-4 top-4 flex items-center justify-between sm:inset-x-8 lg:inset-x-14 xl:inset-x-20">
           <Link
@@ -51,7 +56,15 @@ export function PublicBranchesView({
         </div>
         <div className="absolute bottom-8 start-4 flex items-center gap-4 sm:start-8 lg:start-14 xl:start-20">
           <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border-4 border-white bg-teal-600 text-2xl font-black text-white shadow-lg">
-            {venue.logoUrl ? <img src={venue.logoUrl} alt="" className="size-full object-cover" /> : venueName.charAt(0)}
+            {venue.logoUrl ? (
+              <img
+                src={optimizedImageUrl(venue.logoUrl, { width: 160, height: 160, crop: 'fill' })}
+                alt=""
+                className="size-full object-cover"
+              />
+            ) : (
+              venueName.charAt(0)
+            )}
           </div>
           <div>
             <h1 className="text-4xl font-black text-white sm:text-6xl">{venueName}</h1>

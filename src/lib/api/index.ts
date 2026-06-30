@@ -33,6 +33,8 @@ export type {
   ExtractionJobResponse,
   ExtractionJobStatus,
   ExtractionLimits,
+  ImageUploadScope,
+  ImageUploadSignature,
   ListQueryOptions,
   LocalizedText,
   LocalizedValue,

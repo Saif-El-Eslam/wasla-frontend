@@ -58,6 +58,8 @@ function venueDefaults(venue: Venue | undefined, locale: string): VenueSettingsF
     description: localizedDraft(venue?.description, locale),
     address: localizedDraft(venue?.address, locale),
     defaultLocale: venue?.defaultLocale === 'en' ? 'en' : 'ar',
+    logoUrl: venue?.logoUrl ?? '',
+    coverUrl: venue?.coverUrl ?? '',
     phone: venue?.phone ?? '',
     whatsapp: venue?.whatsapp ?? '',
     googleMapsUrl: venue?.googleMapsUrl ?? '',

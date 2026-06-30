@@ -364,6 +364,8 @@ export type SetupVenueInput = {
   type: string;
   name: LocalizedText;
   slug: string;
+  logoUrl?: string;
+  coverUrl?: string;
   description?: LocalizedText;
   defaultLocale: 'ar' | 'en';
   supportedLocales: Array<'ar' | 'en'>;
@@ -376,6 +378,20 @@ export type SetupVenueInput = {
   branchSlug: string;
 };
 
+export type ImageUploadScope = 'venue' | 'branch' | 'menu-category' | 'menu-item' | 'qr' | 'misc';
+
+export type ImageUploadSignature = {
+  provider: 'cloudinary';
+  uploadUrl: string;
+  cloudName: string;
+  apiKey: string;
+  timestamp: number;
+  signature: string;
+  folder: string;
+  publicId: string;
+  maxBytes: number;
+};
+
 export type UpdateVenueInput = Partial<
   Pick<
     SetupVenueInput,
@@ -384,6 +400,8 @@ export type UpdateVenueInput = Partial<
     | 'description'
     | 'defaultLocale'
     | 'supportedLocales'
+    | 'logoUrl'
+    | 'coverUrl'
     | 'phone'
     | 'whatsapp'
     | 'address'
