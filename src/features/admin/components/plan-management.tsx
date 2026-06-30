@@ -15,6 +15,7 @@ import { formatAdminMoney } from '../utils/admin-subscriptions';
 import { Edit3, Package, Save, X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { FormInput } from '@/components/ui/form-input';
+import { AdminFormToggle } from './admin-form-toggle';
 
 type UpdatePlanPayload = {
   planId: string;
@@ -218,7 +219,8 @@ function PlanEditorCard({
             type="button"
             className="inline-flex size-10 items-center justify-center rounded-2xl border border-teal-100 bg-white text-stone-600 transition hover:text-primary"
             onClick={() => setModalOpen(true)}
-            aria-label={t('plans.save')}
+            aria-label={t('plans.edit')}
+            title={t('plans.edit')}
           >
             <Edit3 className="size-4" />
           </button>
@@ -273,6 +275,7 @@ function PlanEditorCard({
                   register={register}
                   errors={errors}
                   placeholder={t('plans.publicNameEn')}
+                  className={adminInputClassName}
                 />
 
                 <FormInput
@@ -281,6 +284,8 @@ function PlanEditorCard({
                   register={register}
                   errors={errors}
                   placeholder={t('plans.publicNameAr')}
+                  dir="rtl"
+                  className={adminInputClassName}
                 />
 
                 <FormInput
@@ -289,6 +294,7 @@ function PlanEditorCard({
                   register={register}
                   errors={errors}
                   placeholder={t('plans.internalName')}
+                  className={adminInputClassName}
                 />
 
                 <FormInput
@@ -298,6 +304,7 @@ function PlanEditorCard({
                   register={register}
                   errors={errors}
                   placeholder={t('plans.priceAnnualEgp')}
+                  className={adminInputClassName}
                 />
 
                 <FormInput
@@ -307,11 +314,12 @@ function PlanEditorCard({
                   register={register}
                   errors={errors}
                   placeholder={t('plans.displayOrder')}
+                  className={adminInputClassName}
                 />
 
                 <div className="grid items-end gap-2 sm:grid-cols-2">
-                  <Toggle label={t('plans.active')} register={register('active')} />
-                  <Toggle label={t('plans.comingSoon')} register={register('comingSoon')} />
+                  <AdminFormToggle label={t('plans.active')} register={register('active')} />
+                  <AdminFormToggle label={t('plans.comingSoon')} register={register('comingSoon')} />
                 </div>
 
                 <FormInput
@@ -320,6 +328,7 @@ function PlanEditorCard({
                   register={register}
                   errors={errors}
                   placeholder={t('plans.descriptionEn')}
+                  className={adminInputClassName}
                 />
 
                 <FormInput
@@ -328,6 +337,8 @@ function PlanEditorCard({
                   register={register}
                   errors={errors}
                   placeholder={t('plans.descriptionAr')}
+                  dir="rtl"
+                  className={adminInputClassName}
                 />
               </div>
 
@@ -373,7 +384,7 @@ function PlanEditorCard({
                             {textForLocale(feature.name, locale)}
                           </span>
                           <span className="mt-0.5 block truncate text-xs font-bold text-stone-400">
-                            {feature.key} · {feature.valueType}
+                            {feature.key} / {feature.valueType}
                           </span>
                         </span>
                       </label>
@@ -392,7 +403,7 @@ function PlanEditorCard({
                   className="h-11 rounded-xl border border-border bg-white px-4 text-sm font-bold"
                   onClick={closeModal}
                 >
-                  {t('cancel')}
+                  {t('plans.cancel')}
                 </button>
 
                 <button
@@ -409,21 +420,6 @@ function PlanEditorCard({
         </div>
       ) : null}
     </>
-  );
-}
-
-function Toggle({
-  label,
-  register,
-}: {
-  label: string;
-  register: ReturnType<ReturnType<typeof useForm<PlanFormValues>>['register']>;
-}) {
-  return (
-    <label className="flex h-11 cursor-pointer items-center justify-between gap-3 rounded-xl border border-border bg-white px-3 text-sm font-bold">
-      <span>{label}</span>
-      <input className="size-4 accent-primary" type="checkbox" {...register} />
-    </label>
   );
 }
 
@@ -444,3 +440,6 @@ function getPlanFormValues(plan: Plan): PlanFormValues {
     comingSoon: plan.comingSoon,
   };
 }
+
+const adminInputClassName =
+  'h-11 w-full rounded-xl border border-teal-100 bg-white px-3 text-sm font-bold text-stone-800 outline-none transition placeholder:text-stone-300 focus:border-primary';

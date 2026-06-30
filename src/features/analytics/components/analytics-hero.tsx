@@ -27,7 +27,7 @@ export function AnalyticsHero({
   };
 }) {
   return (
-    <section className="rounded-[1.75rem] border border-white/70 bg-white/85 p-4 shadow-glass backdrop-blur sm:p-5">
+    <section className="relative z-30 overflow-visible rounded-[1.75rem] border border-white/70 bg-white/85 p-4 shadow-glass backdrop-blur sm:p-5">
       <SectionTitle
         eyebrow={selectedBranchId === 'all' ? labels.allBranches : labels.branchFilter}
         icon={<Sparkles className="size-5 text-teal-700" />}

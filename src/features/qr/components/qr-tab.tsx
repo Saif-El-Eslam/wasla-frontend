@@ -9,7 +9,6 @@ import {
   LinkIcon,
   MessageCircle,
   QrCode,
-  RefreshCw,
   Share2,
   ShieldCheck,
 } from 'lucide-react';
@@ -25,7 +24,7 @@ import {
   TabLoader,
   cx,
 } from '@/components/ui/dashboard-ui';
-import { useBranchOptions, useBranchQr, useRegenerateBranchQr } from '@/features/venue/hooks/use-venue';
+import { useBranchOptions, useBranchQr } from '@/features/venue/hooks/use-venue';
 import { axiosClient } from '@/lib/api/axios';
 import { toast } from '@/components/ui/toast-store';
 import { textForLocale } from '@/lib/localized-text';
@@ -96,7 +95,6 @@ export function QrTab({ initialBranchId, locale }: { initialBranchId: string; lo
     ? localBranchId
     : selectedBranchId;
   const qrQuery = useBranchQr(effectiveBranchId);
-  const regenerateQr = useRegenerateBranchQr(effectiveBranchId);
   const branch = qrQuery.data?.branch;
   const menu = qrQuery.data?.menu ?? null;
   const publicUrl = qrQuery.data?.publicMenuUrl ?? menu?.qrCode?.shortUrl ?? menu?.qrCode?.targetUrl ?? '';
@@ -265,17 +263,6 @@ export function QrTab({ initialBranchId, locale }: { initialBranchId: string; lo
                   disabled={!menu.qrCode}
                 >
                   <Share2 className="size-4" />
-                </IconButton>
-                <IconButton
-                  label={t('regenerateQr')}
-                  onClick={() =>
-                    regenerateQr.mutate(undefined, {
-                      onSuccess: () => toast.success(t('qrRegenerated')),
-                    })
-                  }
-                  disabled={regenerateQr.isPending}
-                >
-                  <RefreshCw className={cx('size-4', regenerateQr.isPending && 'animate-spin')} />
                 </IconButton>
               </div>
             </div>

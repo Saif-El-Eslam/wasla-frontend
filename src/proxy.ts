@@ -26,7 +26,7 @@ function firstPathSegment(pathname: string) {
   return pathname.split('/').filter(Boolean)[0];
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const firstSegment = firstPathSegment(pathname);
   const detectedLocale = parseAcceptLanguage(request.headers.get('accept-language'));
