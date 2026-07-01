@@ -22,7 +22,7 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
 
   return (
     <main dir={isRtl ? 'rtl' : 'ltr'} className="min-h-dvh overflow-hidden bg-[#f8fafa] text-stone-950">
-      <AuthSessionRedirect locale={locale} standaloneOnly />
+      <AuthSessionRedirect locale={locale} launchOnly />
       <header className="absolute inset-x-0 top-0 z-40 flex items-center justify-between gap-3 px-4 py-4 sm:px-8 lg:px-14 xl:px-20">
         <Link href={`/${locale}`} className="flex items-center gap-2 transition hover:-translate-y-0.5">
           <div className="flex size-9 items-center justify-center rounded-xl bg-teal-600 text-lg font-black text-white shadow-lg shadow-teal-900/10">
@@ -76,7 +76,7 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
               </Link>
               <Link
                 href={`/${locale}/venues`}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/15 px-5 text-sm font-black text-white shadow-sm backdrop-blur hover:bg-white/20"
+                className="z-9 inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/15 px-5 text-sm font-black text-white shadow-sm backdrop-blur hover:bg-white/20"
               >
                 <Store className="size-4" />
                 {t('browseVenues')}

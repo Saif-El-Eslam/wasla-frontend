@@ -1,13 +1,15 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Languages, LogOut, Shield } from 'lucide-react';
+import { Home, Languages, LogOut, Shield } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { Badge, Card } from '@/components/ui/dashboard-ui';
 import { DashboardLoading } from '@/components/ui/dashboard-loading';
 import { toast } from '@/components/ui/toast-store';
+import { publicLandingHref } from '@/features/auth/utils/pwa-public-navigation';
 import { useMe } from '@/features/auth/hooks/use-me';
 import { api } from '@/lib/api';
 import { queryKeys } from '@/lib/api/query-keys';
@@ -162,6 +164,13 @@ export function AdminSubscriptionsPage({ locale }: { locale: string }) {
             </div>
           </div>
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+            <Link
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-teal-100 bg-white px-4 text-sm font-black text-stone-700 shadow-glass transition hover:border-primary hover:text-primary"
+              href={publicLandingHref(locale)}
+            >
+              <Home className="size-4" />
+              <span className="hidden sm:inline">Wasla</span>
+            </Link>
             <button
               className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-teal-100 bg-white px-4 text-sm font-black text-stone-700 shadow-glass transition hover:border-primary hover:text-primary"
               type="button"

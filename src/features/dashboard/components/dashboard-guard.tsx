@@ -15,6 +15,8 @@ export function DashboardGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isLoading || !me) return;
 
+    sessionStorage.removeItem('wasla:intentional-public-navigation');
+
     const locale = currentBrowserLocale(pathname);
     const superAdmin = me.role === 'SUPER_ADMIN';
 

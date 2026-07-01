@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import {
   BarChart3,
   Building2,
@@ -11,6 +12,7 @@ import {
   UtensilsCrossed,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { publicLandingHref } from '@/features/auth/utils/pwa-public-navigation';
 import type { DashboardTab } from '@/features/dashboard/types/dashboard-types';
 import { cx } from './cx';
 
@@ -56,7 +58,10 @@ export function DashboardShell({
     <div className="h-dvh overflow-hidden bg-[#f8fafa]" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
       <div className="flex h-full min-h-0">
         <aside className="hidden h-full w-64 shrink-0 flex-col bg-[#042f2e] lg:flex">
-          <div className="flex items-center gap-3 px-5 py-6">
+          <Link
+            href={publicLandingHref(locale)}
+            className="flex items-center gap-3 px-5 py-6 transition hover:bg-white/5"
+          >
             <span className="flex size-10 items-center justify-center rounded-2xl bg-teal-500 text-lg font-black text-white shadow-lg">
               W
             </span>
@@ -64,7 +69,7 @@ export function DashboardShell({
               <p className="text-lg font-black text-white">Wasla</p>
               <p className="text-xs text-teal-200">{venueName || t('venueWorkspace')}</p>
             </div>
-          </div>
+          </Link>
           <nav className="flex-1 space-y-1 px-3">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -121,21 +126,28 @@ export function DashboardShell({
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-30 border-b border-border bg-[#f8fafa]/90 px-4 py-3 backdrop-blur lg:hidden">
             <div className="flex items-center justify-between gap-3">
-              <button
+              <Link
+                href={publicLandingHref(locale)}
                 className="flex min-w-0 items-center gap-2.5 rounded-2xl text-start transition hover:bg-white/60"
-                onClick={() => onTabChange('settings')}
-                aria-label={t('openSettings')}
-                type="button"
               >
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-2xl bg-primary text-sm font-black text-white">
                   W
                 </span>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-black text-stone-950">{venueName || 'Wasla'}</p>
-                  <p className="text-xs text-muted-foreground">{t('settingsHint')}</p>
+                  <p className="text-xs text-muted-foreground">Wasla</p>
                 </div>
-              </button>
+              </Link>
               <div className="flex items-center gap-2">
+                <button
+                  className="flex size-10 items-center justify-center rounded-xl border border-border bg-white text-stone-600 transition hover:border-primary hover:text-primary"
+                  onClick={() => onTabChange('settings')}
+                  aria-label={t('openSettings')}
+                  title={t('openSettings')}
+                  type="button"
+                >
+                  <Settings className="size-4" />
+                </button>
                 <button
                   className="flex h-10 items-center justify-center rounded-xl border border-border bg-white px-3 text-xs font-black text-stone-600 transition hover:border-primary hover:text-primary"
                   onClick={() => onLocaleChange(locale === 'ar' ? 'en' : 'ar')}
