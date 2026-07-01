@@ -519,7 +519,8 @@
       "venues": "المنشآت",
       "paidSubscriptions": "الاشتراكات المدفوعة",
       "pastDue": "متأخر",
-      "annualRunRate": "الإيراد السنوي"
+      "annualRunRate": "الإيراد السنوي",
+      "totalRevenue": "إجمالي الإيراد"
     },
     "expiring": {
       "title": "تنتهي قريبا",
@@ -532,6 +533,16 @@
     "venueCrm": {
       "title": "إدارة المنشآت",
       "body": "ابحث، راجع الاستخدام، وعدل الخطة أو الحالة مباشرة.",
+      "assignTitle": "تعيين اشتراك",
+      "assignBody": "اختر منشأة وخطة وحالة وتاريخ تجديد اختياري. الحفظ هنا ينشئ الاشتراك إذا لم يكن موجودا.",
+      "assignVenue": "المنشأة",
+      "chooseVenue": "اختر منشأة",
+      "assignButton": "تعيين",
+      "alreadyAssigned": "لديها اشتراك",
+      "unassigned": "بدون اشتراك",
+      "currentSubscription": "الاشتراك موجود",
+      "noSubscription": "لا يوجد اشتراك بعد",
+      "assignEmpty": "ابحث عن منشأة أولا، ثم عين خطتها من هنا.",
       "searchPlaceholder": "ابحث في المنشآت",
       "venue": "المنشأة",
       "branches": "الفروع",

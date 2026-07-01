@@ -586,6 +586,7 @@ export type AdminSubscriptionOverview = {
     venues: number;
     subscriptions: number;
     activeRevenueAnnualEgp: number;
+    totalRevenueAnnualEgp: number;
     paidSubscriptions: number;
     pastDue: number;
   };
@@ -617,6 +618,7 @@ export type UpdateVenueSubscriptionInput = {
   currentPeriodEnds?: string | null;
   paymentProvider?: 'MANUAL' | 'PAYMOB';
   notes?: string | null;
+  recreate?: boolean;
 };
 
 export type UpdatePlanInput = {

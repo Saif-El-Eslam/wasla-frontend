@@ -57,21 +57,24 @@ export function AdminSubscriptionsPage({ locale }: { locale: string }) {
       plan,
       status,
       currentPeriodEnds,
+      recreate,
     }: {
       venueId: string;
       plan: MenuPlanCode;
       status: SubscriptionStatus;
       currentPeriodEnds?: string | null;
+      recreate?: boolean;
     }) =>
       api.updateVenueSubscription(venueId, {
         plan,
         status,
         currentPeriodEnds: currentPeriodEnds || null,
         paymentProvider: 'MANUAL',
+        recreate,
       }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.adminSubscriptionOverview });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.adminSubscriptionVenues(filters) });
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'subscriptions', 'venues'] });
       toast.success(t('toasts.subscriptionUpdated'));
     },
   });

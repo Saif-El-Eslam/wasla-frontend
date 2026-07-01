@@ -20,10 +20,11 @@ export function AdminMetricsGrid({
     [t('metrics.paidSubscriptions'), metrics?.paidSubscriptions ?? 0],
     [t('metrics.pastDue'), metrics?.pastDue ?? 0],
     [t('metrics.annualRunRate'), formatAdminMoney(metrics?.activeRevenueAnnualEgp ?? 0, locale)],
+    [t('metrics.totalRevenue'), formatAdminMoney(metrics?.totalRevenueAnnualEgp ?? 0, locale)],
   ];
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
       {items.map(([label, value]) => (
         <Card key={label} className="border-teal-100 bg-white p-4">
           <p className="text-xs font-black uppercase tracking-[0.14em] text-stone-400">{label}</p>

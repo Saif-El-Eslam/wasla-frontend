@@ -519,7 +519,8 @@
       "venues": "Venues",
       "paidSubscriptions": "Paid subscriptions",
       "pastDue": "Past due",
-      "annualRunRate": "Annual run-rate"
+      "annualRunRate": "Annual run-rate",
+      "totalRevenue": "Total revenue"
     },
     "expiring": {
       "title": "Expiring soon",
@@ -532,6 +533,16 @@
     "venueCrm": {
       "title": "Venue CRM",
       "body": "Search, review usage shape, and force plan changes.",
+      "assignTitle": "Assign a subscription",
+      "assignBody": "Pick a venue, plan, status, and optional renewal date. Saving here creates the subscription if the venue does not have one yet.",
+      "assignVenue": "Venue",
+      "chooseVenue": "Choose venue",
+      "assignButton": "Assign",
+      "alreadyAssigned": "Has subscription",
+      "unassigned": "No subscription",
+      "currentSubscription": "Subscription exists",
+      "noSubscription": "No subscription yet",
+      "assignEmpty": "Search for a venue first, then assign its plan from here.",
       "searchPlaceholder": "Search venues",
       "venue": "Venue",
       "branches": "Branches",
