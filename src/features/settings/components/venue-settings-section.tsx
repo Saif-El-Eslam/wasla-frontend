@@ -12,7 +12,10 @@ import { readError } from '@/features/dashboard/utils/dashboard-utils';
 import type { UpdateVenueInput, Venue } from '@/lib/api';
 import { cleanupUploadedImages, uploadImageDirect } from '@/lib/api/image-upload';
 import { textForLocale } from '@/lib/localized-text';
-import type { VenueSettingsFormInput, VenueSettingsFormValues } from '@/features/settings/schemas/settings.schema';
+import type {
+  VenueSettingsFormInput,
+  VenueSettingsFormValues,
+} from '@/features/settings/schemas/settings.schema';
 import { DetailTile, SettingsPanelHeader, settingsInputClassName } from './settings-ui';
 
 const venueTypes = [
@@ -111,7 +114,7 @@ export function VenueSettingsSection({
 
   if (!editing) {
     return (
-      <Card className="border-teal-100 bg-[#fbfefd] p-5">
+      <Card className="flex flex-col gap-5 border-teal-100 bg-[#fbfefd] p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <SettingsPanelHeader icon={Store} title={t('venueSettings')} body={t('venueSettingsBody')} />
           <PrimaryButton onClick={() => setEditing(true)} className="shrink-0">
@@ -128,7 +131,11 @@ export function VenueSettingsSection({
           <DetailTile icon={Sparkles} label={t('type')} value={venue?.type ?? commonT('notSet')} />
           <DetailTile icon={CreditCard} label={t('currency')} value={venue?.currency ?? 'EGP'} />
           <DetailTile icon={Phone} label={t('phone')} value={venue?.phone ?? commonT('notSet')} />
-          <DetailTile icon={MessageCircle} label={t('whatsapp')} value={venue?.whatsapp ?? commonT('notSet')} />
+          <DetailTile
+            icon={MessageCircle}
+            label={t('whatsapp')}
+            value={venue?.whatsapp ?? commonT('notSet')}
+          />
           <DetailTile
             icon={MapPin}
             label={t('address')}
@@ -142,10 +149,7 @@ export function VenueSettingsSection({
   return (
     <Card className="border-teal-100 bg-[#fbfefd] p-5">
       <SettingsPanelHeader icon={Store} title={t('venueSettings')} body={t('venueSettingsBody')} />
-      <form
-        className="grid gap-4"
-        onSubmit={form.handleSubmit(submitVenueSettings)}
-      >
+      <form className="grid gap-4" onSubmit={form.handleSubmit(submitVenueSettings)}>
         <div className="grid gap-3 lg:grid-cols-3">
           <label className="flex min-w-0 flex-col gap-1">
             <span className="text-sm font-bold text-muted-foreground">{t('type')}</span>
@@ -182,7 +186,9 @@ export function VenueSettingsSection({
             value={(form.watch('coverUrl') as string) ?? ''}
             file={coverFile}
             onFileChange={setCoverFile}
-            onChange={(value) => form.setValue('coverUrl', value, { shouldDirty: true, shouldValidate: true })}
+            onChange={(value) =>
+              form.setValue('coverUrl', value, { shouldDirty: true, shouldValidate: true })
+            }
             aspect="aspect-[5/2]"
             disabled={pending}
             pending={pending}
@@ -275,7 +281,11 @@ export function VenueSettingsSection({
         {mutation.error ? <p className="text-sm text-red-700">{readError(mutation.error)}</p> : null}
         {imageError ? <p className="text-sm text-red-700">{imageError}</p> : null}
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-          <SecondaryButton type="button" onClick={closeEditor} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-border bg-white px-4 text-sm font-bold transition hover:brightness-95">
+          <SecondaryButton
+            type="button"
+            onClick={closeEditor}
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-border bg-white px-4 text-sm font-bold transition hover:brightness-95"
+          >
             <X className="size-4" />
             {commonT('cancel')}
           </SecondaryButton>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { ArrowLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -75,10 +76,14 @@ export function SettingsTab({
   isAdmin,
   me,
   locale,
+  onLogout,
+  logoutPending,
 }: {
   isAdmin: boolean;
   me: ReturnType<typeof useMe>;
   locale: string;
+  onLogout: () => void;
+  logoutPending: boolean;
 }) {
   const t = useTranslations('dashboard');
   const queryClient = useQueryClient();
@@ -88,6 +93,9 @@ export function SettingsTab({
   const requestedSettingsTab = searchParams.get('settings') as SettingsTabId | null;
   const [activeSettingsTab, setActiveSettingsTab] = useState<SettingsTabId>(
     requestedSettingsTab && validSettingsTabs.includes(requestedSettingsTab) ? requestedSettingsTab : 'user',
+  );
+  const [showMobileSettingsMenu, setShowMobileSettingsMenu] = useState(
+    !(requestedSettingsTab && validSettingsTabs.includes(requestedSettingsTab)),
   );
   const venue = useVenue();
   const branchesQuery = useBranchOptions(isAdmin);
@@ -128,18 +136,26 @@ export function SettingsTab({
   useEffect(() => {
     if (requestedSettingsTab && validSettingsTabs.includes(requestedSettingsTab)) {
       setActiveSettingsTab(requestedSettingsTab);
+      setShowMobileSettingsMenu(false);
+    } else {
+      setShowMobileSettingsMenu(true);
     }
   }, [requestedSettingsTab, validSettingsTabs]);
 
   const changeSettingsTab = (tab: SettingsTabId) => {
     setActiveSettingsTab(tab);
+    setShowMobileSettingsMenu(false);
     const nextParams = new URLSearchParams(searchParams.toString());
     nextParams.set('tab', 'settings');
-    if (tab === 'user') {
-      nextParams.delete('settings');
-    } else {
-      nextParams.set('settings', tab);
-    }
+    nextParams.set('settings', tab);
+    router.replace(`${pathname}?${nextParams.toString()}`, { scroll: false });
+  };
+
+  const returnToMobileSettingsMenu = () => {
+    setShowMobileSettingsMenu(true);
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.set('tab', 'settings');
+    nextParams.delete('settings');
     router.replace(`${pathname}?${nextParams.toString()}`, { scroll: false });
   };
 
@@ -206,46 +222,93 @@ export function SettingsTab({
     return <TabLoader label={t('loadingWorkspace')} />;
   }
 
-  return (
-    <div className="space-y-5">
-      <SectionTitle eyebrow={t('account')} title={t('settings')} />
-      <SettingsOverviewCard
-        me={me.data}
+  const activeSettingsTitle = {
+    user: t('user'),
+    password: t('password'),
+    venue: t('venue'),
+    team: t('team'),
+    subscription: t('subscription'),
+    support: t('support'),
+  }[activeSettingsTab];
+
+  const activeSettingsPanel =
+    activeSettingsTab === 'user' ? (
+      <UserSettingsSection me={me.data} form={profileForm} mutation={updateMeMutation} />
+    ) : activeSettingsTab === 'password' ? (
+      <PasswordSettingsSection form={passwordForm} mutation={updatePasswordMutation} />
+    ) : activeSettingsTab === 'venue' && isAdmin ? (
+      <VenueSettingsSection
         venue={venue.data}
         locale={locale}
-        isAdmin={isAdmin}
-        userCount={users.length}
+        form={venueForm}
+        mutation={updateVenueMutation}
       />
-      <SettingsTabs activeTab={activeSettingsTab} onChange={changeSettingsTab} isAdmin={isAdmin} />
+    ) : activeSettingsTab === 'team' && isAdmin ? (
+      <TeamSettingsSection
+        users={users}
+        branches={branches}
+        form={teamUserForm}
+        mutation={createStaffMutation}
+        updateBranchesMutation={updateUserBranchesMutation}
+        deleteUserMutation={deleteUserMutation}
+        currentUserId={me.data?.id ?? ''}
+        locale={locale}
+      />
+    ) : activeSettingsTab === 'subscription' ? (
+      <SubscriptionSettingsPanel locale={locale} />
+    ) : activeSettingsTab === 'support' ? (
+      <SupportSettingsSection />
+    ) : null;
 
-      {activeSettingsTab === 'user' ? (
-        <UserSettingsSection me={me.data} form={profileForm} mutation={updateMeMutation} />
-      ) : null}
-      {activeSettingsTab === 'password' ? (
-        <PasswordSettingsSection form={passwordForm} mutation={updatePasswordMutation} />
-      ) : null}
-      {activeSettingsTab === 'venue' && isAdmin ? (
-        <VenueSettingsSection
+  return (
+    <div>
+      <div className="hidden space-y-5 sm:block">
+        <SectionTitle eyebrow={t('account')} title={t('settings')} />
+        <SettingsOverviewCard
+          me={me.data}
           venue={venue.data}
           locale={locale}
-          form={venueForm}
-          mutation={updateVenueMutation}
+          isAdmin={isAdmin}
+          userCount={users.length}
         />
-      ) : null}
-      {activeSettingsTab === 'team' && isAdmin ? (
-        <TeamSettingsSection
-          users={users}
-          branches={branches}
-          form={teamUserForm}
-          mutation={createStaffMutation}
-          updateBranchesMutation={updateUserBranchesMutation}
-          deleteUserMutation={deleteUserMutation}
-          currentUserId={me.data?.id ?? ''}
-          locale={locale}
-        />
-      ) : null}
-      {activeSettingsTab === 'subscription' ? <SubscriptionSettingsPanel locale={locale} /> : null}
-      {activeSettingsTab === 'support' ? <SupportSettingsSection /> : null}
+        <SettingsTabs activeTab={activeSettingsTab} onChange={changeSettingsTab} isAdmin={isAdmin} />
+        {activeSettingsPanel}
+      </div>
+
+      <div className="space-y-4 sm:hidden">
+        {showMobileSettingsMenu ? (
+          <>
+            <SectionTitle eyebrow={t('account')} title={t('settings')} />
+            <SettingsOverviewCard
+              me={me.data}
+              venue={venue.data}
+              locale={locale}
+              isAdmin={isAdmin}
+              userCount={users.length}
+            />
+            <SettingsTabs
+              onLogout={onLogout}
+              logoutPending={logoutPending}
+              activeTab={activeSettingsTab}
+              onChange={changeSettingsTab}
+              isAdmin={isAdmin}
+            />
+          </>
+        ) : (
+          <>
+            <button
+              type="button"
+              className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-teal-100 bg-white px-3 text-sm font-black text-primary shadow-glass"
+              onClick={returnToMobileSettingsMenu}
+            >
+              <ArrowLeft className="size-4 rtl:rotate-180" />
+              {t('back')}
+            </button>
+            <SectionTitle eyebrow={t('settings')} title={activeSettingsTitle} />
+            {activeSettingsPanel}
+          </>
+        )}
+      </div>
     </div>
   );
 }

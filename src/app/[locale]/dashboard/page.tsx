@@ -36,7 +36,9 @@ export default function DashboardPage() {
   const me = useMe();
   const venue = useVenue();
   const isAdmin = me.data?.role === 'OWNER' || me.data?.role === 'MANAGER';
-  const [activeTab, setActiveTab] = useState<DashboardTab>(() => dashboardTabFromUrl(searchParams.get('tab')));
+  const [activeTab, setActiveTab] = useState<DashboardTab>(() =>
+    dashboardTabFromUrl(searchParams.get('tab')),
+  );
   const [selectedMenuBranchId, setSelectedMenuBranchId] = useState('');
   const [selectedQrBranchId, setSelectedQrBranchId] = useState('');
   const [selectedAnalyticsBranchId, setSelectedAnalyticsBranchId] = useState('all');
@@ -65,6 +67,8 @@ export default function DashboardPage() {
       } else {
         nextParams.set('tab', tab);
       }
+
+      nextParams.delete('settings');
 
       const query = nextParams.toString();
       router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
@@ -100,7 +104,9 @@ export default function DashboardPage() {
   }
 
   const hasNoBranchAccess =
-    !isAdmin && Boolean(me.data?.venueId) && (me.data?.branches?.filter((branch) => branch.active).length ?? 0) === 0;
+    !isAdmin &&
+    Boolean(me.data?.venueId) &&
+    (me.data?.branches?.filter((branch) => branch.active).length ?? 0) === 0;
 
   if (hasNoBranchAccess) {
     return (
@@ -166,7 +172,15 @@ export default function DashboardPage() {
             locale={locale}
           />
         ) : null}
-        {activeTab === 'settings' ? <SettingsTab isAdmin={isAdmin} me={me} locale={locale} /> : null}
+        {activeTab === 'settings' ? (
+          <SettingsTab
+            isAdmin={isAdmin}
+            me={me}
+            locale={locale}
+            onLogout={() => logoutMutation.mutate()}
+            logoutPending={logoutMutation.isPending}
+          />
+        ) : null}
       </DashboardShell>
       {/* {publicPreviewOpen ? (
         <PublicPreview
