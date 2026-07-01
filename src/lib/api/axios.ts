@@ -66,18 +66,29 @@ axiosClient.interceptors.request.use((config) => {
 });
 
 let isRedirectingToLogin = false;
+
+function isAuthScreenPath(pathname: string) {
+  return /^\/(en|ar)\/(login|register|verify)(\/|$)/.test(pathname);
+}
+
+function isPublicPagePath(pathname: string) {
+  return (
+    /^\/(en|ar)\/?$/.test(pathname) || /^\/(en|ar)\/(venues|about|contact|privacy|terms)(\/|$)/.test(pathname)
+  );
+}
+
 axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    const isAuthScreen =
-      typeof window !== 'undefined' && /^\/(en|ar)\/(login|register|verify)(\/|$)/.test(window.location.pathname);
-
-    if (
+    const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+    const shouldRedirectToLogin =
       error.response?.status === 401 &&
       typeof window !== 'undefined' &&
-      !isAuthScreen &&
-      !isRedirectingToLogin
-    ) {
+      !isAuthScreenPath(pathname) &&
+      !isPublicPagePath(pathname) &&
+      !isRedirectingToLogin;
+
+    if (shouldRedirectToLogin) {
       isRedirectingToLogin = true;
       window.location.href = `/${currentBrowserLocale()}/login`;
     }
