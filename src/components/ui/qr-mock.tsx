@@ -1,6 +1,7 @@
 'use client';
 
 import { cx } from './cx';
+import { LogoMark } from './logo-mark';
 
 export function QRMock() {
   const cells = Array.from({ length: 100 }, (_, i) => {
@@ -27,9 +28,7 @@ export function QRMock() {
         ))}
       </div>
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="flex size-12 items-center justify-center rounded-2xl bg-primary text-lg font-black text-white shadow-lg">
-          W
-        </div>
+        <LogoMark className="flex size-12 items-center justify-center text-lg font-black text-white shadow-lg" />
       </div>
     </div>
   );

@@ -15,6 +15,7 @@ import type {
   Venue,
 } from '@/lib/api';
 import { Badge, EmptyState } from '@/components/ui/dashboard-ui';
+import { AppImage } from '@/components/ui/app-image';
 import { textForLocale } from '@/lib/localized-text';
 import { optimizedImageUrl } from '@/lib/image-url';
 import { publicMenuApi } from '@/features/public/menu/api/public-menu.api';
@@ -129,10 +130,13 @@ export function PublicMenuExperience({
   return (
     <div className="min-h-dvh bg-[#fafaf8]" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="relative h-[46dvh] min-h-80 overflow-visible bg-stone-200">
-        <img
+        <AppImage
           src={optimizedImageUrl(coverUrl, { width: 1600, height: 800, crop: 'fill' })}
           alt=""
-          className="absolute inset-0 size-full object-cover"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
         />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_18%,rgba(251,191,36,0.22),transparent_26%),linear-gradient(0deg,#fafaf8,rgba(4,47,46,0.18),rgba(4,47,46,0.62))]" />
         <div className="absolute inset-x-4 top-4 z-30 flex items-center justify-between gap-3 sm:inset-x-8 lg:inset-x-14 xl:inset-x-20">
@@ -161,10 +165,12 @@ export function PublicMenuExperience({
         </div>
         <div className="absolute bottom-0 left-1/2 z-20 flex size-20 -translate-x-1/2 translate-y-1/2 items-center justify-center overflow-hidden rounded-2xl border-4 border-white bg-primary text-3xl font-black text-white shadow-xl">
           {logoUrl ? (
-            <img
+            <AppImage
               src={optimizedImageUrl(logoUrl, { width: 240, height: 240, crop: 'fill' })}
               alt=""
-              className="size-full object-cover"
+              fill
+              sizes="80px"
+              className="object-cover"
             />
           ) : (
             logoInitial(venueName)

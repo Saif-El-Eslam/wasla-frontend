@@ -11,6 +11,18 @@ const apiProxyTarget = (
 const nextConfig = {
   reactStrictMode: true,
   allowedDevOrigins: [],
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https' as const,
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https' as const,
+        hostname: 'res.cloudinary.com',
+      },
+    ],
+  },
   async rewrites() {
     return [
       {

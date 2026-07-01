@@ -11,6 +11,8 @@ import { textForLocale } from '@/lib/localized-text';
 import { optimizedImageUrl } from '@/lib/image-url';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useThrottle } from '@/hooks/use-throttle';
+import { LogoMark } from '@/components/ui/logo-mark';
+import { AppImage } from '@/components/ui/app-image';
 
 const venueTypes = [
   'ALL',
@@ -37,10 +39,12 @@ function VenueCard({ venue, locale }: { venue: PublicVenue; locale: string }) {
       className="group block overflow-hidden rounded-2xl border border-border bg-white text-start shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
     >
       <div className="relative h-40 overflow-hidden bg-stone-100">
-        <img
+        <AppImage
           src={optimizedImageUrl(cover, { width: 900, height: 500, crop: 'fill' })}
           alt=""
-          className="size-full object-cover transition duration-300 group-hover:scale-105"
+          fill
+          sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
+          className="object-cover transition duration-300 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
         <div className="absolute bottom-3 start-3 flex flex-wrap gap-2">
@@ -230,9 +234,7 @@ export function PublicVenuesBrowser({
             <div className="relative flex items-center justify-between gap-4">
               <div className="flex flex-col gap-8">
                 <Link href={`/${locale}`} className="flex w-fit items-center gap-2">
-                  <div className="flex size-8 items-center justify-center rounded-xl bg-teal-600 text-sm font-black text-white">
-                    W
-                  </div>
+                  <LogoMark className="flex size-8 items-center justify-center text-sm font-black text-white" />
                   <span className="text-base font-black text-white">Wasla</span>
                 </Link>
                 <h1 className="text-4xl font-black text-white sm:text-5xl">{t('discoverVenues')}</h1>

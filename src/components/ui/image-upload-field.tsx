@@ -4,6 +4,7 @@ import { ImageIcon, Loader2, Upload, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { DEFAULT_MAX_IMAGE_UPLOAD_BYTES, formatImageUploadLimit } from '@/lib/api/image-upload';
 import { optimizedImageUrl } from '@/lib/image-url';
+import { AppImage } from './app-image';
 import { cx } from './cx';
 
 export function ImageUploadField({
@@ -97,10 +98,12 @@ export function ImageUploadField({
         )}
       >
         {imageSource ? (
-          <img
+          <AppImage
             src={imageSource}
             alt=""
-            className="size-full object-cover"
+            fill
+            sizes="640px"
+            className="object-cover"
           />
         ) : (
           <div className="grid size-full place-items-center text-stone-400">

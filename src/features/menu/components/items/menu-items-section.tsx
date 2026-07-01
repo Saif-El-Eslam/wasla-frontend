@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/dashboard-ui';
 import { EmptyState } from '@/components/ui/dashboard-ui';
+import { AppImage } from '@/components/ui/app-image';
 import { useTranslations } from 'next-intl';
 import { Edit3, Eye, EyeOff, ImageIcon, MoreVertical, Plus, Trash2 } from 'lucide-react';
 import { textForLocale } from '@/lib/localized-text';
@@ -211,12 +212,14 @@ export function MenuItemsSection({
                           className="min-h-[96px] rounded-2xl border border-stone-200 bg-white p-3 transition"
                         >
                           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
-                            <div className="flex size-14 items-center justify-center overflow-hidden rounded-xl bg-stone-100">
+                            <div className="relative flex size-14 items-center justify-center overflow-hidden rounded-xl bg-stone-100">
                               {item.imageUrl ? (
-                                <img
+                                <AppImage
                                   src={optimizedImageUrl(item.imageUrl, { width: 160, height: 160, crop: 'fill' })}
                                   alt=""
-                                  className="size-full object-cover"
+                                  fill
+                                  sizes="56px"
+                                  className="object-cover"
                                 />
                               ) : (
                                 <ImageIcon className="size-5 text-stone-300" />

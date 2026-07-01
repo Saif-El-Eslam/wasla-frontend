@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { ArrowLeft, ArrowRight, Gauge, Home } from 'lucide-react';
+import { LogoMark } from '@/components/ui/logo-mark';
 
 type PublicInfoPageKey = 'about' | 'contact' | 'privacy' | 'terms';
 
@@ -13,9 +14,7 @@ export async function PublicInfoPage({ locale, pageKey }: { locale: string; page
     <main dir={isRtl ? 'rtl' : 'ltr'} className="min-h-dvh bg-[#f8fafa] text-stone-950">
       <header className="flex items-center justify-between gap-3 px-4 py-5 sm:px-8 lg:px-14 xl:px-20">
         <Link href={`/${locale}`} className="flex items-center gap-2 transition hover:-translate-y-0.5">
-          <div className="flex size-9 items-center justify-center rounded-xl bg-teal-600 text-lg font-black text-white">
-            W
-          </div>
+          <LogoMark className="flex size-9 items-center justify-center text-lg font-black text-white" />
           <span className="text-lg font-black text-teal-700">Wasla</span>
         </Link>
         <div className="flex items-center gap-2">

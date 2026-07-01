@@ -14,6 +14,8 @@ import {
   UtensilsCrossed,
 } from 'lucide-react';
 import { AuthSessionRedirect } from '@/features/auth/components/auth-session-redirect';
+import { LogoMark } from '@/components/ui/logo-mark';
+import { AppImage } from '@/components/ui/app-image';
 import { LandingQuickSearch } from './landing-quick-search';
 
 export async function PublicLandingPage({ locale }: { locale: string }) {
@@ -25,9 +27,7 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
       <AuthSessionRedirect locale={locale} launchOnly />
       <header className="absolute inset-x-0 top-0 z-40 flex items-center justify-between gap-3 px-4 py-4 sm:px-8 lg:px-14 xl:px-20">
         <Link href={`/${locale}`} className="flex items-center gap-2 transition hover:-translate-y-0.5">
-          <div className="flex size-9 items-center justify-center rounded-xl bg-teal-600 text-lg font-black text-white shadow-lg shadow-teal-900/10">
-            W
-          </div>
+          <LogoMark className="flex size-9 items-center justify-center text-lg font-black text-white shadow-lg shadow-teal-900/10" />
           <span className="text-lg font-black text-white">Wasla</span>
         </Link>
         <div className="flex items-center gap-2">
@@ -48,10 +48,13 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
       </header>
 
       <section className="wasla-fade-up relative h-dvh w-full overflow-hidden bg-stone-950 px-4 pb-8 pt-24 text-white sm:px-8 lg:px-14 xl:px-20">
-        <img
+        <AppImage
           src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600&h=1100&fit=crop&auto=format"
           alt=""
-          className="absolute inset-0 size-full object-cover opacity-70"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover opacity-70"
         />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_32%,rgba(251,191,36,0.24),transparent_24%),radial-gradient(circle_at_15%_78%,rgba(45,212,191,0.28),transparent_30%),linear-gradient(90deg,rgba(4,47,46,0.96),rgba(4,47,46,0.72),rgba(4,47,46,0.18))]" />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#f8fafa] to-transparent" />
@@ -166,10 +169,12 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
           <div className="wasla-wow-phone relative mx-auto h-[360px] w-full max-w-[250px] rounded-[2rem] border border-white/18 bg-stone-950 p-2 shadow-2xl sm:h-[440px] sm:max-w-[310px] sm:p-3">
             <div className="h-full overflow-hidden rounded-[1.45rem] bg-[#f8fafa] text-stone-950">
               <div className="relative h-28 overflow-hidden bg-stone-900">
-                <img
+                <AppImage
                   src="https://images.unsplash.com/photo-1544148103-0773bf10d330?w=900&h=500&fit=crop&auto=format"
                   alt=""
-                  className="absolute inset-0 size-full object-cover opacity-[0.82]"
+                  fill
+                  sizes="320px"
+                  className="object-cover opacity-[0.82]"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-stone-950/75 to-transparent" />
                 <div className="absolute bottom-3 start-3">
@@ -293,9 +298,7 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
       <footer className="border-t border-border bg-white px-4 py-8 sm:px-8 lg:px-14 xl:px-20">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <Link href={`/${locale}`} className="flex w-fit items-center gap-2">
-            <div className="flex size-8 items-center justify-center rounded-xl bg-teal-600 text-sm font-black text-white">
-              W
-            </div>
+            <LogoMark className="flex size-8 items-center justify-center text-sm font-black text-white" />
             <span className="text-base font-black text-teal-700">Wasla</span>
           </Link>
           <nav className="flex flex-wrap gap-3 text-sm font-bold text-muted-foreground">

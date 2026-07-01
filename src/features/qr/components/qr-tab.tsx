@@ -24,6 +24,7 @@ import {
   TabLoader,
   cx,
 } from '@/components/ui/dashboard-ui';
+import { AppImage } from '@/components/ui/app-image';
 import { useBranchOptions, useBranchQr } from '@/features/venue/hooks/use-venue';
 import { axiosClient } from '@/lib/api/axios';
 import { toast } from '@/components/ui/toast-store';
@@ -195,11 +196,15 @@ export function QrTab({ initialBranchId, locale }: { initialBranchId: string; lo
             <div className="w-full max-w-[min(420px,calc(100vw-4rem))]">
               <div className="rounded-[1.25rem] border border-white bg-white p-2 shadow-xl shadow-teal-100 sm:rounded-[1.75rem] sm:p-3">
                 {qrQuery.data?.previewDataUrl ? (
-                  <img
-                    src={qrQuery.data.previewDataUrl}
-                    alt={t('qrPreviewAlt')}
-                    className="aspect-[24/29] max-h-[68dvh] w-full rounded-2xl object-contain sm:rounded-[1.25rem]"
-                  />
+                  <div className="relative aspect-[24/29] max-h-[68dvh] w-full">
+                    <AppImage
+                      src={qrQuery.data.previewDataUrl}
+                      alt={t('qrPreviewAlt')}
+                      fill
+                      sizes="420px"
+                      className="rounded-2xl object-contain sm:rounded-[1.25rem]"
+                    />
+                  </div>
                 ) : (
                   <div className="grid aspect-[24/29] max-h-[68dvh] w-full place-items-center rounded-2xl bg-stone-50 sm:rounded-[1.25rem]">
                     <QrCode className="size-16 text-teal-700" />

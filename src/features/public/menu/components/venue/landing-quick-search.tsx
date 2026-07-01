@@ -11,6 +11,7 @@ import { textForLocale } from '@/lib/localized-text';
 import { optimizedImageUrl } from '@/lib/image-url';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useThrottle } from '@/hooks/use-throttle';
+import { AppImage } from '@/components/ui/app-image';
 
 const venueTypes = [
   'ALL',
@@ -188,12 +189,14 @@ export function LandingQuickSearch({ locale }: { locale: string }) {
                               href={`/${locale}/venues/${venue.slug}/branches`}
                               className="flex items-center gap-3 px-3 py-3 text-start transition hover:bg-stone-50"
                             >
-                              <span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-teal-50">
+                              <span className="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-teal-50">
                                 {venue.logoUrl ? (
-                                  <img
+                                  <AppImage
                                     src={optimizedImageUrl(venue.logoUrl, { width: 120, height: 120, crop: 'fill' })}
                                     alt=""
-                                    className="size-full object-cover"
+                                    fill
+                                    sizes="40px"
+                                    className="object-cover"
                                   />
                                 ) : (
                                   <Store className="size-4 text-teal-700" />

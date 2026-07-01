@@ -1,4 +1,5 @@
 import { MapPin, MessageCircle, Phone, QrCode } from 'lucide-react';
+import { LogoMark } from '@/components/ui/logo-mark';
 
 export function PublicPageLoading() {
   return (
@@ -6,9 +7,7 @@ export function PublicPageLoading() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(45,212,191,0.24),transparent_30%),radial-gradient(circle_at_84%_76%,rgba(251,191,36,0.2),transparent_28%)]" />
       <div className="relative grid w-full max-w-4xl items-center gap-8 sm:grid-cols-[0.85fr_1fr]">
         <div className="text-center sm:text-start">
-          <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-teal-500 text-xl font-black text-white shadow-2xl shadow-teal-950/30 sm:mx-0">
-            W
-          </div>
+          <LogoMark className="mx-auto mb-4 flex size-12 items-center justify-center text-xl font-black text-white shadow-2xl shadow-teal-950/30 sm:mx-0" />
           <div className="wasla-loader-copy h-4 w-40 rounded-full bg-white/20 sm:w-52" />
           <div className="wasla-loader-copy mt-3 h-8 w-full max-w-xs rounded-full bg-white/15 sm:max-w-sm" />
           <div className="wasla-loader-copy mt-3 h-8 w-4/5 max-w-xs rounded-full bg-white/10 sm:max-w-sm" />

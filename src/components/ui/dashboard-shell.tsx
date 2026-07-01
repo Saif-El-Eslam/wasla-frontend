@@ -15,6 +15,7 @@ import { useTranslations } from 'next-intl';
 import { publicLandingHref } from '@/features/auth/utils/pwa-public-navigation';
 import type { DashboardTab } from '@/features/dashboard/types/dashboard-types';
 import { cx } from './cx';
+import { LogoMark } from './logo-mark';
 
 const navItems: Array<{
   id: DashboardTab;
@@ -62,9 +63,7 @@ export function DashboardShell({
             href={publicLandingHref(locale)}
             className="flex items-center gap-3 px-5 py-6 transition hover:bg-white/5"
           >
-            <span className="flex size-10 items-center justify-center rounded-2xl bg-teal-500 text-lg font-black text-white shadow-lg">
-              W
-            </span>
+            <LogoMark className="flex size-10 items-center justify-center text-lg font-black text-white shadow-lg" />
             <div>
               <p className="text-lg font-black text-white">Wasla</p>
               <p className="text-xs text-teal-200">{venueName || t('venueWorkspace')}</p>
@@ -130,9 +129,7 @@ export function DashboardShell({
                 href={publicLandingHref(locale)}
                 className="flex min-w-0 items-center gap-2.5 rounded-2xl text-start transition hover:bg-white/60"
               >
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-2xl bg-primary text-sm font-black text-white">
-                  W
-                </span>
+                <LogoMark className="flex size-9 shrink-0 items-center justify-center text-sm font-black text-white" />
                 <div className="min-w-0">
                   <p className="truncate text-sm font-black text-stone-950">{venueName || 'Wasla'}</p>
                   <p className="text-xs text-muted-foreground">Wasla</p>

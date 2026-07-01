@@ -19,6 +19,7 @@ import { postAuthDestination } from '@/features/auth/utils/auth-redirect';
 import { queryKeys } from '@/lib/api/query-keys';
 import type { CurrentUser } from '@/lib/api';
 import { AuthSessionRedirect } from './auth-session-redirect';
+import { LogoMark } from '@/components/ui/logo-mark';
 
 type Mode = 'login' | 'register' | 'verify';
 
@@ -125,9 +126,7 @@ export function AuthPanel({ mode }: { mode: Mode }) {
       <AuthSessionRedirect locale={locale} />
       <header className="absolute inset-x-0 top-0 z-40 flex h-16 items-center justify-between gap-3 px-4 sm:px-8 lg:px-12 xl:px-16">
         <Link href={`/${locale}`} className="flex items-center gap-2 transition hover:-translate-y-0.5">
-          <div className="flex size-9 items-center justify-center rounded-xl bg-teal-600 text-lg font-black text-white shadow-lg shadow-teal-900/10 lg:bg-white lg:text-teal-700">
-            W
-          </div>
+          <LogoMark className="flex size-9 items-center justify-center text-lg font-black text-white shadow-lg shadow-teal-900/10 lg:bg-white lg:text-teal-700" />
           <span className="text-lg font-black text-stone-950 lg:text-white">Wasla</span>
         </Link>
 
@@ -155,9 +154,7 @@ export function AuthPanel({ mode }: { mode: Mode }) {
           <div className="wasla-dashboard-card-loader relative mx-auto w-full max-w-sm rounded-2xl border border-white/14 bg-white/10 p-4 shadow-2xl shadow-teal-950/20 backdrop-blur">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-white text-sm font-black text-teal-700">
-                  W
-                </div>
+                <LogoMark className="flex size-10 items-center justify-center text-sm font-black text-teal-700" />
                 <div>
                   <div className="text-sm font-black text-white">{dashboardT('venueWorkspace')}</div>
                   <div className="mt-1 text-xs font-bold text-white/60">{dashboardT('publicPreview')}</div>

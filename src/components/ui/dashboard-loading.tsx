@@ -1,11 +1,14 @@
 import { BarChart3, GitBranch, QrCode, UtensilsCrossed } from 'lucide-react';
+import { LogoMark } from './logo-mark';
 
 function DashboardSkeletonCard({ index }: { index: number }) {
   const icons = [BarChart3, UtensilsCrossed, GitBranch, QrCode];
   const Icon = icons[index % icons.length];
 
   return (
-    <div className={`wasla-dashboard-card-loader wasla-dashboard-card-loader-${index + 1} rounded-2xl border border-border bg-white p-4 shadow-sm`}>
+    <div
+      className={`wasla-dashboard-card-loader wasla-dashboard-card-loader-${index + 1} rounded-2xl border border-border bg-white p-4 shadow-sm`}
+    >
       <div className="flex items-center justify-between gap-3">
         <div className="flex size-11 items-center justify-center rounded-xl bg-teal-50">
           <Icon className="size-5 text-teal-700" />
@@ -70,9 +73,7 @@ export function DashboardLoading({ compact = false }: { compact?: boolean }) {
       <div className="mx-auto w-full max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
         <div className="mb-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex size-11 items-center justify-center rounded-2xl bg-teal-600 text-lg font-black text-white shadow-lg shadow-teal-900/10">
-              W
-            </div>
+            <LogoMark className="flex size-11 items-center justify-center text-lg font-black text-white shadow-lg shadow-teal-900/10" />
             <div>
               <div className="wasla-dashboard-skeleton h-4 w-28 rounded-full" />
               <div className="wasla-dashboard-skeleton mt-2 h-3 w-40 rounded-full" />
@@ -128,7 +129,10 @@ export function DashboardLoading({ compact = false }: { compact?: boolean }) {
                 <div className="mt-5 flex h-44 items-end gap-2">
                   {[35, 58, 42, 76, 62, 88, 54].map((height, index) => (
                     <div key={index} className="flex flex-1 items-end">
-                      <div className="wasla-dashboard-chart-bar w-full rounded-t-xl bg-teal-100" style={{ height: `${height}%` }} />
+                      <div
+                        className="wasla-dashboard-chart-bar w-full rounded-t-xl bg-teal-100"
+                        style={{ height: `${height}%` }}
+                      />
                     </div>
                   ))}
                 </div>
