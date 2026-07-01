@@ -16,6 +16,7 @@ import {
 import { AuthSessionRedirect } from '@/features/auth/components/auth-session-redirect';
 import { LogoMark } from '@/components/ui/logo-mark';
 import { AppImage } from '@/components/ui/app-image';
+import { PwaInstallSection } from '@/components/shared/pwa-install-section';
 import { LandingQuickSearch } from './landing-quick-search';
 
 export async function PublicLandingPage({ locale }: { locale: string }) {
@@ -294,6 +295,8 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
           </div>
         </div>
       </section>
+
+      <PwaInstallSection variant="landing" />
 
       <footer className="border-t border-border bg-white px-4 py-8 sm:px-8 lg:px-14 xl:px-20">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

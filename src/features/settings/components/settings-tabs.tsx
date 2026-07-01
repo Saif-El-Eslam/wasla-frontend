@@ -6,6 +6,7 @@ import {
   LifeBuoy,
   LockKeyhole,
   LogOut,
+  Smartphone,
   Store,
   UserRound,
   Users,
@@ -13,7 +14,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { cx } from '@/components/ui/dashboard-ui';
 
-export type SettingsTabId = 'user' | 'password' | 'venue' | 'team' | 'subscription' | 'support';
+export type SettingsTabId = 'user' | 'password' | 'venue' | 'team' | 'subscription' | 'app' | 'support';
 
 export function SettingsTabs({
   activeTab,
@@ -35,6 +36,7 @@ export function SettingsTabs({
     { id: 'venue' as const, label: t('venue'), icon: Store, show: isAdmin },
     { id: 'team' as const, label: t('team'), icon: Users, show: isAdmin },
     { id: 'subscription' as const, label: t('subscription'), icon: CreditCard, show: true },
+    { id: 'app' as const, label: t('appInstall'), icon: Smartphone, show: true },
     { id: 'support' as const, label: t('support'), icon: LifeBuoy, show: true },
   ].filter((tab) => tab.show);
 
@@ -86,7 +88,7 @@ export function SettingsTabs({
         ) : null}
       </div>
 
-      <div className="hidden gap-2 rounded-3xl border border-teal-100 bg-white/90 p-1.5 shadow-glass sm:grid sm:grid-cols-2 lg:grid-cols-6">
+      <div className="hidden gap-2 rounded-3xl border border-teal-100 bg-white/90 p-1.5 shadow-glass sm:grid sm:grid-cols-2 lg:grid-cols-7">
         {settingsTabs.map((tab) => {
           const Icon = tab.icon;
 

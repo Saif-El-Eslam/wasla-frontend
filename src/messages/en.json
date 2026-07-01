@@ -342,6 +342,7 @@
     "team": "Team",
     "subscription": "Subscription",
     "support": "Support",
+    "appInstall": "App",
     "userSettings": "User settings",
     "profileSettingsBody": "Keep owner contact details tidy so account recovery and team workflows stay smooth.",
     "name": "Name",
@@ -453,6 +454,23 @@
     "prices": "Prices",
     "back": "Back",
     "members": "Members"
+  },
+  "pwa": {
+    "eyebrow": "Mobile app",
+    "title": "Install Wasla on this device.",
+    "body": "Open menus and the dashboard from a home-screen icon with cached shell assets, faster relaunches, and no app-store step.",
+    "install": "Install app",
+    "installed": "Installed",
+    "notAvailable": "Use browser menu",
+    "secureHint": "Install is available only on secure production origins and supported browsers.",
+    "iosHint": "On iPhone, tap Share, then Add to Home Screen.",
+    "androidHint": "On Android Chrome, use the install button when it appears or Add to Home screen from the browser menu.",
+    "desktopHint": "On desktop Chrome or Edge, use the install icon in the address bar when available.",
+    "stepShare": "Open browser action",
+    "stepAdd": "Add Wasla",
+    "stepAddBody": "Save the app shell to the home screen or launcher.",
+    "stepLaunch": "Launch quickly",
+    "stepLaunchBody": "Return to public menus or the workspace in one tap."
   },
   "subscription": {
     "currentPlanBody": "Public menus stay available across every plan. Workspace changes, AI extraction, analytics history, and QR branding follow the active plan limits.",

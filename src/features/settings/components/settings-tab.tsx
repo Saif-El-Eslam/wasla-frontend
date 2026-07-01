@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { SectionTitle } from '@/components/ui/dashboard-ui';
+import { PwaInstallSection } from '@/components/shared/pwa-install-section';
 import { TabLoader } from '@/components/ui/tab-loader';
 import { toast } from '@/components/ui/toast-store';
 import { useMe } from '@/features/auth/hooks/use-me';
@@ -70,7 +71,7 @@ function venueDefaults(venue: Venue | undefined, locale: string): VenueSettingsF
   };
 }
 
-const validSettingsTabs: SettingsTabId[] = ['user', 'password', 'venue', 'team', 'subscription', 'support'];
+const validSettingsTabs: SettingsTabId[] = ['user', 'password', 'venue', 'team', 'subscription', 'app', 'support'];
 
 export function SettingsTab({
   isAdmin,
@@ -134,13 +135,25 @@ export function SettingsTab({
   }, [locale, venue.data, venueForm]);
 
   useEffect(() => {
-    if (requestedSettingsTab && validSettingsTabs.includes(requestedSettingsTab)) {
-      setActiveSettingsTab(requestedSettingsTab);
-      setShowMobileSettingsMenu(false);
-    } else {
-      setShowMobileSettingsMenu(true);
-    }
-  }, [requestedSettingsTab, validSettingsTabs]);
+    let cancelled = false;
+
+    queueMicrotask(() => {
+      if (cancelled) {
+        return;
+      }
+
+      if (requestedSettingsTab && validSettingsTabs.includes(requestedSettingsTab)) {
+        setActiveSettingsTab(requestedSettingsTab);
+        setShowMobileSettingsMenu(false);
+      } else {
+        setShowMobileSettingsMenu(true);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [requestedSettingsTab]);
 
   const changeSettingsTab = (tab: SettingsTabId) => {
     setActiveSettingsTab(tab);
@@ -228,6 +241,7 @@ export function SettingsTab({
     venue: t('venue'),
     team: t('team'),
     subscription: t('subscription'),
+    app: t('appInstall'),
     support: t('support'),
   }[activeSettingsTab];
 
@@ -256,6 +270,8 @@ export function SettingsTab({
       />
     ) : activeSettingsTab === 'subscription' ? (
       <SubscriptionSettingsPanel locale={locale} />
+    ) : activeSettingsTab === 'app' ? (
+      <PwaInstallSection />
     ) : activeSettingsTab === 'support' ? (
       <SupportSettingsSection />
     ) : null;
