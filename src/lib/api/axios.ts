@@ -13,7 +13,25 @@ export class ApiError extends Error {
   }
 }
 
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
+const configuredApiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
+
+function resolveApiBaseUrl() {
+  if (!configuredApiBaseUrl) {
+    return '/api/v1';
+  }
+
+  if (typeof window === 'undefined') {
+    return configuredApiBaseUrl;
+  }
+
+  try {
+    const url = new URL(configuredApiBaseUrl);
+
+    return url.origin === window.location.origin ? configuredApiBaseUrl : '/api/v1';
+  } catch {
+    return configuredApiBaseUrl;
+  }
+}
 
 function currentLocale() {
   return currentBrowserLocale();
@@ -34,7 +52,7 @@ function actionFailureText(message?: string) {
 }
 
 export const axiosClient = axios.create({
-  baseURL: apiBaseUrl,
+  baseURL: resolveApiBaseUrl(),
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
