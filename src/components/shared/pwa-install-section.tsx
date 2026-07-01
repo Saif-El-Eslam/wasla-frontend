@@ -148,12 +148,12 @@ export function PwaInstallSection({
             {t('body')}
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-            {canPrompt && (
+            {true && (
               <PrimaryButton
                 onClick={install}
                 disabled={installing}
                 loading={installing}
-                className="h-12 w-full min-w-[200px] rounded-xl px-5 font-black sm:w-auto"
+                className="w-full min-w-[200px] sm:w-auto z-10 wasla-shimmer inline-flex h-12 items-center justify-center gap-2 rounded-xl px-5 text-sm font-black text-white shadow-lg shadow-teal-950/15"
               >
                 <Download className="size-4" />
                 {t('install')}

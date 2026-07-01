@@ -150,7 +150,7 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Link
               href={`/${locale}/register`}
-              className="wasla-shimmer inline-flex h-12 items-center justify-center gap-2 rounded-xl px-5 text-sm font-black text-white shadow-lg shadow-teal-950/15"
+              className="z-10 wasla-shimmer inline-flex h-12 items-center justify-center gap-2 rounded-xl px-5 text-sm font-black text-white shadow-lg shadow-teal-950/15"
             >
               <PlusCircle className="size-4" />
               {t('addYourVenue')}
