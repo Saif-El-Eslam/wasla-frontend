@@ -153,7 +153,7 @@ export function PwaInstallSection({
                 onClick={install}
                 disabled={installing}
                 loading={installing}
-                className="h-12 w-full rounded-xl px-5 font-black sm:w-auto"
+                className="h-12 w-full min-w-[200px] rounded-xl px-5 font-black sm:w-auto"
               >
                 <Download className="size-4" />
                 {t('install')}
