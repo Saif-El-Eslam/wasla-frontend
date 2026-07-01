@@ -13,6 +13,7 @@ import {
   Store,
   UtensilsCrossed,
 } from 'lucide-react';
+import { AuthSessionRedirect } from '@/features/auth/components/auth-session-redirect';
 import { LandingQuickSearch } from './landing-quick-search';
 
 export async function PublicLandingPage({ locale }: { locale: string }) {
@@ -21,6 +22,7 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
 
   return (
     <main dir={isRtl ? 'rtl' : 'ltr'} className="min-h-dvh overflow-hidden bg-[#f8fafa] text-stone-950">
+      <AuthSessionRedirect locale={locale} standaloneOnly />
       <header className="absolute inset-x-0 top-0 z-40 flex items-center justify-between gap-3 px-4 py-4 sm:px-8 lg:px-14 xl:px-20">
         <Link href={`/${locale}`} className="flex items-center gap-2 transition hover:-translate-y-0.5">
           <div className="flex size-9 items-center justify-center rounded-xl bg-teal-600 text-lg font-black text-white shadow-lg shadow-teal-900/10">

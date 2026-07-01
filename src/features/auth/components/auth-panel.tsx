@@ -18,6 +18,7 @@ import {
 import { postAuthDestination } from '@/features/auth/utils/auth-redirect';
 import { queryKeys } from '@/lib/api/query-keys';
 import type { CurrentUser } from '@/lib/api';
+import { AuthSessionRedirect } from './auth-session-redirect';
 
 type Mode = 'login' | 'register' | 'verify';
 
@@ -121,6 +122,7 @@ export function AuthPanel({ mode }: { mode: Mode }) {
 
   return (
     <main className="h-dvh max-h-dvh overflow-hidden bg-[#f8fafa] text-stone-950">
+      <AuthSessionRedirect locale={locale} standaloneOnly />
       <header className="absolute inset-x-0 top-0 z-40 flex h-16 items-center justify-between gap-3 px-4 sm:px-8 lg:px-12 xl:px-16">
         <Link href={`/${locale}`} className="flex items-center gap-2 transition hover:-translate-y-0.5">
           <div className="flex size-9 items-center justify-center rounded-xl bg-teal-600 text-lg font-black text-white shadow-lg shadow-teal-900/10 lg:bg-white lg:text-teal-700">

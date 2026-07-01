@@ -69,7 +69,15 @@ let isRedirectingToLogin = false;
 axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && typeof window !== 'undefined' && !isRedirectingToLogin) {
+    const isAuthScreen =
+      typeof window !== 'undefined' && /^\/(en|ar)\/(login|register|verify)(\/|$)/.test(window.location.pathname);
+
+    if (
+      error.response?.status === 401 &&
+      typeof window !== 'undefined' &&
+      !isAuthScreen &&
+      !isRedirectingToLogin
+    ) {
       isRedirectingToLogin = true;
       window.location.href = `/${currentBrowserLocale()}/login`;
     }

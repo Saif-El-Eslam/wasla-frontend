@@ -4,9 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { queryKeys } from '@/lib/api/query-keys';
 
-export function useMe() {
+export function useMe(options: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: queryKeys.me,
     queryFn: api.me,
+    retry: false,
+    ...options,
   });
 }
