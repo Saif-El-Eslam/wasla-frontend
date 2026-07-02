@@ -22,6 +22,7 @@ import { api, ApiError } from '@/lib/api';
 import { FormInput } from '@/components/ui/form-input';
 import { LogoMark } from '@/components/ui/logo-mark';
 import { cx } from '@/components/ui/cx';
+import { publicLandingHref } from '@/features/auth/utils/pwa-public-navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch } from 'react-hook-form';
 import {
@@ -115,7 +116,7 @@ export default function SetupPage() {
 
       <header className="relative z-10 flex min-h-16 items-center justify-between gap-3 px-4 py-4 sm:px-8 lg:px-10 xl:px-14">
         <Link
-          href={`/${locale}`}
+          href={publicLandingHref(locale)}
           className="flex items-center gap-2 rounded-2xl px-1 py-1 transition hover:-translate-y-0.5"
         >
           <LogoMark className="flex size-10 items-center justify-center bg-white text-lg font-black text-teal-700 shadow-lg shadow-teal-900/10" />
