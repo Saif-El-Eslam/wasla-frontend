@@ -68,6 +68,7 @@ function venueDefaults(venue: Venue | undefined, locale: string): VenueSettingsF
     whatsapp: venue?.whatsapp ?? '',
     googleMapsUrl: venue?.googleMapsUrl ?? '',
     instagramUrl: venue?.instagramUrl ?? '',
+    facebookUrl: venue?.facebookUrl ?? '',
   };
 }
 

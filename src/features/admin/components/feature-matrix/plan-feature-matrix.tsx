@@ -15,10 +15,10 @@ import type {
 import { textForLocale } from '@/lib/localized-text';
 import { mappingDraft } from '../../utils/admin-subscriptions';
 
-const qrBrandingOptions: Array<{ value: QrBrandingLevel; label: string }> = [
-  { value: 'WASLA_SIGNED', label: 'Wasla signed' },
-  { value: 'VENUE_LOGO', label: 'Venue logo' },
-  { value: 'FULL_CUSTOM', label: 'Full custom' },
+const qrBrandingOptions: Array<{ value: QrBrandingLevel; labelKey: 'waslaSigned' | 'venueLogo' | 'fullCustom' }> = [
+  { value: 'WASLA_SIGNED', labelKey: 'waslaSigned' },
+  { value: 'VENUE_LOGO', labelKey: 'venueLogo' },
+  { value: 'FULL_CUSTOM', labelKey: 'fullCustom' },
 ];
 
 type UpdateMappingPayload = {
@@ -103,6 +103,7 @@ function MatrixInput({
   mapping: PlanFeatureMapping;
   mutation: UseMutationResult<unknown, unknown, UpdateMappingPayload>;
 }) {
+  const t = useTranslations('admin');
   const value = mappingDraft(mapping);
   const fieldClassName = cx(
     'h-10 w-36 rounded-xl border border-teal-100 bg-[#f8fafa] px-3 text-xs font-black text-stone-700 outline-none focus:border-primary',
@@ -121,7 +122,7 @@ function MatrixInput({
       >
         {qrBrandingOptions.map((option) => (
           <option key={option.value} value={option.value}>
-            {option.label}
+            {t(`matrix.qrBrandingOptions.${option.labelKey}`)}
           </option>
         ))}
       </select>

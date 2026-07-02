@@ -53,6 +53,7 @@ import {
   type BranchFormValues,
 } from '@/features/branches/schemas/branch.schema';
 import { FormInput } from '@/components/ui/form-input';
+import { ClearableFormInput } from '@/components/ui/clearable-form-input';
 import { cleanupUploadedImages, uploadImageDirect } from '@/lib/api/image-upload';
 
 function normalizeOpeningHours(openingHours: BranchManagement['openingHours']): OpeningHours | undefined {
@@ -100,6 +101,7 @@ export function BranchesTab({
       coverUrl: '',
       googleMapsUrl: '',
       instagramUrl: '',
+      facebookUrl: '',
       openingHours: { from: '', to: '' },
     },
   });
@@ -150,6 +152,7 @@ export function BranchesTab({
       coverUrl: '',
       googleMapsUrl: '',
       instagramUrl: '',
+      facebookUrl: '',
       openingHours: { from: '', to: '' },
     });
     setFormOpen(false);
@@ -178,6 +181,7 @@ export function BranchesTab({
       coverUrl: branch.coverUrl ?? '',
       googleMapsUrl: branch.googleMapsUrl ?? '',
       instagramUrl: branch.instagramUrl ?? '',
+      facebookUrl: branch.facebookUrl ?? '',
       openingHours: normalizeOpeningHours(branch.openingHours) ?? { from: '', to: '' },
     });
 
@@ -196,7 +200,9 @@ export function BranchesTab({
     const uploadedUrls: string[] = [];
 
     try {
-      const logoUrl = logoFile ? (await uploadImageDirect(logoFile, 'branch')).url : values.logoUrl || undefined;
+      const logoUrl = logoFile
+        ? (await uploadImageDirect(logoFile, 'branch')).url
+        : values.logoUrl || undefined;
       if (logoFile && logoUrl) {
         uploadedUrls.push(logoUrl);
       }
@@ -218,8 +224,9 @@ export function BranchesTab({
           address: address.en || address.ar ? toLocalized(address, '') : undefined,
           logoUrl,
           coverUrl,
-          googleMapsUrl: values.googleMapsUrl || undefined,
-          instagramUrl: values.instagramUrl || undefined,
+          googleMapsUrl: values.googleMapsUrl ?? '',
+          instagramUrl: values.instagramUrl ?? '',
+          facebookUrl: values.facebookUrl ?? '',
           openingHours,
         } satisfies CreateBranchInput,
         uploadedUrls,
@@ -258,6 +265,7 @@ export function BranchesTab({
         coverUrl: payload.coverUrl ?? null,
         googleMapsUrl: payload.googleMapsUrl ?? null,
         instagramUrl: payload.instagramUrl ?? null,
+        facebookUrl: payload.facebookUrl ?? null,
         openingHours: payload.openingHours ?? null,
         menuId: null,
         hasMenu: false,
@@ -360,13 +368,26 @@ export function BranchesTab({
                 register={register}
                 errors={errors}
                 placeholder={t('nameInEnglish')}
+                label={t('nameInEnglish')}
               />
 
-              <FormInput name="name.ar" register={register} errors={errors} placeholder={t('nameInArabic')} />
+              <FormInput
+                name="name.ar"
+                register={register}
+                errors={errors}
+                placeholder={t('nameInArabic')}
+                label={t('nameInArabic')}
+              />
 
-              <FormInput name="slug" register={register} errors={errors} placeholder={t('slug')} />
+              <FormInput
+                name="slug"
+                register={register}
+                errors={errors}
+                placeholder={t('slug')}
+                label={t('slug')}
+              />
 
-              <label className="flex h-11 items-center gap-2 rounded-xl border border-border bg-white px-3 text-sm font-bold">
+              <label className="flex h-11 items-center gap-2 rounded-xl border border-border bg-white px-3 sm:mt-5 text-sm font-bold">
                 <input type="checkbox" {...register('active')} />
                 {t('activeBranch')}
               </label>
@@ -377,6 +398,7 @@ export function BranchesTab({
                 register={register}
                 errors={errors}
                 placeholder={t('phone')}
+                label={t('phone')}
               />
 
               <FormInput
@@ -385,6 +407,7 @@ export function BranchesTab({
                 register={register}
                 errors={errors}
                 placeholder={t('whatsapp')}
+                label={t('whatsapp')}
               />
 
               <FormInput
@@ -392,6 +415,7 @@ export function BranchesTab({
                 register={register}
                 errors={errors}
                 placeholder={t('addressInEnglish')}
+                label={t('addressInEnglish')}
               />
 
               <FormInput
@@ -399,6 +423,7 @@ export function BranchesTab({
                 register={register}
                 errors={errors}
                 placeholder={t('addressInArabic')}
+                label={t('addressInArabic')}
               />
 
               <ImageUploadField
@@ -406,7 +431,9 @@ export function BranchesTab({
                 value={(form.watch('logoUrl') as string) ?? ''}
                 file={logoFile}
                 onFileChange={setLogoFile}
-                onChange={(value) => form.setValue('logoUrl', value, { shouldDirty: true, shouldValidate: true })}
+                onChange={(value) =>
+                  form.setValue('logoUrl', value, { shouldDirty: true, shouldValidate: true })
+                }
                 aspect="aspect-[5/2]"
                 disabled={createBranchMutation.isPending || updateBranchMutation.isPending}
                 pending={createBranchMutation.isPending || updateBranchMutation.isPending}
@@ -417,26 +444,39 @@ export function BranchesTab({
                 value={(form.watch('coverUrl') as string) ?? ''}
                 file={coverFile}
                 onFileChange={setCoverFile}
-                onChange={(value) => form.setValue('coverUrl', value, { shouldDirty: true, shouldValidate: true })}
+                onChange={(value) =>
+                  form.setValue('coverUrl', value, { shouldDirty: true, shouldValidate: true })
+                }
                 aspect="aspect-[5/2]"
                 disabled={createBranchMutation.isPending || updateBranchMutation.isPending}
                 pending={createBranchMutation.isPending || updateBranchMutation.isPending}
               />
 
-              <FormInput
+              <ClearableFormInput
+                form={form}
                 name="googleMapsUrl"
                 type="url"
-                register={register}
-                errors={errors}
                 placeholder={t('googleMapsUrl')}
+                label={t('googleMapsUrl')}
+                clearLabel={t('clearLink')}
               />
 
-              <FormInput
+              <ClearableFormInput
+                form={form}
                 name="instagramUrl"
                 type="url"
-                register={register}
-                errors={errors}
                 placeholder={t('instagramUrl')}
+                label={t('instagramUrl')}
+                clearLabel={t('clearLink')}
+              />
+
+              <ClearableFormInput
+                form={form}
+                name="facebookUrl"
+                type="url"
+                placeholder={t('facebookUrl')}
+                label={t('facebookUrl')}
+                clearLabel={t('clearLink')}
               />
 
               <FormInput

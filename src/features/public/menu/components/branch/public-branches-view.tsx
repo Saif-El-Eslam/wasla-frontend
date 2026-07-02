@@ -9,6 +9,7 @@ import { publicMenuApi } from '@/features/public/menu/api/public-menu.api';
 import { AppImage } from '@/components/ui/app-image';
 import { textForLocale } from '@/lib/localized-text';
 import { optimizedImageUrl } from '@/lib/image-url';
+import { PublicBranchActions } from './public-branch-actions';
 
 export function PublicBranchesView({
   venue,
@@ -85,6 +86,9 @@ export function PublicBranchesView({
         <p className="mb-8 max-w-4xl text-base leading-8 text-muted-foreground">
           {venueDescription || t('chooseBranch')}
         </p>
+        <div className="mb-8 max-w-3xl">
+          <PublicBranchActions venue={venue} page="branches" />
+        </div>
         <h2 className="mb-4 flex items-center gap-2 text-sm font-black text-stone-800">
           <GitBranch className="size-4 text-teal-600" />
           {t('branchesHeading', { count: branches.length })}
@@ -114,7 +118,9 @@ export function PublicBranchesView({
                   {textForLocale(branch.address, locale) || t('openMenu')}
                 </p>
               </div>
-              <span className="text-xs font-black text-teal-700">{t('itemsCount', { count: branch.stats.items })}</span>
+              <span className="text-xs font-black text-teal-700">
+                {t('itemsCount', { count: branch.stats.items })}
+              </span>
             </Link>
           ))}
         </div>

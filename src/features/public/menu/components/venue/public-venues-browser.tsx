@@ -137,6 +137,7 @@ export function PublicVenuesBrowser({
   initialType: string;
 }) {
   const t = useTranslations('public');
+  const commonT = useTranslations('common');
   const router = useRouter();
   const [search, setSearch] = useState(initialSearch);
   const [pages, setPages] = useState([initialData]);
@@ -235,7 +236,7 @@ export function PublicVenuesBrowser({
               <div className="flex flex-col gap-8">
                 <Link href={`/${locale}`} className="flex w-fit items-center gap-2">
                   <LogoMark className="flex size-8 items-center justify-center text-sm font-black text-white" />
-                  <span className="text-base font-black text-white">Wasla</span>
+                  <span className="text-base font-black text-white">{commonT('wasla')}</span>
                 </Link>
                 <h1 className="text-4xl font-black text-white sm:text-5xl">{t('discoverVenues')}</h1>
               </div>

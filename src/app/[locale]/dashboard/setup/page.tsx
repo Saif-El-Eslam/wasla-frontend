@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowRight,
   BarChart3,
   Building2,
   Globe2,
   Languages,
+  LogOut,
   MapPin,
   MessageCircle,
   Phone,
@@ -42,7 +43,9 @@ function slugify(value: string) {
 export default function SetupPage() {
   const t = useTranslations('setup');
   const commonT = useTranslations('common');
+  const dashboardT = useTranslations('dashboard');
   const router = useRouter();
+  const queryClient = useQueryClient();
   const params = useParams<{ locale: string }>();
   const locale = params.locale ?? 'en';
   const nextLocale = locale === 'ar' ? 'en' : 'ar';
@@ -66,6 +69,14 @@ export default function SetupPage() {
     mutationFn: api.setupVenue,
     onSuccess: () => {
       router.push(`/${locale}/dashboard`);
+    },
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: api.logout,
+    onSettled: () => {
+      queryClient.clear();
+      router.push(`/${locale}/login`);
     },
   });
 
@@ -120,16 +131,27 @@ export default function SetupPage() {
           className="flex items-center gap-2 rounded-2xl px-1 py-1 transition hover:-translate-y-0.5"
         >
           <LogoMark className="flex size-10 items-center justify-center bg-white text-lg font-black text-teal-700 shadow-lg shadow-teal-900/10" />
-          <span className="text-lg font-black text-stone-950">Wasla</span>
+          <span className="text-lg font-black text-stone-950">{commonT('wasla')}</span>
         </Link>
 
-        <Link
-          href={`/${nextLocale}/dashboard/setup`}
-          className="inline-flex h-10 items-center gap-2 rounded-2xl border border-teal-100 bg-white/90 px-3 text-xs font-black text-stone-800 shadow-sm backdrop-blur hover:border-teal-300"
-        >
-          <Languages className="size-4" />
-          {locale === 'ar' ? 'EN' : 'AR'}
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/${nextLocale}/dashboard/setup`}
+            className="inline-flex h-10 items-center gap-2 rounded-2xl border border-teal-100 bg-white/90 px-3 text-xs font-black text-stone-800 shadow-sm backdrop-blur hover:border-teal-300"
+          >
+            <Languages className="size-4" />
+            {locale === 'ar' ? 'EN' : 'AR'}
+          </Link>
+          <button
+            type="button"
+            className="inline-flex h-10 items-center gap-2 rounded-2xl border border-teal-100 bg-white/90 px-3 text-xs font-black text-stone-800 shadow-sm backdrop-blur transition hover:border-teal-300 disabled:opacity-60"
+            disabled={logoutMutation.isPending}
+            onClick={() => logoutMutation.mutate()}
+          >
+            <LogOut className="size-4" />
+            <span className="hidden sm:inline">{dashboardT('logout')}</span>
+          </button>
+        </div>
       </header>
 
       <section className="relative z-10 mx-auto grid h-[calc(100dvh-72px)] min-h-0 w-full max-w-7xl gap-6 px-4 pb-4 sm:px-8 lg:grid-cols-[0.8fr_1.2fr] lg:px-10 xl:px-14">

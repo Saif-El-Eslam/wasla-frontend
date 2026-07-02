@@ -234,6 +234,8 @@
     "coverUrl": "Cover URL",
     "googleMapsUrl": "Google Maps URL",
     "instagramUrl": "Instagram URL",
+    "facebookUrl": "Facebook URL",
+    "clearLink": "Remove link",
     "openingHoursJson": "Opening hours JSON, e.g. {example}",
     "saveBranch": "Save branch",
     "createBranch": "Create branch",
@@ -299,6 +301,8 @@
     "whatsappMetric": "WhatsApp",
     "calls": "Calls",
     "maps": "Maps",
+    "instagram": "Instagram",
+    "facebook": "Facebook",
     "vsPrevious": "+{trend}% vs previous {period}",
     "engagement": "Engagement",
     "dailyViews": "Daily views",
@@ -613,7 +617,12 @@
       "body": "Edits here update backend gates immediately after the next API request.",
       "feature": "Feature",
       "missing": "Missing",
-      "empty": "No feature mappings are available yet."
+      "empty": "No feature mappings are available yet.",
+      "qrBrandingOptions": {
+        "waslaSigned": "Wasla signed",
+        "venueLogo": "Venue logo",
+        "fullCustom": "Full custom"
+      }
     },
     "plans": {
       "title": "Plan & feature management",

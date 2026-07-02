@@ -21,6 +21,7 @@ import { LandingQuickSearch } from './landing-quick-search';
 
 export async function PublicLandingPage({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: 'public' });
+  const commonT = await getTranslations({ locale, namespace: 'common' });
   const isRtl = locale === 'ar';
 
   return (
@@ -29,7 +30,7 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
       <header className="absolute inset-x-0 top-0 z-40 flex items-center justify-between gap-3 px-4 py-4 sm:px-8 lg:px-14 xl:px-20">
         <Link href={`/${locale}`} className="flex items-center gap-2 transition hover:-translate-y-0.5">
           <LogoMark className="flex size-9 items-center justify-center text-lg font-black text-white shadow-lg shadow-teal-900/10" />
-          <span className="text-lg font-black text-white">Wasla</span>
+          <span className="text-lg font-black text-white">{commonT('wasla')}</span>
         </Link>
         <div className="flex items-center gap-2">
           <Link
@@ -302,7 +303,7 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <Link href={`/${locale}`} className="flex w-fit items-center gap-2">
             <LogoMark className="flex size-8 items-center justify-center text-sm font-black text-white" />
-            <span className="text-base font-black text-teal-700">Wasla</span>
+            <span className="text-base font-black text-teal-700">{commonT('wasla')}</span>
           </Link>
           <nav className="flex flex-wrap gap-3 text-sm font-bold text-muted-foreground">
             {[

@@ -54,6 +54,7 @@ export function DashboardShell({
   children: React.ReactNode;
 }) {
   const t = useTranslations('dashboard');
+  const commonT = useTranslations('common');
 
   return (
     <div className="h-dvh overflow-hidden bg-[#f8fafa]" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
@@ -65,7 +66,7 @@ export function DashboardShell({
           >
             <LogoMark className="flex size-10 items-center justify-center text-lg font-black text-white shadow-lg" />
             <div>
-              <p className="text-lg font-black text-white">Wasla</p>
+              <p className="text-lg font-black text-white">{commonT('wasla')}</p>
               <p className="text-xs text-teal-200">{venueName || t('venueWorkspace')}</p>
             </div>
           </Link>
@@ -131,8 +132,8 @@ export function DashboardShell({
               >
                 <LogoMark className="flex size-9 shrink-0 items-center justify-center text-sm font-black text-white" />
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-black text-stone-950">{venueName || 'Wasla'}</p>
-                  <p className="text-xs text-muted-foreground">Wasla</p>
+                  <p className="truncate text-sm font-black text-stone-950">{venueName || commonT('wasla')}</p>
+                  <p className="text-xs text-muted-foreground">{commonT('wasla')}</p>
                 </div>
               </Link>
               <div className="flex items-center gap-2">

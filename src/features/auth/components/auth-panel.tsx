@@ -186,10 +186,10 @@ export function AuthPanel({ mode }: { mode: Mode }) {
         <Link
           href={`/${locale}`}
           className="flex items-center gap-2 rounded-2xl px-1 py-1 transition hover:-translate-y-0.5"
-          aria-label="Wasla"
+          aria-label={commonT('wasla')}
         >
           <LogoMark className="flex size-10 items-center justify-center bg-white text-lg font-black text-teal-700 shadow-lg shadow-teal-900/10" />
-          <span className="text-lg font-black text-stone-950">Wasla</span>
+          <span className="text-lg font-black text-stone-950">{commonT('wasla')}</span>
         </Link>
 
         <div className="flex items-center gap-2">

@@ -42,6 +42,7 @@ export const venueSettingsSchema = z.object({
   whatsapp: fieldValidations.optionalEgyptPhone(),
   googleMapsUrl: fieldValidations.url(),
   instagramUrl: fieldValidations.url(),
+  facebookUrl: fieldValidations.url(),
 });
 
 export type ProfileFormInput = z.input<typeof profileSchema>;

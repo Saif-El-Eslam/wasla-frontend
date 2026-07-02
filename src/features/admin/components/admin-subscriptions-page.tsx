@@ -11,6 +11,8 @@ import { DashboardLoading } from '@/components/ui/dashboard-loading';
 import { toast } from '@/components/ui/toast-store';
 import { publicLandingHref } from '@/features/auth/utils/pwa-public-navigation';
 import { useMe } from '@/features/auth/hooks/use-me';
+import { useDebounce } from '@/hooks/use-debounce';
+import { useThrottle } from '@/hooks/use-throttle';
 import { api } from '@/lib/api';
 import { queryKeys } from '@/lib/api/query-keys';
 import type {
@@ -30,16 +32,21 @@ import { VenueSubscriptionManagement } from './venu-subscription/venue-subscript
 
 export function AdminSubscriptionsPage({ locale }: { locale: string }) {
   const t = useTranslations('admin');
+  const commonT = useTranslations('common');
   const me = useMe();
   const router = useRouter();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<AdminSubscriptionTab>('home');
   const [search, setSearch] = useState('');
   const [verificationSearch, setVerificationSearch] = useState('');
-  const filters = useMemo(() => ({ search: search.trim() || undefined }), [search]);
+  const debouncedSearch = useDebounce(search.trim(), 350);
+  const throttledSearch = useThrottle(debouncedSearch, 600);
+  const debouncedVerificationSearch = useDebounce(verificationSearch.trim(), 350);
+  const throttledVerificationSearch = useThrottle(debouncedVerificationSearch, 600);
+  const filters = useMemo(() => ({ search: throttledSearch || undefined }), [throttledSearch]);
   const verificationFilters = useMemo(
-    () => ({ search: verificationSearch.trim() || undefined }),
-    [verificationSearch],
+    () => ({ search: throttledVerificationSearch || undefined }),
+    [throttledVerificationSearch],
   );
   const nextLocale = locale === 'ar' ? 'en' : 'ar';
 
@@ -198,7 +205,7 @@ export function AdminSubscriptionsPage({ locale }: { locale: string }) {
               href={publicLandingHref(locale)}
             >
               <Home className="size-4" />
-              <span className="hidden sm:inline">Wasla</span>
+              <span className="hidden sm:inline">{commonT('wasla')}</span>
             </Link>
             <button
               className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-teal-100 bg-white px-4 text-sm font-black text-stone-700 shadow-glass transition hover:border-primary hover:text-primary"

@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import type { UseMutationResult } from '@tanstack/react-query';
 import type { UseFormReturn } from 'react-hook-form';
 import { Card, PrimaryButton, SecondaryButton } from '@/components/ui/dashboard-ui';
+import { ClearableFormInput } from '@/components/ui/clearable-form-input';
 import { FormInput } from '@/components/ui/form-input';
 import { ImageUploadField } from '@/components/ui/image-upload-field';
 import { readError } from '@/features/dashboard/utils/dashboard-utils';
@@ -99,8 +100,9 @@ export function VenueSettingsSection({
         phone: values.phone,
         whatsapp: values.whatsapp,
         address: cleanLocalized(values.address ?? {}),
-        googleMapsUrl: values.googleMapsUrl,
-        instagramUrl: values.instagramUrl,
+        googleMapsUrl: values.googleMapsUrl ?? '',
+        instagramUrl: values.instagramUrl ?? '',
+        facebookUrl: values.facebookUrl ?? '',
       });
 
       closeEditor();
@@ -260,21 +262,29 @@ export function VenueSettingsSection({
             placeholder={t('whatsapp')}
             className={settingsInputClassName}
           />
-          <FormInput
+          <ClearableFormInput
+            form={form}
             name="googleMapsUrl"
             type="url"
-            register={form.register}
-            errors={form.formState.errors}
             placeholder={t('googleMapsUrl')}
             className={settingsInputClassName}
+            clearLabel={t('clearLink')}
           />
-          <FormInput
+          <ClearableFormInput
+            form={form}
             name="instagramUrl"
             type="url"
-            register={form.register}
-            errors={form.formState.errors}
             placeholder={t('instagramUrl')}
             className={settingsInputClassName}
+            clearLabel={t('clearLink')}
+          />
+          <ClearableFormInput
+            form={form}
+            name="facebookUrl"
+            type="url"
+            placeholder={t('facebookUrl')}
+            className={settingsInputClassName}
+            clearLabel={t('clearLink')}
           />
         </div>
 

@@ -83,6 +83,7 @@ export type Branch = {
   address: LocalizedValue | null;
   googleMapsUrl: string | null;
   instagramUrl: string | null;
+  facebookUrl: string | null;
   openingHours?: OpeningHours | null;
   menu?: Menu | null;
 };
@@ -390,6 +391,7 @@ export type Venue = {
   address: LocalizedValue | null;
   googleMapsUrl?: string | null;
   instagramUrl?: string | null;
+  facebookUrl?: string | null;
   branches?: Branch[];
 };
 
@@ -407,6 +409,7 @@ export type SetupVenueInput = {
   address?: LocalizedText;
   googleMapsUrl?: string;
   instagramUrl?: string;
+  facebookUrl?: string;
   branchName: LocalizedText;
   branchSlug: string;
 };
@@ -440,6 +443,7 @@ export type UpdateVenueInput = Partial<
     | 'address'
     | 'googleMapsUrl'
     | 'instagramUrl'
+    | 'facebookUrl'
   >
 >;
 
@@ -492,6 +496,7 @@ export type CreateBranchInput = {
   address?: LocalizedText;
   googleMapsUrl?: string;
   instagramUrl?: string;
+  facebookUrl?: string;
   openingHours?: OpeningHours;
 };
 

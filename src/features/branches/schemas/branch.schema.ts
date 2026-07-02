@@ -18,6 +18,7 @@ export const branchSchema = z
     coverUrl: fieldValidations.url(),
     googleMapsUrl: fieldValidations.url(),
     instagramUrl: fieldValidations.url(),
+    facebookUrl: fieldValidations.url(),
 
     openingHours: fieldValidations.openingHours(),
   })

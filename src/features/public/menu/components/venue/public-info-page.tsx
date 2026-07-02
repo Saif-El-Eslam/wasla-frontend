@@ -7,6 +7,7 @@ type PublicInfoPageKey = 'about' | 'contact' | 'privacy' | 'terms';
 
 export async function PublicInfoPage({ locale, pageKey }: { locale: string; pageKey: PublicInfoPageKey }) {
   const t = await getTranslations({ locale, namespace: 'public' });
+  const commonT = await getTranslations({ locale, namespace: 'common' });
   const isRtl = locale === 'ar';
   const BackIcon = isRtl ? ArrowRight : ArrowLeft;
 
@@ -15,7 +16,7 @@ export async function PublicInfoPage({ locale, pageKey }: { locale: string; page
       <header className="flex items-center justify-between gap-3 px-4 py-5 sm:px-8 lg:px-14 xl:px-20">
         <Link href={`/${locale}`} className="flex items-center gap-2 transition hover:-translate-y-0.5">
           <LogoMark className="flex size-9 items-center justify-center text-lg font-black text-white" />
-          <span className="text-lg font-black text-teal-700">Wasla</span>
+          <span className="text-lg font-black text-teal-700">{commonT('wasla')}</span>
         </Link>
         <div className="flex items-center gap-2">
           <Link

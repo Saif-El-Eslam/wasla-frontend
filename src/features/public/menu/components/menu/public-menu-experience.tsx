@@ -27,9 +27,20 @@ import { PublicMenuItemCard } from './public-menu-item-card';
 type VenueLike = Venue | PublicVenue;
 type BranchLike = Branch | BranchManagement | PublicBranch;
 
+function formatTime(time?: string) {
+  if (!time) return '';
+
+  const [hours, minutes] = time.split(':').map(Number);
+
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const hour12 = hours % 12 || 12;
+
+  return `${hour12}:${minutes.toString().padStart(2, '0')} ${period}`;
+}
+
 function formatOpeningHours(branch?: BranchLike) {
-  const from = branch?.openingHours?.from;
-  const to = branch?.openingHours?.to;
+  const from = formatTime(branch?.openingHours?.from);
+  const to = formatTime(branch?.openingHours?.to);
 
   if (from && to) {
     return `${from} - ${to}`;
@@ -196,8 +207,8 @@ export function PublicMenuExperience({
           ) : null}
         </section>
 
-        <div className="mx-auto mt-5 max-w-3xl space-y-3">
-          <PublicBranchActions branch={branch ?? venue} onIntent={(eventType) => track(eventType)} />
+        <div className="mx-auto mt-5 max-w-3xl space-y-3 text-center  font-semibold text-stone-600">
+          <PublicBranchActions branch={branch} venue={venue} onIntent={(eventType) => track(eventType)} />
           {openingHours ? (
             <div className="mx-auto inline-flex w-fit items-center justify-center gap-2 rounded-full bg-stone-100 px-3 py-2 text-sm text-muted-foreground">
               <Clock3 className="size-4 text-primary" />
