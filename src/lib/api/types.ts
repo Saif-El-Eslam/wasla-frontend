@@ -26,6 +26,39 @@ export type CurrentUser = {
   }>;
 };
 
+export type AdminVerificationCodeStatus = 'ACTIVE' | 'EXPIRED' | 'HIDDEN' | 'MISSING';
+
+export type AdminVerificationUser = {
+  id: string;
+  venueId: string | null;
+  phone: string;
+  email: string | null;
+  name: string | null;
+  role: 'SUPER_ADMIN' | 'OWNER' | 'MANAGER' | 'STAFF';
+  createdAt: string;
+  venue: Pick<Venue, 'id' | 'name' | 'slug'> | null;
+  latestCode: {
+    id: string;
+    code: string | null;
+    status: AdminVerificationCodeStatus;
+    createdAt: string;
+    expiresAt: string;
+  } | null;
+};
+
+export type AdminVerificationCodesResponse = {
+  users: AdminVerificationUser[];
+  metrics: {
+    total: number;
+    listed: number;
+    activeCodes: number;
+    expiredCodes: number;
+    missingCodes: number;
+    hiddenCodes: number;
+  };
+  generatedAt: string;
+};
+
 export type UpdateMeInput = {
   name?: string;
   phone?: string;

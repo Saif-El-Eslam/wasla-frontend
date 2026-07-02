@@ -19,6 +19,8 @@ export const queryKeys = {
   adminSubscriptionOverview: ['admin', 'subscriptions', 'overview'] as const,
   adminSubscriptionVenues: (filters?: Record<string, unknown>) =>
     ['admin', 'subscriptions', 'venues', filters ?? {}] as const,
+  adminVerificationCodes: (filters?: Record<string, unknown>) =>
+    ['admin', 'auth', 'verification-codes', filters ?? {}] as const,
   adminPlans: ['admin', 'subscriptions', 'plans'] as const,
   adminFeatures: ['admin', 'subscriptions', 'features'] as const,
 };

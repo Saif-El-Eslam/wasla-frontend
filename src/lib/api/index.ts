@@ -9,6 +9,9 @@ import { venueService } from '@/features/venue/api/venue.api';
 export { ApiError, apiClient, toQueryString } from './axios';
 export type {
   ApiEnvelope,
+  AdminVerificationCodesResponse,
+  AdminVerificationCodeStatus,
+  AdminVerificationUser,
   AdminFeaturesResponse,
   AdminPlansResponse,
   AdminSubscriptionOverview,
@@ -85,6 +88,8 @@ export const api = {
   register: authService.register,
   login: authService.login,
   verifyOtp: authService.verifyOtp,
+  adminVerificationCodes: authService.adminVerificationCodes,
+  regenerateAdminVerificationCode: authService.regenerateAdminVerificationCode,
   logout: authService.logout,
   me: authService.me,
   updateMe: authService.updateMe,

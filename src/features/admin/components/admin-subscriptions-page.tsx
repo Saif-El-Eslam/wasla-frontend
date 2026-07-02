@@ -14,6 +14,7 @@ import { useMe } from '@/features/auth/hooks/use-me';
 import { api } from '@/lib/api';
 import { queryKeys } from '@/lib/api/query-keys';
 import type {
+  AdminVerificationUser,
   MenuPlanCode,
   SubscriptionStatus,
   UpdatePlanFeatureInput,
@@ -22,6 +23,7 @@ import type {
 } from '@/lib/api/types';
 import { AdminHomeTab } from './home/admin-home-tab';
 import { AdminSubscriptionTabs, type AdminSubscriptionTab } from './admin-subscription-tabs';
+import { AdminVerificationCodes } from './admin-verification-codes';
 import { PlanFeatureMatrix } from './feature-matrix/plan-feature-matrix';
 import PlanFeatureManagement from './plans/plan-feature-management';
 import { VenueSubscriptionManagement } from './venu-subscription/venue-subscription-management';
@@ -33,7 +35,12 @@ export function AdminSubscriptionsPage({ locale }: { locale: string }) {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<AdminSubscriptionTab>('home');
   const [search, setSearch] = useState('');
+  const [verificationSearch, setVerificationSearch] = useState('');
   const filters = useMemo(() => ({ search: search.trim() || undefined }), [search]);
+  const verificationFilters = useMemo(
+    () => ({ search: verificationSearch.trim() || undefined }),
+    [verificationSearch],
+  );
   const nextLocale = locale === 'ar' ? 'en' : 'ar';
 
   const overview = useQuery({
@@ -54,6 +61,11 @@ export function AdminSubscriptionsPage({ locale }: { locale: string }) {
   const features = useQuery({
     queryKey: queryKeys.adminFeatures,
     queryFn: api.adminFeatures,
+    enabled: me.data?.role === 'SUPER_ADMIN',
+  });
+  const verificationCodes = useQuery({
+    queryKey: queryKeys.adminVerificationCodes(verificationFilters),
+    queryFn: () => api.adminVerificationCodes(verificationFilters),
     enabled: me.data?.role === 'SUPER_ADMIN',
   });
 
@@ -135,6 +147,13 @@ export function AdminSubscriptionsPage({ locale }: { locale: string }) {
       toast.success(variables.enabled ? t('toasts.featureAssigned') : t('toasts.featureUnassigned'));
     },
   });
+  const regenerateVerificationCode = useMutation<AdminVerificationUser, Error, string>({
+    mutationFn: api.regenerateAdminVerificationCode,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'auth', 'verification-codes'] });
+      toast.success(t('toasts.verificationCodeRegenerated'));
+    },
+  });
   const logout = useMutation({
     mutationFn: api.logout,
     onSettled: () => {
@@ -214,6 +233,17 @@ export function AdminSubscriptionsPage({ locale }: { locale: string }) {
             search={search}
             onSearchChange={setSearch}
             mutation={updateSubscription}
+          />
+        ) : null}
+
+        {activeTab === 'verification' ? (
+          <AdminVerificationCodes
+            data={verificationCodes.data}
+            locale={locale}
+            search={verificationSearch}
+            onSearchChange={setVerificationSearch}
+            mutation={regenerateVerificationCode}
+            isLoading={verificationCodes.isLoading}
           />
         ) : null}
 

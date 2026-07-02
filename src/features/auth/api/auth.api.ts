@@ -1,5 +1,11 @@
-import { apiClient } from '@/lib/api/axios';
-import type { CurrentUser, UpdateMeInput, UpdatePasswordInput } from '@/lib/api/types';
+import { apiClient, toQueryString } from '@/lib/api/axios';
+import type {
+  AdminVerificationCodesResponse,
+  AdminVerificationUser,
+  CurrentUser,
+  UpdateMeInput,
+  UpdatePasswordInput,
+} from '@/lib/api/types';
 
 export const authService = {
   register: (input: { name: string; phone: string; password: string }) =>
@@ -32,4 +38,15 @@ export const authService = {
       method: 'PATCH',
       body: JSON.stringify(input),
     }),
+  adminVerificationCodes: (filters: { search?: string } = {}) =>
+    apiClient<AdminVerificationCodesResponse>(
+      `/admin/auth/verification-codes${toQueryString(filters)}`,
+    ),
+  regenerateAdminVerificationCode: (userId: string) =>
+    apiClient<{ user: AdminVerificationUser }>(
+      `/admin/auth/users/${userId}/verification-code/regenerate`,
+      {
+        method: 'POST',
+      },
+    ).then((data) => data.user),
 };

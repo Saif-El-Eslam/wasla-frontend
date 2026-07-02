@@ -519,6 +519,7 @@
     "tabs": {
       "home": "Home",
       "venues": "Venue subscriptions",
+      "verification": "Verification codes",
       "matrix": "Plan feature matrix",
       "plans": "Plans"
     },
@@ -573,6 +574,35 @@
       "save": "Save subscription",
       "empty": "No venues match this search."
     },
+    "verification": {
+      "title": "New-user verification codes",
+      "body": "Review unverified accounts, copy the active code, or generate a fresh one while WhatsApp delivery is still manual.",
+      "searchPlaceholder": "Search name, phone, email, or venue",
+      "user": "User",
+      "venue": "Venue",
+      "joined": "Joined",
+      "statusLabel": "Code status",
+      "currentCode": "Current code",
+      "copyCode": "Copy code",
+      "regenerate": "New code",
+      "noVenue": "No venue yet",
+      "codeUnavailable": "Needs new code",
+      "expiresAt": "Expires {date}",
+      "loading": "Loading verification codes...",
+      "empty": "No unverified users match this search.",
+      "metrics": {
+        "total": "Unverified",
+        "active": "Active codes",
+        "expired": "Expired",
+        "needsCode": "Needs code"
+      },
+      "status": {
+        "ACTIVE": "Active",
+        "EXPIRED": "Expired",
+        "HIDDEN": "Hidden",
+        "MISSING": "Missing"
+      }
+    },
     "matrix": {
       "title": "Dynamic plan-feature matrix",
       "body": "Edits here update backend gates immediately after the next API request.",
@@ -624,9 +654,12 @@
         "subscriptionUpdated": "Subscription updated",
         "mappingUpdated": "Feature mapping updated",
         "planUpdated": "Plan updated",
-        "featureUpdated": "Feature updated",
-        "featureAssigned": "Feature assigned to plan",
-        "featureUnassigned": "Feature removed from plan"
-      }
+      "featureUpdated": "Feature updated",
+      "featureAssigned": "Feature assigned to plan",
+      "featureUnassigned": "Feature removed from plan",
+      "verificationCodeCopied": "Verification code copied",
+      "verificationCodeCopyFailed": "Could not copy the code",
+      "verificationCodeRegenerated": "New verification code generated"
+    }
   }
 }
