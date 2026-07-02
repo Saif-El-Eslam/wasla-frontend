@@ -367,8 +367,6 @@
     "venueDescriptionAr": "Description in Arabic",
     "venueAddressEn": "Address in English",
     "venueAddressAr": "Address in Arabic",
-    "googleMapsUrl": "Google Maps URL",
-    "instagramUrl": "Instagram URL",
     "type": "Type",
     "currency": "Currency",
     "address": "Address",
