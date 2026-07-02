@@ -103,9 +103,13 @@ export function QrTab({ initialBranchId, locale }: { initialBranchId: string; lo
   const branchName = textForLocale(branch?.name, locale);
   const venueName = textForLocale(qrQuery.data?.venue?.name, locale);
   const assetBaseName = `wasla-${branch?.slug ?? 'menu'}-qr`;
-  const pngPath = effectiveBranchId ? `/branches/${effectiveBranchId}/qr.png` : undefined;
-  const svgPath = effectiveBranchId ? `/branches/${effectiveBranchId}/qr.svg` : undefined;
-  const posterPath = effectiveBranchId ? `/branches/${effectiveBranchId}/qr/poster.png` : undefined;
+  const assetVersion = encodeURIComponent(qrQuery.data?.generatedAt ?? '');
+  const assetQuery = assetVersion ? `?v=${assetVersion}` : '';
+  const pngPath = effectiveBranchId ? `/branches/${effectiveBranchId}/qr.png${assetQuery}` : undefined;
+  const svgPath = effectiveBranchId ? `/branches/${effectiveBranchId}/qr.svg${assetQuery}` : undefined;
+  const posterPath = effectiveBranchId
+    ? `/branches/${effectiveBranchId}/qr/poster.png${assetQuery}`
+    : undefined;
 
   const runAssetAction = async (action: () => Promise<boolean | void>, successTitle?: string) => {
     try {

@@ -422,6 +422,11 @@ export type BranchQrResponse = {
   branch: Pick<Branch, 'id' | 'name' | 'slug' | 'phone' | 'logoUrl'> & { venueSlug: string | null };
   venue?: Pick<Venue, 'id' | 'name' | 'slug' | 'logoUrl'>;
   menu: Pick<Menu, 'id' | 'publishedAt' | 'qrCode' | 'analytics'> | null;
+  qrBranding?: {
+    level: QrBrandingLevel;
+    custom: boolean;
+    allowVenueLogo: boolean;
+  };
   publicMenuUrl?: string;
   previewDataUrl?: string;
   generatedAt?: string;
@@ -507,13 +512,15 @@ export type UpdateUserBranchesInput = {
 
 export type MenuPlanCode = 'FREE' | 'MENU_STARTER' | 'MENU_PRO' | 'MENU_MULTI_BRANCH' | 'WASLA_COMPLETE';
 export type SubscriptionStatus = 'TRIALING' | 'ACTIVE' | 'PAST_DUE' | 'CANCELED' | 'EXPIRED';
+export type PlanFeatureValueType = 'BOOLEAN' | 'NUMBER' | 'TEXT' | 'JSON';
+export type QrBrandingLevel = 'WASLA_SIGNED' | 'VENUE_LOGO' | 'FULL_CUSTOM';
 
 export type PlanFeature = {
   id: string;
   key: string;
   name: LocalizedValue;
   description: LocalizedValue | null;
-  valueType: 'BOOLEAN' | 'NUMBER' | 'TEXT' | 'JSON' | string;
+  valueType: PlanFeatureValueType;
   unit: string | null;
   displayOrder: number;
   active: boolean;

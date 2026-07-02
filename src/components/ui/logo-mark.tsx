@@ -25,7 +25,7 @@ export function LogoMark({
   }, [src]);
 
   return (
-    <span className={cx('relative overflow-hidden', className)}>
+    <span className={cx('rounded-sm relative overflow-hidden', className)}>
       <span className={cx('flex size-full items-center justify-center', failed ? '' : 'sr-only')}>W</span>
       {failed ? null : (
         <Image

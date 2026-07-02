@@ -13,7 +13,12 @@ import { publicLandingHref } from '@/features/auth/utils/pwa-public-navigation';
 import { useMe } from '@/features/auth/hooks/use-me';
 import { api } from '@/lib/api';
 import { queryKeys } from '@/lib/api/query-keys';
-import type { MenuPlanCode, SubscriptionStatus, UpdatePlanInput } from '@/lib/api/types';
+import type {
+  MenuPlanCode,
+  SubscriptionStatus,
+  UpdatePlanFeatureMappingInput,
+  UpdatePlanInput,
+} from '@/lib/api/types';
 import { AdminHomeTab } from './admin-home-tab';
 import { AdminSubscriptionTabs, type AdminSubscriptionTab } from './admin-subscription-tabs';
 import { PlanFeatureMatrix } from './plan-feature-matrix';
@@ -80,18 +85,8 @@ export function AdminSubscriptionsPage({ locale }: { locale: string }) {
   });
 
   const updateMapping = useMutation({
-    mutationFn: ({ mappingId, value }: { mappingId: string; value: string }) => {
-      if (value === 'true' || value === 'false') {
-        return api.updatePlanFeatureMapping(mappingId, { valueBool: value === 'true' });
-      }
-
-      const numericValue = Number(value);
-      if (Number.isFinite(numericValue) && value.trim() !== '') {
-        return api.updatePlanFeatureMapping(mappingId, { valueInt: numericValue });
-      }
-
-      return api.updatePlanFeatureMapping(mappingId, { valueString: value });
-    },
+    mutationFn: ({ mappingId, input }: { mappingId: string; input: UpdatePlanFeatureMappingInput }) =>
+      api.updatePlanFeatureMapping(mappingId, input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.adminPlans });
       toast.success(t('toasts.mappingUpdated'));
