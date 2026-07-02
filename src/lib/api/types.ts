@@ -642,6 +642,19 @@ export type UpdatePlanInput = {
   comingSoon?: boolean;
 };
 
+export type UpdatePlanFeatureInput = {
+  key?: string;
+  name?: LocalizedText;
+  description?: {
+    en?: string;
+    ar?: string;
+  };
+  valueType?: PlanFeatureValueType;
+  unit?: string | null;
+  displayOrder?: number;
+  active?: boolean;
+};
+
 export type CreatePlanFeatureMappingInput = {
   planId: string;
   featureId: string;

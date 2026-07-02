@@ -4,7 +4,7 @@ import { ArrowRight, BarChart3, Building2, Package } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui/dashboard-ui';
 import type { AdminSubscriptionOverview } from '@/lib/api/types';
-import type { AdminSubscriptionTab } from './admin-subscription-tabs';
+import type { AdminSubscriptionTab } from '../admin-subscription-tabs';
 import { AdminMetricsGrid, ExpiringSoonPanel } from './admin-subscription-overview';
 
 const quickActions = [

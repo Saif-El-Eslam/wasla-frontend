@@ -6,28 +6,18 @@ import { Badge, Card, cx } from '@/components/ui/dashboard-ui';
 import type {
   AdminFeaturesResponse,
   AdminPlansResponse,
+  LocalizedValue,
   Plan,
   PlanFeature,
   UpdatePlanInput,
 } from '@/lib/api/types';
 import { textForLocale } from '@/lib/localized-text';
-import { formatAdminMoney } from '../utils/admin-subscriptions';
-import { Edit3, Package, Save, X } from 'lucide-react';
+import { formatAdminMoney } from '../../utils/admin-subscriptions';
+import { Edit3, Save, X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { FormInput } from '@/components/ui/form-input';
 import { AdminFormToggle } from './admin-form-toggle';
-
-type UpdatePlanPayload = {
-  planId: string;
-  input: UpdatePlanInput;
-};
-
-type FeatureAssignmentPayload = {
-  planId: string;
-  featureId: string;
-  mappingId?: string;
-  enabled: boolean;
-};
+import { UpdatePlanPayload, FeatureAssignmentPayload } from './plan-feature-management';
 
 type PlanFormValues = {
   publicName: { en: string; ar: string };
@@ -39,7 +29,7 @@ type PlanFormValues = {
   comingSoon: boolean;
 };
 
-function localizedDraft(value: Plan['publicName'] | Plan['description'], localeKey: 'en' | 'ar') {
+function localizedDraft(value: LocalizedValue | Plan['description'], localeKey: 'en' | 'ar') {
   if (!value) {
     return '';
   }
@@ -55,7 +45,7 @@ function numericDraft(value: number | null | undefined) {
   return value === null || value === undefined ? '' : String(value);
 }
 
-export function PlanManagement({
+export default function PlanManagement({
   plans,
   features,
   locale,
@@ -75,19 +65,18 @@ export function PlanManagement({
   const t = useTranslations('admin');
 
   return (
-    <Card className="border-teal-100 bg-white p-4 sm:p-5">
+    <section className="">
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-        <div className="flex items-start gap-2">
-          <Package className="mt-0.5 size-5 shrink-0 text-primary" />
-          <div>
-            <h2 className="text-lg font-black text-stone-950">{t('plans.title')}</h2>
-            <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">{t('plans.body')}</p>
-          </div>
+        <div>
+          <h3 className="text-base font-black text-stone-950">{t('plans.planCatalogTitle')}</h3>
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
+            {t('plans.planCatalogBody')}
+          </p>
         </div>
         <Badge tone="teal">{t('plans.count', { count: plans.length })}</Badge>
       </div>
 
-      <div className="mt-5 grid gap-4 xl:grid-cols-2">
+      <div className="mt-4 grid gap-4 xl:grid-cols-2">
         {plans.map((plan) => (
           <PlanEditorCard
             key={plan.id}
@@ -107,7 +96,7 @@ export function PlanManagement({
           {t('plans.empty')}
         </p>
       ) : null}
-    </Card>
+    </section>
   );
 }
 

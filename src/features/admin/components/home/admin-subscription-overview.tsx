@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Badge, Card } from '@/components/ui/dashboard-ui';
 import type { AdminSubscriptionOverview } from '@/lib/api/types';
 import { textForLocale } from '@/lib/localized-text';
-import { formatAdminMoney, renewalWhatsappUrl } from '../utils/admin-subscriptions';
+import { formatAdminMoney, renewalWhatsappUrl } from '../../utils/admin-subscriptions';
 
 export function AdminMetricsGrid({
   metrics,

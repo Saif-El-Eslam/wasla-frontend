@@ -13,7 +13,7 @@ import type {
   UpdatePlanFeatureMappingInput,
 } from '@/lib/api/types';
 import { textForLocale } from '@/lib/localized-text';
-import { mappingDraft } from '../utils/admin-subscriptions';
+import { mappingDraft } from '../../utils/admin-subscriptions';
 
 const qrBrandingOptions: Array<{ value: QrBrandingLevel; label: string }> = [
   { value: 'WASLA_SIGNED', label: 'Wasla signed' },
@@ -172,9 +172,7 @@ function MatrixInput({
 
   if (feature.valueType === 'JSON') {
     const jsonValue =
-      mapping.valueJson === null || mapping.valueJson === undefined
-        ? ''
-        : JSON.stringify(mapping.valueJson);
+      mapping.valueJson === null || mapping.valueJson === undefined ? '' : JSON.stringify(mapping.valueJson);
 
     return (
       <input

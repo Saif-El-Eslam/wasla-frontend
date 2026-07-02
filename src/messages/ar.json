@@ -494,9 +494,13 @@
     },
     "planBullets": {
       "branches": "حتى {value} فروع",
-      "extractions": "عدد {value} محاولات استخراج للـ منيو",
+      "extractions": "عدد {value} محاولات استخراج بالذكاء الاصطناعي للـ منيو",
+      "imagesPerExtraction": "{value} صور لكل استخراج",
       "analytics": "تقارير وأرقام صالحة لـ {value} يوم فاتوا",
-      "qrBranding": "{value}"
+      "qrBranding": "{value}",
+      "staffUsers": "حتى {value} موظف/مستخدم",
+      "languages": "حتى {value} لغة للمنيوهات",
+      "financeModule": "الوصول لموديل إدارة المكان والحسابات المالية"
     }
   },
   "admin": {
@@ -577,8 +581,11 @@
       "empty": "مفيش أي ميزات مربوطة بالسيستم لسه."
     },
     "plans": {
-      "title": "كتالوج إدارة الباقات الأساسية",
-      "body": "عدّل تفاصيل الباقات اللي بتظهر للعملاء على الموقع وتحكم في حدود وصلاحيات كل فئة.",
+      "title": "إدارة الباقات والميزات",
+      "body": "تحكم في كتالوج الباقات وكتالوج الميزات المشترك من مكان واحد.",
+      "summaryCount": "{plans} باقة / {features} ميزة",
+      "planCatalogTitle": "كتالوج الباقات",
+      "planCatalogBody": "عدّل الباقات اللي بتظهر للعملاء وتحكم في الميزات المشتركة المربوطة بكل باقة.",
       "count": "إجمالي الباقات: {count}",
       "empty": "مفيش أي باقات مضافة في الكتالوج لسه.",
       "active": "نشطة وظاهرة",
@@ -597,12 +604,27 @@
       "descriptionAr": "الوصف بالعربي",
       "featuresTitle": "الميزات المربوطة والمفعلة بالباقة",
       "featuresCount": "مفعّل {assigned} ميزة من أصل {total}",
-      "noFeatures": "مفيش ميزات متاحة للربط حالياً في السيستم."
+      "noFeatures": "مفيش ميزات متاحة للربط حالياً في السيستم.",
+      "featuresCatalogTitle": "إدارة الميزات",
+      "featuresCatalogBody": "عدّل كتالوج الميزات المشترك بين كل الباقات. أي تغيير هنا بيأثر على اسم ووصف وبيانات الميزة في كل الخطط.",
+      "featuresCatalogCount": "{count} ميزة",
+      "editFeature": "تعديل الميزة",
+      "featureKey": "مفتاح الميزة",
+      "featureType": "نوع القيمة",
+      "featureUnit": "الوحدة",
+      "featureActive": "الميزة مفعلة",
+      "featureNameEn": "اسم الميزة بالإنجليزي",
+      "featureNameAr": "اسم الميزة بالعربي",
+      "featureDescriptionEn": "وصف الميزة بالإنجليزي",
+      "featureDescriptionAr": "وصف الميزة بالعربي",
+      "noFeatureDescription": "لا يوجد وصف للميزة حالياً.",
+      "saveFeature": "حفظ الميزة"
     },
     "toasts": {
       "subscriptionUpdated": "تم تحديث باقة الاشتراك بنجاح مية مية",
       "mappingUpdated": "تم تحديث ربط الميزة بالباقة",
       "planUpdated": "تم تعديل وحفظ بيانات الباقة بنجاح",
+      "featureUpdated": "تم تحديث الميزة",
       "featureAssigned": "تم ربط وتفعيل الميزة في الباقة بنجاح",
       "featureUnassigned": "تمت إزالة وفصل الميزة من الباقة"
     }

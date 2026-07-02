@@ -493,10 +493,14 @@
       "languages": "اللغات"
     },
     "planBullets": {
-      "branches": "{value} فروع",
-      "extractions": "{value} استخراج",
-      "analytics": "{value} يوم تحليلات",
-      "qrBranding": "{value}"
+      "branches": "حتى {value} فروع",
+      "extractions": "عدد {value} محاولات استخراج بالذكاء الاصطناعي لللـ منيو",
+      "imagesPerExtraction": "{value} صور لكل استخراج",
+      "analytics": "تقارير وأرقام صالحة لـ {value} يوم فاتوا",
+      "qrBranding": "{value}",
+      "staffUsers": "حتى {value} موظف/مستخدم",
+      "languages": "حتى {value} لغة للمنيوهات",
+      "financeModule": "الوصول لموديل إدارة المكان والحسابات المالية"
     }
   },
   "admin": {

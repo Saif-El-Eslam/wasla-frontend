@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { ArrowUpRight, Check, Crown, MessageCircle, ShieldAlert } from 'lucide-react';
+import { ArrowUpRight, Check, X, Crown, MessageCircle, ShieldAlert } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Badge, Card, PrimaryButton, cx } from '@/components/ui/dashboard-ui';
 import { api } from '@/lib/api';
@@ -15,13 +15,53 @@ type FeatureLabels = {
   unlimited: string;
 };
 
-function featureValue(mapping: PlanFeatureMapping | undefined, labels: FeatureLabels) {
-  if (!mapping || !mapping.enabled) return labels.notIncluded;
-  if (mapping.valueBool !== null) return mapping.valueBool ? labels.included : labels.notIncluded;
-  if (mapping.valueString) return mapping.valueString.replaceAll('_', ' ').toLowerCase();
-  if (mapping.valueInt !== null)
-    return mapping.valueInt >= 999999 ? labels.unlimited : String(mapping.valueInt);
-  return labels.included;
+// function featureValue(mapping: PlanFeatureMapping | undefined, labels: FeatureLabels) {
+//   if (!mapping || !mapping.enabled) return labels.notIncluded;
+//   if (mapping.valueBool !== null) return mapping.valueBool ? labels.included : labels.notIncluded;
+//   if (mapping.valueString) return mapping.valueString.replaceAll('_', ' ').toLowerCase();
+//   if (mapping.valueInt !== null)
+//     return mapping.valueInt >= 999999 ? labels.unlimited : String(mapping.valueInt);
+//   return labels.included;
+// }
+function featureValue(
+  mapping: PlanFeatureMapping | undefined,
+  labels: FeatureLabels,
+): {
+  value: string;
+  checked: boolean;
+} {
+  if (!mapping || !mapping.enabled) {
+    return {
+      value: labels.notIncluded,
+      checked: false,
+    };
+  }
+
+  if (mapping.valueBool !== null) {
+    return {
+      value: mapping.valueBool ? labels.included : labels.notIncluded,
+      checked: mapping.valueBool,
+    };
+  }
+
+  if (mapping.valueString) {
+    return {
+      value: mapping.valueString.replaceAll('_', ' ').toLowerCase(),
+      checked: true,
+    };
+  }
+
+  if (mapping.valueInt !== null) {
+    return {
+      value: mapping.valueInt >= 999999 ? labels.unlimited : String(mapping.valueInt),
+      checked: mapping.valueInt > 0,
+    };
+  }
+
+  return {
+    value: labels.included,
+    checked: true,
+  };
 }
 
 function usagePercent(used: number, limit: number | null, unlimited: boolean) {
@@ -121,6 +161,7 @@ function CurrentPlanCard({ data, locale }: { data: TenantSubscriptionResponse; l
 function PricingCard({ plan, active, locale }: { plan: Plan; active: boolean; locale: string }) {
   const t = useTranslations('subscription');
   const labels = { included: t('included'), notIncluded: t('notIncluded'), unlimited: t('unlimited') };
+
   const yearlyPrice =
     plan.priceAnnualEgp === null ? t('premium') : t('priceAnnual', { price: plan.priceAnnualEgp });
   const branchLimit = featureValue(
@@ -131,6 +172,10 @@ function PricingCard({ plan, active, locale }: { plan: Plan; active: boolean; lo
     plan.featureMappings.find((item) => item.feature.key === 'GEMINI_EXTRACTIONS_MONTHLY'),
     labels,
   );
+  const imgPerExtractionLimit = featureValue(
+    plan.featureMappings.find((item) => item.feature.key === 'GEMINI_IMAGES_PER_EXTRACTION'),
+    labels,
+  );
   const analyticsLimit = featureValue(
     plan.featureMappings.find((item) => item.feature.key === 'ANALYTICS_HISTORY_DAYS'),
     labels,
@@ -139,6 +184,22 @@ function PricingCard({ plan, active, locale }: { plan: Plan; active: boolean; lo
     plan.featureMappings.find((item) => item.feature.key === 'QR_BRANDING'),
     labels,
   );
+  const staffUsersLimit = featureValue(
+    plan.featureMappings.find((item) => item.feature.key === 'STAFF_USERS'),
+    labels,
+  );
+  const languagesLimit = featureValue(
+    plan.featureMappings.find((item) => item.feature.key === 'LANGUAGES'),
+    labels,
+  );
+  const financeModuleLimit = featureValue(
+    plan.featureMappings.find((item) => item.feature.key === 'FINANCE_MODULE'),
+    labels,
+  );
+
+  console.log('plan.branchLimit', branchLimit, typeof branchLimit);
+  console.log('plan.extractionLimit', extractionLimit);
+  console.log('plan.imgPerExtractionLimit', imgPerExtractionLimit);
 
   return (
     <Card
@@ -161,14 +222,51 @@ function PricingCard({ plan, active, locale }: { plan: Plan; active: boolean; lo
       </div>
       <div className="mt-4 space-y-3 text-sm font-bold text-stone-600">
         {[
-          t('planBullets.branches', { value: branchLimit }),
-          t('planBullets.extractions', { value: extractionLimit }),
-          t('planBullets.analytics', { value: analyticsLimit }),
-          t('planBullets.qrBranding', { value: qrBranding }),
+          {
+            label: t('planBullets.branches', { value: branchLimit.value }),
+            checked: branchLimit.checked,
+          },
+          {
+            label: t('planBullets.extractions', { value: extractionLimit.value }),
+            checked: extractionLimit.checked,
+          },
+          {
+            label: t('planBullets.imagesPerExtraction', {
+              value: imgPerExtractionLimit.value,
+            }),
+            checked: imgPerExtractionLimit.checked,
+          },
+          {
+            label: t('planBullets.analytics', { value: analyticsLimit.value }),
+            checked: analyticsLimit.checked,
+          },
+          {
+            label: t('planBullets.qrBranding', { value: qrBranding.value }),
+            checked: qrBranding.checked,
+          },
+          {
+            label: t('planBullets.staffUsers', { value: staffUsersLimit.value }),
+            checked: staffUsersLimit.checked,
+          },
+          {
+            label: t('planBullets.languages', { value: languagesLimit.value }),
+            checked: languagesLimit.checked,
+          },
+          {
+            label: t('planBullets.financeModule', {
+              value: financeModuleLimit.value,
+            }),
+            checked: financeModuleLimit.checked,
+          },
         ].map((item) => (
-          <div key={item} className="flex gap-2">
-            <Check className="mt-0.5 size-4 shrink-0 text-teal-500" />
-            <span className="capitalize">{item}</span>
+          <div key={item.label} className="flex gap-2">
+            {item.checked ? (
+              <Check className="mt-0.5 size-4 shrink-0 text-teal-500" />
+            ) : (
+              <X className="mt-0.5 size-4 shrink-0 text-red-500" />
+            )}
+
+            <span className="capitalize">{item.label}</span>
           </div>
         ))}
       </div>

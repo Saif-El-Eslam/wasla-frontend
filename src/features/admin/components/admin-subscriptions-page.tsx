@@ -16,14 +16,15 @@ import { queryKeys } from '@/lib/api/query-keys';
 import type {
   MenuPlanCode,
   SubscriptionStatus,
+  UpdatePlanFeatureInput,
   UpdatePlanFeatureMappingInput,
   UpdatePlanInput,
 } from '@/lib/api/types';
-import { AdminHomeTab } from './admin-home-tab';
+import { AdminHomeTab } from './home/admin-home-tab';
 import { AdminSubscriptionTabs, type AdminSubscriptionTab } from './admin-subscription-tabs';
-import { PlanFeatureMatrix } from './plan-feature-matrix';
-import { PlanManagement } from './plan-management';
-import { VenueSubscriptionManagement } from './venue-subscription-management';
+import { PlanFeatureMatrix } from './feature-matrix/plan-feature-matrix';
+import PlanFeatureManagement from './plans/plan-feature-management';
+import { VenueSubscriptionManagement } from './venu-subscription/venue-subscription-management';
 
 export function AdminSubscriptionsPage({ locale }: { locale: string }) {
   const t = useTranslations('admin');
@@ -93,11 +94,22 @@ export function AdminSubscriptionsPage({ locale }: { locale: string }) {
     },
   });
   const updatePlan = useMutation({
-    mutationFn: ({ planId, input }: { planId: string; input: UpdatePlanInput }) => api.updatePlan(planId, input),
+    mutationFn: ({ planId, input }: { planId: string; input: UpdatePlanInput }) =>
+      api.updatePlan(planId, input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.adminPlans });
       void queryClient.invalidateQueries({ queryKey: queryKeys.adminSubscriptionOverview });
       toast.success(t('toasts.planUpdated'));
+    },
+  });
+  const updateFeature = useMutation({
+    mutationFn: ({ featureId, input }: { featureId: string; input: UpdatePlanFeatureInput }) =>
+      api.updatePlanFeature(featureId, input),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminFeatures });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminPlans });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminSubscriptionOverview });
+      toast.success(t('toasts.featureUpdated'));
     },
   });
   const setFeatureAssignment = useMutation({
@@ -215,13 +227,15 @@ export function AdminSubscriptionsPage({ locale }: { locale: string }) {
         ) : null}
 
         {activeTab === 'plans' ? (
-          <PlanManagement
+          <PlanFeatureManagement
             plans={plans.data?.plans ?? []}
             features={features.data?.features ?? []}
             locale={locale}
             onUpdatePlan={updatePlan.mutate}
+            onUpdateFeature={updateFeature.mutate}
             onSetFeatureAssignment={setFeatureAssignment.mutate}
             isSavingPlan={updatePlan.isPending}
+            isSavingFeatureDetails={updateFeature.isPending}
             isSavingFeature={setFeatureAssignment.isPending}
           />
         ) : null}

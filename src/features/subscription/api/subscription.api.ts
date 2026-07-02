@@ -8,6 +8,7 @@ import type {
   MenuPlanCode,
   SubscriptionStatus,
   TenantSubscriptionResponse,
+  UpdatePlanFeatureInput,
   UpdatePlanFeatureMappingInput,
   UpdatePlanInput,
   UpdateVenueSubscriptionInput,
@@ -37,6 +38,12 @@ export const subscriptionService = {
   },
   updatePlan(planId: string, input: UpdatePlanInput) {
     return apiClient<{ plan: unknown }>(`/admin/subscriptions/plans/${planId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(input),
+    });
+  },
+  updateFeature(featureId: string, input: UpdatePlanFeatureInput) {
+    return apiClient<{ feature: unknown }>(`/admin/subscriptions/features/${featureId}`, {
       method: 'PATCH',
       body: JSON.stringify(input),
     });

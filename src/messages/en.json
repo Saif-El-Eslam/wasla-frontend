@@ -493,10 +493,14 @@
       "languages": "Languages"
     },
     "planBullets": {
-      "branches": "{value} branches",
-      "extractions": "{value} extractions",
-      "analytics": "{value} analytics days",
-      "qrBranding": "{value}"
+      "branches": "up to {value} branches",
+      "extractions": "up to {value} AI extractions",
+      "imagesPerExtraction": "{value} images per extraction",
+      "analytics": "up to {value} analytics days",
+      "qrBranding": "{value}",
+      "staffUsers": "up to {value} staff users",
+      "languages": "up to {value} languages",
+      "financeModule": "Access to finance management module"
     }
   },
   "admin": {
@@ -577,8 +581,11 @@
       "empty": "No feature mappings are available yet."
     },
     "plans": {
-      "title": "Plan management",
-      "body": "Edit the customer-facing plan catalog and control which features belong to each plan.",
+      "title": "Plan & feature management",
+      "body": "Manage the plan catalog and the shared feature catalog from one place.",
+      "summaryCount": "{plans} plans / {features} features",
+      "planCatalogTitle": "Plan catalog",
+      "planCatalogBody": "Edit customer-facing plans and control which shared features belong to each plan.",
       "count": "{count} plans",
       "empty": "No plans are available yet.",
       "active": "Active",
@@ -594,17 +601,32 @@
       "priceAnnualEgp": "Annual price EGP",
       "displayOrder": "Display order",
       "descriptionEn": "English description",
-      "descriptionAr": "Arabic description",
-      "featuresTitle": "Assigned features",
-      "featuresCount": "{assigned} of {total} enabled",
-      "noFeatures": "No features are available yet."
-    },
-    "toasts": {
-      "subscriptionUpdated": "Subscription updated",
-      "mappingUpdated": "Feature mapping updated",
-      "planUpdated": "Plan updated",
-      "featureAssigned": "Feature assigned to plan",
-      "featureUnassigned": "Feature removed from plan"
-    }
+        "descriptionAr": "Arabic description",
+        "featuresTitle": "Assigned features",
+        "featuresCount": "{assigned} of {total} enabled",
+        "noFeatures": "No features are available yet.",
+        "featuresCatalogTitle": "Feature management",
+        "featuresCatalogBody": "Update the shared feature catalog used by every plan. Changes here affect feature labels and metadata globally.",
+        "featuresCatalogCount": "{count} features",
+        "editFeature": "Edit feature",
+        "featureKey": "Feature key",
+        "featureType": "Value type",
+        "featureUnit": "Unit",
+        "featureActive": "Active feature",
+        "featureNameEn": "English feature name",
+        "featureNameAr": "Arabic feature name",
+        "featureDescriptionEn": "English feature description",
+        "featureDescriptionAr": "Arabic feature description",
+        "noFeatureDescription": "No feature description yet.",
+        "saveFeature": "Save feature"
+      },
+      "toasts": {
+        "subscriptionUpdated": "Subscription updated",
+        "mappingUpdated": "Feature mapping updated",
+        "planUpdated": "Plan updated",
+        "featureUpdated": "Feature updated",
+        "featureAssigned": "Feature assigned to plan",
+        "featureUnassigned": "Feature removed from plan"
+      }
   }
 }

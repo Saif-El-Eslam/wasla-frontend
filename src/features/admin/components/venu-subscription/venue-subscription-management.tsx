@@ -12,7 +12,7 @@ import type {
   SubscriptionStatus,
 } from '@/lib/api/types';
 import { textForLocale } from '@/lib/localized-text';
-import { planCodes, subscriptionStatuses } from '../utils/admin-subscriptions';
+import { planCodes, subscriptionStatuses } from '../../utils/admin-subscriptions';
 
 type UpdateSubscriptionPayload = {
   venueId: string;
