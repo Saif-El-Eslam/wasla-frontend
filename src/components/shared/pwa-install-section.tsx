@@ -148,7 +148,7 @@ export function PwaInstallSection({
             {t('body')}
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-            {true && (
+            {canPrompt && (
               <PrimaryButton
                 onClick={install}
                 disabled={installing}
