@@ -49,6 +49,42 @@ function formatOpeningHours(branch?: BranchLike) {
   return from || to || '';
 }
 
+function isBranchOpen(branch?: BranchLike, date = new Date()) {
+  const from = branch?.openingHours?.from;
+  const to = branch?.openingHours?.to;
+
+  if (!from || !to) {
+    return false;
+  }
+
+  const parseTime = (time: string) => {
+    const [hours, minutes] = time.split(':').map(Number);
+
+    if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+      return null;
+    }
+
+    return hours * 60 + minutes;
+  };
+
+  const fromMinutes = parseTime(from);
+  const toMinutes = parseTime(to);
+
+  if (fromMinutes == null || toMinutes == null) {
+    return false;
+  }
+
+  const nowMinutes = date.getHours() * 60 + date.getMinutes();
+
+  // Normal opening hours (e.g. 09:00 - 18:00)
+  if (fromMinutes <= toMinutes) {
+    return nowMinutes >= fromMinutes && nowMinutes < toMinutes;
+  }
+
+  // Overnight opening hours (e.g. 22:00 - 03:00)
+  return nowMinutes >= fromMinutes || nowMinutes < toMinutes;
+}
+
 function logoInitial(value: string) {
   return value.trim().charAt(0).toUpperCase() || 'W';
 }
@@ -109,6 +145,7 @@ export function PublicMenuExperience({
   const logoUrl = branch?.logoUrl ?? venue.logoUrl;
   const openingHours = formatOpeningHours(branch);
   const isRtl = locale === 'ar';
+  const isOpen = isBranchOpen(branch);
 
   const track = (eventType: PublicAnalyticsEventType, extra?: { categoryId?: string; itemId?: string }) => {
     if (!analyticsEnabled) {
@@ -194,8 +231,8 @@ export function PublicMenuExperience({
           <h1 className="text-3xl font-black text-stone-950">{venueName}</h1>
           <div className="mt-3 flex flex-wrap justify-center gap-2">
             {branchName ? <Badge tone="teal">{branchName}</Badge> : null}
-            <Badge tone={branch?.active ? 'green' : 'muted'}>
-              {branch?.active ? t('openNow') : t('inactive')}
+            <Badge tone={isOpen ? 'green' : 'muted'}>
+              {!branch?.active ? t('inactive') : isOpen ? t('openNow') : t('closed')}
             </Badge>
           </div>
           <p className="mx-auto mt-3 max-w-3xl text-sm leading-7 text-muted-foreground">{description}</p>
