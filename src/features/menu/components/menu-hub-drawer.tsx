@@ -65,9 +65,9 @@ export function MenuHubDrawer({
 
       const element = target instanceof Element ? target : null;
       const fromHandle = Boolean(element?.closest('[data-sheet-drag-handle="true"]'));
-      const contentAtTop = (contentRef.current?.scrollTop ?? 0) <= 0;
+      // const contentAtTop = (contentRef.current?.scrollTop ?? 0) <= 0;
 
-      return fromHandle || contentAtTop;
+      return fromHandle; //|| contentAtTop;
     },
     [isDesktop],
   );
@@ -158,7 +158,7 @@ export function MenuHubDrawer({
   return (
     <div
       className={cx(
-        'fixed inset-0 z-50 bg-stone-950/25 opacity-0 backdrop-blur-[2px] transition-opacity duration-200 ease-out',
+        'fixed inset-0 z-50 overscroll-none bg-stone-950/25 opacity-0 backdrop-blur-[2px] transition-opacity duration-200 ease-out',
         open && 'opacity-100',
       )}
       onMouseDown={(event) => {
@@ -170,7 +170,7 @@ export function MenuHubDrawer({
     >
       <section
         ref={sectionRef}
-        className="fixed inset-x-0 bottom-0 flex max-h-[90dvh] flex-col overflow-hidden rounded-t-[1.5rem] border border-stone-200 bg-[#f8fafa] shadow-2xl shadow-stone-950/20 transition-transform duration-300 ease-out will-change-transform lg:inset-x-auto lg:inset-y-0 lg:end-0 lg:h-full lg:max-h-none lg:w-[80dvw] lg:rounded-none lg:border-y-0 lg:border-e-0"
+        className="fixed inset-x-0 bottom-0 flex max-h-[90dvh] flex-col overflow-hidden overscroll-none rounded-t-[1.5rem] border border-stone-200 bg-[#f8fafa] shadow-2xl shadow-stone-950/20 transition-transform duration-300 ease-out will-change-transform lg:inset-x-auto lg:inset-y-0 lg:end-0 lg:h-full lg:max-h-none lg:w-[80dvw] lg:rounded-none lg:border-y-0 lg:border-e-0"
         style={{ transform: drawerTransform }}
         onMouseDown={(event) => event.stopPropagation()}
         onPointerDown={handlePointerDown}
@@ -207,7 +207,7 @@ export function MenuHubDrawer({
           </div>
         </div>
 
-        <div ref={contentRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-8 sm:p-5">
+        <div ref={contentRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-8">
           <div className="mx-auto">{children}</div>
         </div>
       </section>
