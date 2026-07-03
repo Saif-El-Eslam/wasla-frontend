@@ -614,6 +614,9 @@ export type TenantSubscriptionResponse = {
       advancedAnalytics: boolean;
       qrBranding: string;
       customQrAssets: boolean;
+      financeModule: boolean;
+      financeAdvancedAnalytics: boolean;
+      financeHistoryMonths: number;
     };
   };
   usage: {

@@ -24,7 +24,7 @@ const navItems: Array<{
   { id: 'overview', labelKey: 'home', icon: LayoutDashboard },
   { id: 'branches', labelKey: 'branches', icon: Building2 },
   { id: 'menu', labelKey: 'menu', icon: UtensilsCrossed },
-  { id: 'financials', labelKey: 'financials', icon: WalletCards, comingSoon: true },
+  { id: 'financials', labelKey: 'financials', icon: WalletCards },
   { id: 'settings', labelKey: 'more', icon: MoreHorizontal },
 ];
 

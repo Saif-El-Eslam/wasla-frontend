@@ -179,7 +179,9 @@ export default function DashboardPage() {
             }}
           />
         ) : null}
-        {activeTab === 'financials' ? <FinancialsTab /> : null}
+        {activeTab === 'financials' ? (
+          <FinancialsTab locale={locale} currency={venue.data?.currency ?? 'EGP'} />
+        ) : null}
         {activeTab === 'settings' ? (
           <SettingsTab
             isAdmin={isAdmin}

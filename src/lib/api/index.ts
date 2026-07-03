@@ -1,6 +1,7 @@
 import { analyticsService } from '@/features/menu/analytics/api/analytics.api';
 import { authService } from '@/features/auth/api/auth.api';
 import { branchService } from '@/features/branches/api/branch.api';
+import { financialService } from '@/features/financial/api/financial.api';
 import { menuService } from '@/features/menu/api/menu.api';
 import { subscriptionService } from '@/features/subscription/api/subscription.api';
 import { userService } from '@/features/users/api/user.api';
@@ -95,6 +96,22 @@ export const api = {
   updateMe: authService.updateMe,
   updatePassword: authService.updatePassword,
   analyticsSummary: analyticsService.summary,
+  financeAccess: financialService.access,
+  financeDashboard: financialService.dashboard,
+  financialTransactions: financialService.transactions,
+  createFinancialTransaction: financialService.createTransaction,
+  updateFinancialTransaction: financialService.updateTransaction,
+  deleteFinancialTransaction: financialService.deleteTransaction,
+  transactionCategories: financialService.categories,
+  createTransactionCategory: financialService.createCategory,
+  updateTransactionCategory: financialService.updateCategory,
+  deleteTransactionCategory: financialService.deleteCategory,
+  paymentMethods: financialService.paymentMethods,
+  createPaymentMethod: financialService.createPaymentMethod,
+  updatePaymentMethod: financialService.updatePaymentMethod,
+  deletePaymentMethod: financialService.deletePaymentMethod,
+  financialAnalytics: financialService.analytics,
+  financialReport: financialService.report,
   subscription: subscriptionService.tenant,
   adminSubscriptionOverview: subscriptionService.adminOverview,
   adminSubscriptionVenues: subscriptionService.adminVenues,
