@@ -35,8 +35,8 @@ export function SettingsTabs({
     { id: 'password' as const, label: t('password'), icon: LockKeyhole, show: true },
     { id: 'venue' as const, label: t('venue'), icon: Store, show: isAdmin },
     { id: 'team' as const, label: t('team'), icon: Users, show: isAdmin },
-    { id: 'subscription' as const, label: t('subscription'), icon: CreditCard, show: true },
-    { id: 'app' as const, label: t('appInstall'), icon: Smartphone, show: true },
+    // { id: 'subscription' as const, label: t('subscription'), icon: CreditCard, show: true },
+    // { id: 'app' as const, label: t('appInstall'), icon: Smartphone, show: true },
     { id: 'support' as const, label: t('support'), icon: LifeBuoy, show: true },
   ].filter((tab) => tab.show);
 
