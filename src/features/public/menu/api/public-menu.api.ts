@@ -9,8 +9,12 @@ import { toQueryString } from '@/lib/api';
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
 
+function resolvedLocaleParam(locale?: string) {
+  return locale === 'ar' || locale === 'en' ? locale : undefined;
+}
+
 function localeHeaders(locale?: string) {
-  const resolvedLocale = locale === 'ar' ? 'ar' : locale === 'en' ? 'en' : undefined;
+  const resolvedLocale = resolvedLocaleParam(locale);
 
   return resolvedLocale
     ? {
@@ -50,15 +54,20 @@ export const publicMenuApi = {
         limit: params.limit ?? 12,
         search: params.search || undefined,
         type: params.type && params.type !== 'ALL' ? params.type : undefined,
+        locale: resolvedLocaleParam(params.locale),
       })}`,
       undefined,
       params.locale,
     ),
   venue: (venueSlug: string, locale?: string) =>
-    publicApi<PublicVenueResponse>(`/public/venues/${venueSlug}`, undefined, locale),
+    publicApi<PublicVenueResponse>(
+      `/public/venues/${venueSlug}${toQueryString({ locale: resolvedLocaleParam(locale) })}`,
+      undefined,
+      locale,
+    ),
   branchMenu: (venueSlug: string, branchSlug: string, locale?: string) =>
     publicApi<PublicBranchMenuResponse>(
-      `/public/venues/${venueSlug}/${branchSlug}/menu`,
+      `/public/venues/${venueSlug}/${branchSlug}/menu${toQueryString({ locale: resolvedLocaleParam(locale) })}`,
       undefined,
       locale,
     ),
