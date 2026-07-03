@@ -43,7 +43,7 @@ export function MenuLaunchpadPreviewCard({
       </div>
       <button
         type="button"
-        className="hidden mt-3 lg:inline-flex h-9 items-center gap-2 rounded-xl border border-stone-200 bg-white px-3 text-xs font-black text-stone-700 shadow-sm transition hover:border-stone-300 hover:bg-stone-100 lg:mt-4 lg:h-10"
+        className="hidden mt-3 h-9 items-center gap-2 rounded-xl border border-stone-200 bg-white px-3 text-xs font-black text-stone-700 shadow-sm transition hover:border-stone-300 hover:bg-stone-100 lg:mt-4 lg:h-10"
       >
         <Bell className="size-4" />
         {notifyLabel}

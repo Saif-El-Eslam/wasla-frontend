@@ -25,7 +25,7 @@ export function FinancialsTab() {
             </div>
             <button
               type="button"
-              className="mt-8 inline-flex h-11 w-fit items-center gap-2 rounded-xl bg-white px-4 text-sm font-black text-stone-950 shadow-lg transition hover:bg-stone-100"
+              className="mt-8 hidden h-11 w-fit items-center gap-2 rounded-xl bg-white px-4 text-sm font-black text-stone-950 shadow-lg transition hover:bg-stone-100"
             >
               <Bell className="size-4" />
               {t('notifyMe')}
