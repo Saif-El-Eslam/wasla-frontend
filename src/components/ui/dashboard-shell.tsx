@@ -2,14 +2,12 @@
 
 import Link from 'next/link';
 import {
-  BarChart3,
   Building2,
-  Eye,
   LayoutDashboard,
   LogOut,
-  QrCode,
-  Settings,
+  MoreHorizontal,
   UtensilsCrossed,
+  WalletCards,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { publicLandingHref } from '@/features/auth/utils/pwa-public-navigation';
@@ -19,24 +17,21 @@ import { LogoMark } from './logo-mark';
 
 const navItems: Array<{
   id: DashboardTab;
-  labelKey: 'home' | 'menu' | 'qr' | 'branches' | 'analytics' | 'settings';
+  labelKey: 'home' | 'menu' | 'branches' | 'financials' | 'more';
   icon: React.ComponentType<{ className?: string }>;
+  comingSoon?: boolean;
 }> = [
   { id: 'overview', labelKey: 'home', icon: LayoutDashboard },
-  { id: 'menu', labelKey: 'menu', icon: UtensilsCrossed },
-  { id: 'qr', labelKey: 'qr', icon: QrCode },
   { id: 'branches', labelKey: 'branches', icon: Building2 },
-  { id: 'analytics', labelKey: 'analytics', icon: BarChart3 },
-  { id: 'settings', labelKey: 'settings', icon: Settings },
+  { id: 'menu', labelKey: 'menu', icon: UtensilsCrossed },
+  { id: 'financials', labelKey: 'financials', icon: WalletCards, comingSoon: true },
+  { id: 'settings', labelKey: 'more', icon: MoreHorizontal },
 ];
-
-const mobileNavItems = navItems.filter((item) => item.id !== 'settings');
 
 export function DashboardShell({
   venueName,
   activeTab,
   onTabChange,
-  onPreview,
   onLogout,
   locale,
   onLocaleChange,
@@ -46,7 +41,6 @@ export function DashboardShell({
   venueName: string;
   activeTab: DashboardTab;
   onTabChange: (tab: DashboardTab) => void;
-  onPreview?: () => void;
   onLogout: () => void;
   locale: string;
   onLocaleChange: (locale: string) => void;
@@ -88,8 +82,14 @@ export function DashboardShell({
                   type="button"
                 >
                   <Icon className="size-5" />
-                  {t(item.labelKey)}
-                  {active ? <span className="ms-auto size-1.5 rounded-full bg-teal-300" /> : null}
+                  <span>{t(item.labelKey)}</span>
+                  {item.comingSoon ? (
+                    <span className="ms-auto rounded-full border border-amber-300/30 bg-amber-300/10 px-1.5 py-0.5 text-[10px] font-black text-amber-200">
+                      {t('comingSoon')}
+                    </span>
+                  ) : active ? (
+                    <span className="ms-auto size-1.5 rounded-full bg-teal-300" />
+                  ) : null}
                 </button>
               );
             })}
@@ -138,15 +138,6 @@ export function DashboardShell({
               </Link>
               <div className="flex items-center gap-2">
                 <button
-                  className="flex size-10 items-center justify-center rounded-xl border border-border bg-white text-stone-600 transition hover:border-primary hover:text-primary"
-                  onClick={() => onTabChange('settings')}
-                  aria-label={t('openSettings')}
-                  title={t('openSettings')}
-                  type="button"
-                >
-                  <Settings className="size-4" />
-                </button>
-                <button
                   className="flex h-10 items-center justify-center rounded-xl border border-border bg-white px-3 text-xs font-black text-stone-600 transition hover:border-primary hover:text-primary"
                   onClick={() => onLocaleChange(locale === 'ar' ? 'en' : 'ar')}
                   type="button"
@@ -168,7 +159,7 @@ export function DashboardShell({
           </main>
 
           <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-border bg-[#f8fafa]/90 px-1 pb-[max(env(safe-area-inset-bottom),8px)] pt-1 backdrop-blur lg:hidden">
-            {mobileNavItems.map((item) => {
+            {navItems.map((item) => {
               const Icon = item.icon;
               const active = activeTab === item.id;
 
@@ -182,7 +173,12 @@ export function DashboardShell({
                   onClick={() => onTabChange(item.id)}
                   type="button"
                 >
-                  <Icon className={cx('size-5', active ? 'stroke-[2.5]' : '')} />
+                  <span className="relative">
+                    <Icon className={cx('size-5', active ? 'stroke-[2.5]' : '')} />
+                    {item.comingSoon ? (
+                      <span className="absolute -end-1 -top-1 size-2 rounded-full bg-amber-500 ring-2 ring-[#f8fafa]" />
+                    ) : null}
+                  </span>
                   <span className="max-w-full truncate text-xs">{t(item.labelKey)}</span>
                 </button>
               );

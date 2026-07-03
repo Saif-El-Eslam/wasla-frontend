@@ -1,28 +1,36 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { api } from '@/lib/api';
-import { AnalyticsTab } from '@/features/analytics/components/analytics-tab';
 import { BranchesTab } from '@/features/branches/components/branches-tab';
 import { Badge, Card, DashboardShell, PrimaryButton, type DashboardTab } from '@/components/ui/dashboard-ui';
 import { DashboardLoading } from '@/components/ui/dashboard-loading';
-import { MenuTab } from '@/features/menu/components/menu-tab';
+import { FinancialsTab } from '@/features/financials-tab';
+import { MenuLaunchpadTab, type MenuHubPanel } from '@/features/menu/components/menu-launchpad-tab';
 import { OverviewTab } from '@/features/home/components/overview-tab';
 // import { PublicPreview } from '@/features/public/menu/components/menu/public-preview';
-import { QrTab } from '@/features/qr/components/qr-tab';
 import { SettingsTab } from '@/features/settings/components/settings-tab';
 import { useMe } from '@/features/auth/hooks/use-me';
 import { useVenue } from '@/features/venue/hooks/use-venue';
 import { textForLocale } from '@/lib/localized-text';
 
-const dashboardTabs: DashboardTab[] = ['overview', 'menu', 'qr', 'branches', 'analytics', 'settings'];
+const dashboardTabs: DashboardTab[] = ['overview', 'branches', 'menu', 'financials', 'settings'];
+const legacyMenuPanelTabs: MenuHubPanel[] = ['qr', 'analytics'];
 
 function dashboardTabFromUrl(tab: string | null): DashboardTab {
+  if (legacyMenuPanelTabs.includes(tab as MenuHubPanel)) {
+    return 'menu';
+  }
+
   return dashboardTabs.includes(tab as DashboardTab) ? (tab as DashboardTab) : 'overview';
+}
+
+function menuPanelFromUrl(tab: string | null): MenuHubPanel | null {
+  return legacyMenuPanelTabs.includes(tab as MenuHubPanel) ? (tab as MenuHubPanel) : null;
 }
 
 export default function DashboardPage() {
@@ -36,12 +44,13 @@ export default function DashboardPage() {
   const me = useMe();
   const venue = useVenue();
   const isAdmin = me.data?.role === 'OWNER' || me.data?.role === 'MANAGER';
-  const [activeTab, setActiveTab] = useState<DashboardTab>(() =>
-    dashboardTabFromUrl(searchParams.get('tab')),
-  );
+  const activeTab = dashboardTabFromUrl(searchParams.get('tab'));
   const [selectedMenuBranchId, setSelectedMenuBranchId] = useState('');
   const [selectedQrBranchId, setSelectedQrBranchId] = useState('');
   const [selectedAnalyticsBranchId, setSelectedAnalyticsBranchId] = useState('all');
+  const [activeMenuPanel, setActiveMenuPanel] = useState<MenuHubPanel | null>(() =>
+    menuPanelFromUrl(searchParams.get('tab')),
+  );
   // const [publicPreviewOpen, setPublicPreviewOpen] = useState(false);
 
   const logoutMutation = useMutation({
@@ -52,13 +61,11 @@ export default function DashboardPage() {
     },
   });
 
-  useEffect(() => {
-    setActiveTab(dashboardTabFromUrl(searchParams.get('tab')));
-  }, [searchParams]);
-
   const changeDashboardTab = useCallback(
     (tab: DashboardTab) => {
-      setActiveTab(tab);
+      if (tab !== 'menu') {
+        setActiveMenuPanel(null);
+      }
 
       const nextParams = new URLSearchParams(searchParams.toString());
 
@@ -141,37 +148,38 @@ export default function DashboardPage() {
       >
         {activeTab === 'overview' ? <OverviewTab locale={locale} /> : null}
         {activeTab === 'menu' ? (
-          <MenuTab
-            initialBranchId={selectedMenuBranchId}
+          <MenuLaunchpadTab
+            activePanel={activeMenuPanel}
+            onActivePanelChange={setActiveMenuPanel}
             locale={locale}
             currency={venue.data?.currency ?? 'EGP'}
+            selectedMenuBranchId={selectedMenuBranchId}
+            selectedQrBranchId={selectedQrBranchId}
+            selectedAnalyticsBranchId={selectedAnalyticsBranchId}
+            onAnalyticsBranchChange={setSelectedAnalyticsBranchId}
           />
         ) : null}
-        {activeTab === 'qr' ? <QrTab initialBranchId={selectedQrBranchId} locale={locale} /> : null}
         {activeTab === 'branches' ? (
           <BranchesTab
             locale={locale}
             onOpenMenu={(branchId) => {
               setSelectedMenuBranchId(branchId);
+              setActiveMenuPanel('menu');
               changeDashboardTab('menu');
             }}
             onOpenQr={(branchId) => {
               setSelectedQrBranchId(branchId);
-              changeDashboardTab('qr');
+              setActiveMenuPanel('qr');
+              changeDashboardTab('menu');
             }}
             onOpenStats={(branchId) => {
               setSelectedAnalyticsBranchId(branchId);
-              changeDashboardTab('analytics');
+              setActiveMenuPanel('analytics');
+              changeDashboardTab('menu');
             }}
           />
         ) : null}
-        {activeTab === 'analytics' ? (
-          <AnalyticsTab
-            selectedBranchId={selectedAnalyticsBranchId}
-            onBranchChange={setSelectedAnalyticsBranchId}
-            locale={locale}
-          />
-        ) : null}
+        {activeTab === 'financials' ? <FinancialsTab /> : null}
         {activeTab === 'settings' ? (
           <SettingsTab
             isAdmin={isAdmin}

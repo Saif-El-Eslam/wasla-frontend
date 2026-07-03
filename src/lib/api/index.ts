@@ -1,4 +1,4 @@
-import { analyticsService } from '@/features/analytics/api/analytics.api';
+import { analyticsService } from '@/features/menu/analytics/api/analytics.api';
 import { authService } from '@/features/auth/api/auth.api';
 import { branchService } from '@/features/branches/api/branch.api';
 import { menuService } from '@/features/menu/api/menu.api';
