@@ -8,7 +8,6 @@ import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { SectionTitle } from '@/components/ui/dashboard-ui';
-import { PwaInstallSection } from '@/components/shared/pwa-install-section';
 import { TabLoader } from '@/components/ui/tab-loader';
 import { toast } from '@/components/ui/toast-store';
 import { useMe } from '@/features/auth/hooks/use-me';
@@ -31,7 +30,6 @@ import { useBranchOptions, useUsers, useVenue } from '@/features/venue/hooks/use
 import { api } from '@/lib/api';
 import { queryKeys } from '@/lib/api/query-keys';
 import type { LocalizedValue, Venue } from '@/lib/api';
-import { SubscriptionSettingsPanel } from '@/features/subscription/components/subscription-settings-panel';
 import { PasswordSettingsSection } from './password-settings-section';
 import { SettingsOverviewCard } from './settings-overview-card';
 import { SettingsTabs, type SettingsTabId } from './settings-tabs';
@@ -72,7 +70,15 @@ function venueDefaults(venue: Venue | undefined, locale: string): VenueSettingsF
   };
 }
 
-const validSettingsTabs: SettingsTabId[] = ['user', 'password', 'venue', 'team', 'subscription', 'app', 'support'];
+const validSettingsTabs: SettingsTabId[] = [
+  'user',
+  'password',
+  'venue',
+  'team',
+  'subscription',
+  'app',
+  'support',
+];
 
 export function SettingsTab({
   isAdmin,
@@ -269,10 +275,6 @@ export function SettingsTab({
         currentUserId={me.data?.id ?? ''}
         locale={locale}
       />
-    ) : activeSettingsTab === 'subscription' ? (
-      <SubscriptionSettingsPanel locale={locale} />
-    ) : activeSettingsTab === 'app' ? (
-      <PwaInstallSection />
     ) : activeSettingsTab === 'support' ? (
       <SupportSettingsSection />
     ) : null;

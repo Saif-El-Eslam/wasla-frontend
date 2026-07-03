@@ -492,7 +492,10 @@
     "extractionDraft": "Extraction draft",
     "prices": "Prices",
     "back": "Back",
-    "members": "Members"
+    "members": "Members",
+    "installApp": "Install app",
+    "subscriptionSettings": "Subscriptions",
+    "dir": "ltr"
   },
   "pwa": {
     "eyebrow": "Mobile app",

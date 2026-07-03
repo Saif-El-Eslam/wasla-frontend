@@ -8,6 +8,7 @@ import { api } from '@/lib/api';
 import { queryKeys } from '@/lib/api/query-keys';
 import type { Plan, PlanFeatureMapping, TenantSubscriptionResponse } from '@/lib/api/types';
 import { textForLocale } from '@/lib/localized-text';
+import { useParams } from 'next/navigation';
 
 type FeatureLabels = {
   included: string;
@@ -291,8 +292,10 @@ function PricingCard({ plan, active, locale }: { plan: Plan; active: boolean; lo
   );
 }
 
-export function SubscriptionSettingsPanel({ locale }: { locale: string }) {
+export function SubscriptionSettingsPanel() {
   const t = useTranslations('subscription');
+  const params = useParams<{ locale: string }>();
+  const locale = params.locale ?? 'en';
   const subscription = useQuery({
     queryKey: queryKeys.subscription,
     queryFn: api.subscription,
