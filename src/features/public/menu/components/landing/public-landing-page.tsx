@@ -125,7 +125,7 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
               <Store className="size-6 text-white sm:size-8" />
               <p className="mt-2 text-xs font-black sm:mt-3 sm:text-sm">{t('browseVenues')}</p>
             </div>
-            <div className="wasla-hero-tile wasla-hero-tile-4 absolute top-8 start-8 rounded-2xl border border-white/18 bg-white/14 p-4 shadow-2xl backdrop-blur sm:bottom-12 sm:start-20 sm:rounded-3xl sm:p-5">
+            <div className="wasla-hero-tile wasla-hero-tile-4 absolute top-8 start-8 rounded-2xl border border-white/18 bg-white/14 p-4 shadow-2xl backdrop-blur sm:top-16 sm:start-20 sm:rounded-3xl sm:p-5">
               <WalletCards className="size-6 text-amber-200 sm:size-8" />
               <p className="mt-2 text-xs font-black sm:mt-3 sm:text-sm">{t('landingFinanceHeroTag')}</p>
             </div>
