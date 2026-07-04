@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { BarChart3, Landmark, ListTree, PlusCircle, ReceiptText, WalletCards } from 'lucide-react';
+import { Landmark, ListTree, PlusCircle, ReceiptText, WalletCards } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Badge, SectionTitle, TabLoader } from '@/components/ui/dashboard-ui';
 import { useMe } from '@/features/auth/hooks/use-me';
@@ -9,7 +9,6 @@ import type { LocalizedValue } from '@/lib/api';
 import { FinanceLockedState } from './finance-locked-state';
 import { FinanceSummaryCards } from './finance-summary-cards';
 import { AddTransactionPanel } from './add-transaction-panel';
-import { AnalyticsPanel } from './analytics-panel';
 import { CategoriesPanel } from './categories-panel';
 import { FinancialHubDrawer } from './financial-hub-drawer';
 import { FinanceCard, type FinanceLaunchpadCard, type FinancePanel } from './finance-ui';
@@ -17,7 +16,6 @@ import { PaymentMethodsPanel } from './payment-methods-panel';
 import { ReportsPanel } from './reports-panel';
 import { TransactionsPanel } from './transactions-panel';
 import { useFinanceAccess, useFinanceDashboard } from '../hooks/use-financial';
-import { formatFinanceAmount } from '../utils/financial-format';
 
 export function FinancialLaunchpadTab({ locale, currency }: { locale: string; currency: string }) {
   const t = useTranslations('dashboard');
@@ -29,6 +27,7 @@ export function FinancialLaunchpadTab({ locale, currency }: { locale: string; cu
   const [renderedPanel, setRenderedPanel] = useState<FinancePanel | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const isAdmin = access.data?.isAdmin ?? (me.data?.role === 'OWNER' || me.data?.role === 'MANAGER');
+  const timeZone = access.data?.timeZone;
 
   useEffect(() => {
     const timers: number[] = [];
@@ -65,14 +64,6 @@ export function FinancialLaunchpadTab({ locale, currency }: { locale: string; cu
         accent: 'from-stone-700 to-stone-950',
       },
       {
-        id: 'analytics',
-        title: t('analytics'),
-        description: t('financeAnalyticsCardBody'),
-        metric: formatFinanceAmount(month?.net ?? 0, currency),
-        icon: BarChart3,
-        accent: 'from-indigo-500 to-sky-500',
-      },
-      {
         id: 'reports',
         title: t('reports'),
         description: t('financeReportsCardBody'),
@@ -99,7 +90,7 @@ export function FinancialLaunchpadTab({ locale, currency }: { locale: string; cu
         adminOnly: true,
       },
     ];
-  }, [access.data?.allowance.historyMonths, currency, dashboard.data?.dashboard.month, t]);
+  }, [access.data?.allowance.historyMonths, dashboard.data?.dashboard.month, t]);
 
   if (access.isLoading) {
     return <TabLoader label={t('loadingWorkspace')} />;
@@ -154,11 +145,17 @@ export function FinancialLaunchpadTab({ locale, currency }: { locale: string; cu
           closeLabel={t('close')}
           onClose={() => setActivePanel(null)}
         >
-          {renderedPanel === 'add' ? <AddTransactionPanel branches={branches} locale={locale} /> : null}
-          {renderedPanel === 'transactions' ? (
-            <TransactionsPanel locale={locale} currency={currency} />
+          {renderedPanel === 'add' ? (
+            <AddTransactionPanel
+              branches={branches}
+              locale={locale}
+              timeZone={timeZone}
+              onClose={() => setActivePanel(null)}
+            />
           ) : null}
-          {renderedPanel === 'analytics' ? <AnalyticsPanel locale={locale} currency={currency} /> : null}
+          {renderedPanel === 'transactions' ? (
+            <TransactionsPanel locale={locale} currency={currency} timeZone={timeZone} />
+          ) : null}
           {renderedPanel === 'reports' ? <ReportsPanel locale={locale} currency={currency} /> : null}
           {renderedPanel === 'categories' ? <CategoriesPanel locale={locale} /> : null}
           {renderedPanel === 'paymentMethods' ? <PaymentMethodsPanel locale={locale} /> : null}

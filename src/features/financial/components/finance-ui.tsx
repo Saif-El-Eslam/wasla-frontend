@@ -3,7 +3,7 @@
 import { ArrowUpRight } from 'lucide-react';
 import { cx } from '@/components/ui/dashboard-ui';
 
-export type FinancePanel = 'add' | 'transactions' | 'analytics' | 'reports' | 'categories' | 'paymentMethods';
+export type FinancePanel = 'add' | 'transactions' | 'reports' | 'categories' | 'paymentMethods';
 
 export type FinanceLaunchpadCard = {
   id: FinancePanel;
@@ -64,9 +64,9 @@ export function MetricTile({
   tone?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+    <div className="rounded-2xl border border-stone-200 bg-white p-3 sm:p-4 shadow-sm">
       <p className="text-xs font-black uppercase tracking-normal text-muted-foreground">{title}</p>
-      <p className={cx('mt-2 text-xl font-black', tone)}>{value}</p>
+      <p className={cx('mt-2 text-lg sm:text-xl font-black', tone)}>{value}</p>
     </div>
   );
 }

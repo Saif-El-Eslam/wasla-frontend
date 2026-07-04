@@ -3,7 +3,7 @@
 import { Save, SaveAll } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { PrimaryButton, SecondaryButton, TabLoader, cx } from '@/components/ui/dashboard-ui';
+import { PrimaryButton, SecondaryButton, cx } from '@/components/ui/dashboard-ui';
 import { toast } from '@/components/ui/toast-store';
 import { readError } from '@/features/dashboard/utils/dashboard-utils';
 import type { LocalizedValue } from '@/lib/api';
@@ -14,20 +14,20 @@ import {
   useTransactionCategories,
 } from '../hooks/use-financial';
 import type { FinancialTransactionType } from '../types/financial.types';
+import { dateTimeInputToUtcIso, dateTimeInputValueInTimeZone } from '../utils/financial-date';
 
 const defaultPaymentMethodValue = '__default_payment_method__';
-
-function localDateTimeValue(date = new Date()) {
-  const offset = date.getTimezoneOffset() * 60000;
-  return new Date(date.getTime() - offset).toISOString().slice(0, 16);
-}
 
 export function AddTransactionPanel({
   branches,
   locale,
+  onClose,
+  timeZone,
 }: {
   branches: Array<{ id: string; name: LocalizedValue; slug: string; active: boolean; isMain?: boolean }>;
   locale: string;
+  onClose?: () => void;
+  timeZone?: string;
 }) {
   const t = useTranslations('dashboard');
   const [type, setType] = useState<FinancialTransactionType>('OUT');
@@ -35,7 +35,7 @@ export function AddTransactionPanel({
   const [categoryId, setCategoryId] = useState('');
   const [paymentMethodId, setPaymentMethodId] = useState(defaultPaymentMethodValue);
   const [amount, setAmount] = useState('');
-  const [occurredAt, setOccurredAt] = useState(localDateTimeValue());
+  const [occurredAt, setOccurredAt] = useState(() => dateTimeInputValueInTimeZone(new Date(), timeZone));
   const [note, setNote] = useState('');
   const categories = useTransactionCategories(type);
   const paymentMethods = usePaymentMethods();
@@ -55,10 +55,6 @@ export function AddTransactionPanel({
     [branches],
   );
 
-  if (categories.isLoading || paymentMethods.isLoading) {
-    return <TabLoader label={t('loadingWorkspace')} />;
-  }
-
   const submit = (addAnother: boolean) => {
     if (!canSubmit) {
       toast.error(t('financeValidationTitle'), t('financeValidationBody'));
@@ -72,7 +68,7 @@ export function AddTransactionPanel({
         categoryId: effectiveCategoryId,
         ...(selectedPaymentMethodId === defaultPaymentMethodValue ? {} : { paymentMethodId: selectedPaymentMethodId }),
         amount: Number(amount),
-        occurredAt: new Date(occurredAt).toISOString(),
+        occurredAt: dateTimeInputToUtcIso(occurredAt, timeZone),
         note: note.trim() || undefined,
       },
       {
@@ -83,7 +79,9 @@ export function AddTransactionPanel({
           if (addAnother) {
             setAmount('');
             setNote('');
-            setOccurredAt(localDateTimeValue());
+            setOccurredAt(dateTimeInputValueInTimeZone(new Date(), timeZone));
+          } else {
+            onClose?.();
           }
         },
         onError: (error) => toast.error(readError(error)),
@@ -125,8 +123,9 @@ export function AddTransactionPanel({
         </label>
         <label className="space-y-1.5">
           <span className="text-sm font-black text-stone-700">{t('category')}</span>
-          <select className="h-11 w-full rounded-xl border border-border bg-white px-3 text-sm font-bold" value={effectiveCategoryId} onChange={(event) => setCategoryId(event.target.value)} disabled={!categoryOptions.length}>
-            {!categoryOptions.length ? <option value="">{t('noFinanceCategories')}</option> : null}
+          <select className="h-11 w-full rounded-xl border border-border bg-white px-3 text-sm font-bold" value={effectiveCategoryId} onChange={(event) => setCategoryId(event.target.value)} disabled={categories.isLoading || !categoryOptions.length}>
+            {categories.isLoading ? <option value="">{t('loadingWorkspace')}</option> : null}
+            {!categories.isLoading && !categoryOptions.length ? <option value="">{t('noFinanceCategories')}</option> : null}
             {categoryOptions.map((category) => (
               <option key={category.id} value={category.id}>
                 {textForLocale(category.name, locale)}
@@ -136,8 +135,10 @@ export function AddTransactionPanel({
         </label>
         <label className="space-y-1.5">
           <span className="text-sm font-black text-stone-700">{t('paymentMethod')}</span>
-          <select className="h-11 w-full rounded-xl border border-border bg-white px-3 text-sm font-bold" value={selectedPaymentMethodId} onChange={(event) => setPaymentMethodId(event.target.value)}>
-            <option value={defaultPaymentMethodValue}>{t('defaultPaymentMethod')}</option>
+          <select className="h-11 w-full rounded-xl border border-border bg-white px-3 text-sm font-bold" value={selectedPaymentMethodId} onChange={(event) => setPaymentMethodId(event.target.value)} disabled={paymentMethods.isLoading}>
+            <option value={defaultPaymentMethodValue}>
+              {paymentMethods.isLoading ? t('loadingWorkspace') : t('defaultPaymentMethod')}
+            </option>
             {methodOptions.map((method) => (
               <option key={method.id} value={method.id}>
                 {textForLocale(method.name, locale)}

@@ -64,6 +64,7 @@ export type FinanceSummary = {
 export type FinanceAccessResponse = {
   allowance: FinanceAllowance;
   isAdmin: boolean;
+  timeZone: string;
 };
 
 export type FinanceDashboardResponse = {

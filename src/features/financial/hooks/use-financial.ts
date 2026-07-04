@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { financialService } from '../api/financial.api';
 import type {
   CreateFinancialTransactionInput,
@@ -55,6 +55,19 @@ export function useFinancialTransactions(filters: FinancialFilters = {}, enabled
   return useQuery({
     queryKey: financialQueryKeys.transactions(filters),
     queryFn: () => financialService.transactions(filters),
+    enabled,
+    staleTime: financeStaleTime,
+    retry: false,
+  });
+}
+
+export function useInfiniteFinancialTransactions(filters: FinancialFilters = {}, enabled = true) {
+  return useInfiniteQuery({
+    queryKey: financialQueryKeys.transactions({ ...filters, infinite: true }),
+    queryFn: ({ pageParam }) => financialService.transactions({ ...filters, page: pageParam }),
+    initialPageParam: filters.page ?? 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.pagination.hasNextPage ? lastPage.pagination.page + 1 : undefined,
     enabled,
     staleTime: financeStaleTime,
     retry: false,

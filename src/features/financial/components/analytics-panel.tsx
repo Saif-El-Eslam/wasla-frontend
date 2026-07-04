@@ -8,13 +8,7 @@ import { useFinancialAnalytics } from '../hooks/use-financial';
 import { formatFinanceAmount, summaryTone } from '../utils/financial-format';
 import { MetricTile } from './finance-ui';
 
-export function AnalyticsPanel({
-  locale,
-  currency,
-}: {
-  locale: string;
-  currency: string;
-}) {
+export function AnalyticsPanel({ locale, currency }: { locale: string; currency: string }) {
   const t = useTranslations('dashboard');
   const [groupBy, setGroupBy] = useState('day');
   const analytics = useFinancialAnalytics({ groupBy });
@@ -41,10 +35,22 @@ export function AnalyticsPanel({
       </div>
 
       {summary ? (
-        <div className="grid gap-3 sm:grid-cols-3">
-          <MetricTile title={t('income')} value={formatFinanceAmount(summary.income, currency)} tone="text-emerald-700" />
-          <MetricTile title={t('expense')} value={formatFinanceAmount(summary.expenses, currency)} tone="text-red-700" />
-          <MetricTile title={t('net')} value={formatFinanceAmount(summary.net, currency)} tone={summaryTone(summary)} />
+        <div className="grid gap-2 sm:gap-3 grid-cols-3">
+          <MetricTile
+            title={t('income')}
+            value={formatFinanceAmount(summary.income, currency)}
+            tone="text-emerald-700"
+          />
+          <MetricTile
+            title={t('expense')}
+            value={formatFinanceAmount(summary.expenses, currency)}
+            tone="text-red-700"
+          />
+          <MetricTile
+            title={t('net')}
+            value={formatFinanceAmount(summary.net, currency)}
+            tone={summaryTone(summary)}
+          />
         </div>
       ) : null}
 
@@ -56,14 +62,22 @@ export function AnalyticsPanel({
               <p className={`font-black ${summaryTone(group)}`}>{formatFinanceAmount(group.net, currency)}</p>
             </div>
             <div className="mt-3 grid gap-2 sm:grid-cols-3">
-              <span className="text-sm font-bold text-emerald-700">{t('income')}: {formatFinanceAmount(group.income, currency)}</span>
-              <span className="text-sm font-bold text-red-700">{t('expense')}: {formatFinanceAmount(group.expenses, currency)}</span>
-              <span className="text-sm font-bold text-muted-foreground">{t('transactions')}: {group.count}</span>
+              <span className="text-sm font-bold text-emerald-700">
+                {t('income')}: {formatFinanceAmount(group.income, currency)}
+              </span>
+              <span className="text-sm font-bold text-red-700">
+                {t('expense')}: {formatFinanceAmount(group.expenses, currency)}
+              </span>
+              <span className="text-sm font-bold text-muted-foreground">
+                {t('transactions')}: {group.count}
+              </span>
             </div>
           </div>
         ))}
         {!analytics.isLoading && groups.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-stone-200 bg-white p-5 text-sm font-bold text-muted-foreground">{t('noReportResults')}</p>
+          <p className="rounded-2xl border border-dashed border-stone-200 bg-white p-5 text-sm font-bold text-muted-foreground">
+            {t('noReportResults')}
+          </p>
         ) : null}
       </div>
     </div>

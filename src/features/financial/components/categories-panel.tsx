@@ -24,6 +24,10 @@ export function CategoriesPanel({ locale }: { locale: string }) {
   const createMutation = useCreateTransactionCategory();
   const updateMutation = useUpdateTransactionCategory();
   const deleteMutation = useDeleteTransactionCategory();
+  const categoriesByType = {
+    IN: (categories.data?.categories ?? []).filter((category) => category.type === 'IN'),
+    OUT: (categories.data?.categories ?? []).filter((category) => category.type === 'OUT'),
+  };
 
   if (categories.isLoading) {
     return <TabLoader label={t('loadingWorkspace')} />;
@@ -63,55 +67,60 @@ export function CategoriesPanel({ locale }: { locale: string }) {
         </div>
       </div>
 
-      <div className="grid gap-3 lg:grid-cols-2">
-        {(categories.data?.categories ?? []).map((category) => {
-          const transactionCount = category.transactionCount ?? 0;
+      {(['IN', 'OUT'] as const).map((categoryType) => (
+        <section key={categoryType} className="space-y-3">
+          <h3 className="text-sm font-black text-stone-950">{categoryType === 'IN' ? t('income') : t('expense')}</h3>
+          <div className="grid gap-3 lg:grid-cols-2">
+            {categoriesByType[categoryType].map((category) => {
+              const transactionCount = category.transactionCount ?? 0;
 
-          return (
-          <div key={category.id} className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="font-black text-stone-950">{textForLocale(category.name, locale)}</p>
-                <p className="text-xs font-bold text-muted-foreground">
-                  {category.type === 'IN' ? t('income') : t('expense')} - {category.active ? t('active') : t('inactive')} - {t('transactionsCount', { count: transactionCount })}
-                </p>
-              </div>
-              <div className="flex flex-wrap justify-end gap-2">
-                <SecondaryButton
-                  disabled={updateMutation.isPending}
-                  onClick={() =>
-                    updateMutation.mutate({
-                      categoryId: category.id,
-                      input: { active: !category.active },
-                    }, {
-                      onSuccess: () => toast.success(category.active ? t('categoryDeactivated') : t('categoryActivated')),
-                      onError: (error) => toast.error(readError(error)),
-                    })
-                  }
-                >
-                  {category.active ? <ToggleRight className="size-4 text-emerald-600" /> : <ToggleLeft className="size-4 text-stone-500" />}
-                  {category.active ? t('deactivate') : t('activate')}
-                </SecondaryButton>
-                {transactionCount === 0 ? (
-                  <SecondaryButton
-                    disabled={deleteMutation.isPending}
-                    onClick={() =>
-                      deleteMutation.mutate(category.id, {
-                        onSuccess: () => toast.success(t('categoryDeleted')),
-                        onError: (error) => toast.error(readError(error)),
-                      })
-                    }
-                  >
-                    <Trash2 className="size-4 text-red-600" />
-                    {t('delete')}
-                  </SecondaryButton>
-                ) : null}
-              </div>
-            </div>
+              return (
+                <div key={category.id} className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-black text-stone-950">{textForLocale(category.name, locale)}</p>
+                      <p className="text-xs font-bold text-muted-foreground">
+                        {category.active ? t('active') : t('inactive')} - {t('transactionsCount', { count: transactionCount })}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap justify-end gap-2">
+                      <SecondaryButton
+                        disabled={updateMutation.isPending}
+                        onClick={() =>
+                          updateMutation.mutate({
+                            categoryId: category.id,
+                            input: { active: !category.active },
+                          }, {
+                            onSuccess: () => toast.success(category.active ? t('categoryDeactivated') : t('categoryActivated')),
+                            onError: (error) => toast.error(readError(error)),
+                          })
+                        }
+                      >
+                        {category.active ? <ToggleRight className="size-4 text-emerald-600" /> : <ToggleLeft className="size-4 text-stone-500" />}
+                        {category.active ? t('deactivate') : t('activate')}
+                      </SecondaryButton>
+                      {transactionCount === 0 ? (
+                        <SecondaryButton
+                          disabled={deleteMutation.isPending}
+                          onClick={() =>
+                            deleteMutation.mutate(category.id, {
+                              onSuccess: () => toast.success(t('categoryDeleted')),
+                              onError: (error) => toast.error(readError(error)),
+                            })
+                          }
+                        >
+                          <Trash2 className="size-4 text-red-600" />
+                          {t('delete')}
+                        </SecondaryButton>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          );
-        })}
-      </div>
+        </section>
+      ))}
     </div>
   );
 }
