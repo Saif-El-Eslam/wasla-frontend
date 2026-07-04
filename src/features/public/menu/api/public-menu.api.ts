@@ -26,17 +26,24 @@ function localeHeaders(locale?: string) {
 
 async function publicApi<T>(path: string, init?: RequestInit, locale?: string): Promise<T> {
   const headers = new Headers(init?.headers);
+  const method = init?.method ?? 'GET';
+  const isRead = method === 'GET' || method === 'HEAD';
+
   headers.set('Content-Type', headers.get('Content-Type') ?? 'application/json');
 
   for (const [key, value] of Object.entries(localeHeaders(locale))) {
     headers.set(key, value);
   }
 
-  const response = await fetch(`${apiBaseUrl}${path}`, {
+  const requestInit: RequestInit & { next?: { revalidate: number } } = {
     ...init,
+    method,
     headers,
-    cache: init?.cache ?? 'no-store',
-  });
+    cache: init?.cache ?? (isRead ? 'force-cache' : 'no-store'),
+    next: isRead ? { revalidate: 30 } : undefined,
+  };
+
+  const response = await fetch(`${apiBaseUrl}${path}`, requestInit);
 
   if (!response.ok) {
     throw new Error(`Public API request failed: ${response.status}`);

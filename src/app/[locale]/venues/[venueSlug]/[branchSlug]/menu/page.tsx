@@ -11,17 +11,13 @@ export default async function PublicBranchMenuPage({
   const resolvedLocale = locale === 'ar' ? 'ar' : 'en';
 
   try {
-    const [menuData, venueData] = await Promise.all([
-      publicMenuApi.branchMenu(venueSlug, branchSlug, resolvedLocale),
-      publicMenuApi.venue(venueSlug, resolvedLocale),
-    ]);
+    const menuData = await publicMenuApi.branchMenu(venueSlug, branchSlug, resolvedLocale);
     const nextLocale = resolvedLocale === 'ar' ? 'en' : 'ar';
 
     return (
       <PublicMenuExperience
         venue={menuData.venue}
         branch={menuData.branch}
-        branches={venueData.branches}
         menu={menuData.menu}
         locale={resolvedLocale}
         currency={menuData.venue.currency}

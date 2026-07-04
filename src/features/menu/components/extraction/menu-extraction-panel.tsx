@@ -72,7 +72,6 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
 
   const hasPendingCompletedExtraction = Boolean(draft && job?.status === 'COMPLETED');
   const shouldAutoOpenDraft = hasPendingCompletedExtraction && dismissedJobId !== job?.id;
-  console.log('JOB', job);
   const canUpload =
     limits?.remainingThisMonth || (files.length > 0 && (!limits || files.length <= limits.maxImages));
   const isBusy = job?.status === 'PENDING' || job?.status === 'PROCESSING';

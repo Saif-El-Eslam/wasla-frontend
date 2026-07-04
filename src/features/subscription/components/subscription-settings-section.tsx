@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { useParams } from 'next/navigation';
 import { ArrowUpRight, Check, Crown, MessageCircle, ShieldAlert } from 'lucide-react';
 import { Badge, Card, PrimaryButton, cx } from '@/components/ui/dashboard-ui';
 import { api } from '@/lib/api';
@@ -75,7 +76,7 @@ function UsageMeter({
   );
 }
 
-function CurrentPlanCard({ data }: { data: TenantSubscriptionResponse }) {
+function CurrentPlanCard({ data, locale }: { data: TenantSubscriptionResponse; locale: string }) {
   const statusTone = data.subscription.status === 'PAST_DUE' ? 'amber' : 'teal';
   const currentPlan = data.plans.find((plan) => plan.code === data.subscription.plan);
 
@@ -85,7 +86,7 @@ function CurrentPlanCard({ data }: { data: TenantSubscriptionResponse }) {
         <div>
           <Badge tone={statusTone}>{data.subscription.status.replaceAll('_', ' ')}</Badge>
           <h2 className="mt-3 text-2xl font-black text-stone-950">
-            {currentPlan ? textForLocale(currentPlan.publicName, 'en') : data.subscription.plan}
+            {currentPlan ? textForLocale(currentPlan.publicName, locale) : data.subscription.plan}
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
             Public menus stay available across every plan. Workspace changes, AI extraction, analytics
@@ -131,7 +132,7 @@ function CurrentPlanCard({ data }: { data: TenantSubscriptionResponse }) {
   );
 }
 
-function PricingCard({ plan, active }: { plan: Plan; active: boolean }) {
+function PricingCard({ plan, active, locale }: { plan: Plan; active: boolean; locale: string }) {
   const yearlyPrice = plan.priceAnnualEgp === null ? 'Premium' : `${plan.priceAnnualEgp} EGP/year`;
   const branchLimit = featureValue(plan.featureMappings.find((item) => item.feature.key === 'BRANCH_LIMIT'));
   const extractionLimit = featureValue(
@@ -152,7 +153,7 @@ function PricingCard({ plan, active }: { plan: Plan; active: boolean }) {
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="text-lg font-black text-stone-950">{textForLocale(plan.publicName, 'en')}</h3>
+          <h3 className="text-lg font-black text-stone-950">{textForLocale(plan.publicName, locale)}</h3>
           <p className="mt-1 text-sm font-black text-primary">{yearlyPrice}</p>
         </div>
         {active ? (
@@ -196,8 +197,10 @@ function PricingCard({ plan, active }: { plan: Plan; active: boolean }) {
 }
 
 export function SubscriptionSettingsSection() {
+  const params = useParams<{ locale: string }>();
+  const locale = params.locale === 'ar' ? 'ar' : 'en';
   const subscription = useQuery({
-    queryKey: queryKeys.subscription,
+    queryKey: [...queryKeys.subscription, locale] as const,
     queryFn: api.subscription,
   });
 
@@ -211,7 +214,7 @@ export function SubscriptionSettingsSection() {
 
   return (
     <div className="space-y-5">
-      <CurrentPlanCard data={subscription.data} />
+      <CurrentPlanCard data={subscription.data} locale={locale} />
       {!subscription.data.canManageBilling ? (
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-900">
           Owners manage billing and upgrades. You can still review limits and plan availability here.
@@ -230,7 +233,12 @@ export function SubscriptionSettingsSection() {
       </div>
       <div className="grid gap-4 lg:grid-cols-5">
         {subscription.data.plans.map((plan) => (
-          <PricingCard key={plan.id} plan={plan} active={plan.code === subscription.data.subscription.plan} />
+          <PricingCard
+            key={plan.id}
+            plan={plan}
+            active={plan.code === subscription.data.subscription.plan}
+            locale={locale}
+          />
         ))}
       </div>
     </div>

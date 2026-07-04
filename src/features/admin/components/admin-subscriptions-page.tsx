@@ -51,27 +51,27 @@ export function AdminSubscriptionsPage({ locale }: { locale: string }) {
   const nextLocale = locale === 'ar' ? 'en' : 'ar';
 
   const overview = useQuery({
-    queryKey: queryKeys.adminSubscriptionOverview,
+    queryKey: [...queryKeys.adminSubscriptionOverview, locale] as const,
     queryFn: api.adminSubscriptionOverview,
     enabled: me.data?.role === 'SUPER_ADMIN',
   });
   const venues = useQuery({
-    queryKey: queryKeys.adminSubscriptionVenues(filters),
+    queryKey: [...queryKeys.adminSubscriptionVenues(filters), locale] as const,
     queryFn: () => api.adminSubscriptionVenues(filters),
     enabled: me.data?.role === 'SUPER_ADMIN',
   });
   const plans = useQuery({
-    queryKey: queryKeys.adminPlans,
+    queryKey: [...queryKeys.adminPlans, locale] as const,
     queryFn: api.adminPlans,
     enabled: me.data?.role === 'SUPER_ADMIN',
   });
   const features = useQuery({
-    queryKey: queryKeys.adminFeatures,
+    queryKey: [...queryKeys.adminFeatures, locale] as const,
     queryFn: api.adminFeatures,
     enabled: me.data?.role === 'SUPER_ADMIN',
   });
   const verificationCodes = useQuery({
-    queryKey: queryKeys.adminVerificationCodes(verificationFilters),
+    queryKey: [...queryKeys.adminVerificationCodes(verificationFilters), locale] as const,
     queryFn: () => api.adminVerificationCodes(verificationFilters),
     enabled: me.data?.role === 'SUPER_ADMIN',
   });

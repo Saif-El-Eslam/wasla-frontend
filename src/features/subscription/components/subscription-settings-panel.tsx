@@ -198,10 +198,6 @@ function PricingCard({ plan, active, locale }: { plan: Plan; active: boolean; lo
     labels,
   );
 
-  console.log('plan.branchLimit', branchLimit, typeof branchLimit);
-  console.log('plan.extractionLimit', extractionLimit);
-  console.log('plan.imgPerExtractionLimit', imgPerExtractionLimit);
-
   return (
     <Card
       className={cx(
@@ -297,7 +293,7 @@ export function SubscriptionSettingsPanel() {
   const params = useParams<{ locale: string }>();
   const locale = params.locale ?? 'en';
   const subscription = useQuery({
-    queryKey: queryKeys.subscription,
+    queryKey: [...queryKeys.subscription, locale] as const,
     queryFn: api.subscription,
   });
 

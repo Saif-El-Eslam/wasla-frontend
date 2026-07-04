@@ -1,6 +1,7 @@
 'use client';
 
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useParams } from 'next/navigation';
 import { financialService } from '../api/financial.api';
 import type {
   CreateFinancialTransactionInput,
@@ -19,7 +20,8 @@ export const financialQueryKeys = {
   dashboard: (filters?: Record<string, unknown>) => ['finance', 'dashboard', filters ?? {}] as const,
   transactions: (filters?: Record<string, unknown>) => ['finance', 'transactions', filters ?? {}] as const,
   categories: (filters?: Record<string, unknown>) => ['finance', 'categories', filters ?? {}] as const,
-  paymentMethods: (filters?: Record<string, unknown>) => ['finance', 'payment-methods', filters ?? {}] as const,
+  paymentMethods: (filters?: Record<string, unknown>) =>
+    ['finance', 'payment-methods', filters ?? {}] as const,
   analytics: (filters?: Record<string, unknown>) => ['finance', 'analytics', filters ?? {}] as const,
   report: (filters?: Record<string, unknown>) => ['finance', 'report', filters ?? {}] as const,
 };
@@ -32,9 +34,16 @@ function useInvalidateFinance() {
   };
 }
 
+function useLocale() {
+  const params = useParams<{ locale: string }>();
+  return params.locale === 'ar' ? 'ar' : 'en';
+}
+
 export function useFinanceAccess() {
+  const locale = useLocale();
+
   return useQuery({
-    queryKey: financialQueryKeys.access,
+    queryKey: [...financialQueryKeys.access, locale] as const,
     queryFn: financialService.access,
     staleTime: financeStaleTime,
     retry: false,
@@ -42,8 +51,10 @@ export function useFinanceAccess() {
 }
 
 export function useFinanceDashboard(filters: FinancialFilters = {}, enabled = true) {
+  const locale = useLocale();
+
   return useQuery({
-    queryKey: financialQueryKeys.dashboard(filters),
+    queryKey: [...financialQueryKeys.dashboard(filters), locale] as const,
     queryFn: () => financialService.dashboard(filters),
     enabled,
     staleTime: financeStaleTime,
@@ -52,8 +63,10 @@ export function useFinanceDashboard(filters: FinancialFilters = {}, enabled = tr
 }
 
 export function useFinancialTransactions(filters: FinancialFilters = {}, enabled = true) {
+  const locale = useLocale();
+
   return useQuery({
-    queryKey: financialQueryKeys.transactions(filters),
+    queryKey: [...financialQueryKeys.transactions(filters), locale] as const,
     queryFn: () => financialService.transactions(filters),
     enabled,
     staleTime: financeStaleTime,
@@ -62,8 +75,10 @@ export function useFinancialTransactions(filters: FinancialFilters = {}, enabled
 }
 
 export function useInfiniteFinancialTransactions(filters: FinancialFilters = {}, enabled = true) {
+  const locale = useLocale();
+
   return useInfiniteQuery({
-    queryKey: financialQueryKeys.transactions({ ...filters, infinite: true }),
+    queryKey: [...financialQueryKeys.transactions({ ...filters, infinite: true }), locale] as const,
     queryFn: ({ pageParam }) => financialService.transactions({ ...filters, page: pageParam }),
     initialPageParam: filters.page ?? 1,
     getNextPageParam: (lastPage) =>
@@ -75,8 +90,10 @@ export function useInfiniteFinancialTransactions(filters: FinancialFilters = {},
 }
 
 export function useTransactionCategories(type?: 'IN' | 'OUT', includeInactive = false, enabled = true) {
+  const locale = useLocale();
+
   return useQuery({
-    queryKey: financialQueryKeys.categories({ type, includeInactive }),
+    queryKey: [...financialQueryKeys.categories({ type, includeInactive }), locale] as const,
     queryFn: () => financialService.categories({ type, includeInactive }),
     enabled,
     staleTime: financeStaleTime,
@@ -85,8 +102,10 @@ export function useTransactionCategories(type?: 'IN' | 'OUT', includeInactive = 
 }
 
 export function usePaymentMethods(includeInactive = false, enabled = true) {
+  const locale = useLocale();
+
   return useQuery({
-    queryKey: financialQueryKeys.paymentMethods({ includeInactive }),
+    queryKey: [...financialQueryKeys.paymentMethods({ includeInactive }), locale] as const,
     queryFn: () => financialService.paymentMethods({ includeInactive }),
     enabled,
     staleTime: financeStaleTime,
@@ -95,8 +114,10 @@ export function usePaymentMethods(includeInactive = false, enabled = true) {
 }
 
 export function useFinancialAnalytics(filters: FinancialFilters & { groupBy?: string } = {}, enabled = true) {
+  const locale = useLocale();
+
   return useQuery({
-    queryKey: financialQueryKeys.analytics(filters),
+    queryKey: [...financialQueryKeys.analytics(filters), locale] as const,
     queryFn: () => financialService.analytics(filters),
     enabled,
     staleTime: financeStaleTime,
@@ -105,8 +126,10 @@ export function useFinancialAnalytics(filters: FinancialFilters & { groupBy?: st
 }
 
 export function useFinancialReport(filters: FinancialFilters = {}, enabled = true) {
+  const locale = useLocale();
+
   return useQuery({
-    queryKey: financialQueryKeys.report(filters),
+    queryKey: [...financialQueryKeys.report(filters), locale] as const,
     queryFn: () => financialService.report(filters),
     enabled,
     staleTime: financeStaleTime,
@@ -127,8 +150,13 @@ export function useUpdateFinancialTransaction() {
   const invalidate = useInvalidateFinance();
 
   return useMutation({
-    mutationFn: ({ transactionId, input }: { transactionId: string; input: UpdateFinancialTransactionInput }) =>
-      financialService.updateTransaction(transactionId, input),
+    mutationFn: ({
+      transactionId,
+      input,
+    }: {
+      transactionId: string;
+      input: UpdateFinancialTransactionInput;
+    }) => financialService.updateTransaction(transactionId, input),
     onSuccess: invalidate,
   });
 }

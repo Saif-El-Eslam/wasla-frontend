@@ -118,7 +118,6 @@ export function PublicMenuExperience({
 }: {
   venue: VenueLike;
   branch?: BranchLike;
-  branches?: BranchLike[];
   menu: Menu | null;
   locale: string;
   currency: string;

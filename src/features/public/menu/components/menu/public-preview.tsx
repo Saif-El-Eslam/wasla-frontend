@@ -60,7 +60,6 @@ export function PublicPreview({
             branches,
           }}
           branch={branch}
-          branches={branches}
           menu={menu ?? null}
           locale={locale}
           currency={currency}
