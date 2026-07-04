@@ -1,4 +1,4 @@
-import { PublicLandingPage } from '@/features/public/menu/components/venue/public-landing-page';
+import { PublicLandingPage } from '@/features/public/menu/components/landing/public-landing-page';
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

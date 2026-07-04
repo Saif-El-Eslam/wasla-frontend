@@ -9,9 +9,12 @@ import {
   Phone,
   PlusCircle,
   QrCode,
+  ReceiptText,
   Sparkles,
   Store,
+  TrendingUp,
   UtensilsCrossed,
+  WalletCards,
 } from 'lucide-react';
 import { AuthSessionRedirect } from '@/features/auth/components/auth-session-redirect';
 import { LogoMark } from '@/components/ui/logo-mark';
@@ -87,11 +90,16 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
                 {t('browseVenues')}
               </Link>
             </div>
-            <div className="mt-16 hidden max-w-lg flex-nowrap gap-2 lg:flex">
+            {/* <div className="mt-4 inline-flex max-w-xl items-center gap-2 rounded-2xl border border-white/18 bg-white/12 px-3 py-2 text-xs font-bold leading-5 text-white/82 shadow-sm backdrop-blur sm:text-sm">
+              <WalletCards className="size-4 shrink-0 text-amber-200" />
+              <span>{t('landingFinanceHeroTag')}</span>
+            </div> */}
+            <div className="mt-16 hidden max-w-2xl flex-nowrap gap-2 lg:flex">
               {[
-                ['5 Min', t('landingStatPublish')],
-                ['24/7', t('landingStatAccess')],
-                ['QR', t('landingStatQr')],
+                [t('5min'), t('landingStatPublish')],
+                [t('24/7'), t('landingStatAccess')],
+                [t('QR'), t('landingStatQr')],
+                [t('financeialSpace'), t('trackIncomeAndExpenses')],
               ].map(([value, label], index) => (
                 <div
                   key={value}
@@ -116,6 +124,10 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
             <div className="wasla-hero-tile wasla-hero-tile-3 absolute bottom-4 end-8 rounded-2xl border border-white/18 bg-white/14 p-4 shadow-2xl backdrop-blur sm:bottom-8 sm:end-20 sm:rounded-3xl sm:p-5">
               <Store className="size-6 text-white sm:size-8" />
               <p className="mt-2 text-xs font-black sm:mt-3 sm:text-sm">{t('browseVenues')}</p>
+            </div>
+            <div className="wasla-hero-tile wasla-hero-tile-4 absolute bottom-8 start-8 rounded-2xl border border-white/18 bg-white/14 p-4 shadow-2xl backdrop-blur sm:bottom-12 sm:start-20 sm:rounded-3xl sm:p-5">
+              <WalletCards className="size-6 text-amber-200 sm:size-8" />
+              <p className="mt-2 text-xs font-black sm:mt-3 sm:text-sm">{t('landingFinanceHeroTag')}</p>
             </div>
           </div>
         </div>
@@ -144,7 +156,7 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
             <Sparkles className="size-4" />
             {t('landingWowEyebrow')}
           </div>
-          <h2 className="relative max-w-2xl text-3xl font-black leading-tight text-white sm:text-5xl">
+          <h2 className="relative max-w-2xl text-3xl font-black leading-tight text-white sm:text-4xl lg:text-5xl">
             {t('landingWowTitle')}
           </h2>
           <p className="relative mt-4 max-w-xl text-sm leading-7 text-white/75">{t('landingWowBody')}</p>
@@ -166,8 +178,8 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
           </div>
         </div>
 
-        <div className="wasla-wow-stage relative min-h-[430px] overflow-visible px-1 py-5 text-white sm:min-h-[500px] sm:px-5 lg:min-h-[520px]">
-          <div className="absolute inset-x-0 top-0 h-16 bg-[linear-gradient(180deg,rgba(45,212,191,0.2),transparent)]" />
+        <div className="wasla-wow-stage relative min-h-[450px] overflow-visible px-1 py-5 text-white sm:min-h-[500px] sm:px-5 lg:min-h-[550px]">
+          <div className="absolute inset-x-0 top-0 rounded-t-2xl h-16 bg-[linear-gradient(180deg,rgba(45,212,191,0.2),transparent)]" />
           <div className="wasla-wow-phone relative mx-auto h-[360px] w-full max-w-[250px] rounded-[2rem] border border-white/18 bg-stone-950 p-2 shadow-2xl sm:h-[440px] sm:max-w-[310px] sm:p-3">
             <div className="h-full overflow-hidden rounded-[1.45rem] bg-[#f8fafa] text-stone-950">
               <div className="relative h-28 overflow-hidden bg-stone-900">
@@ -245,6 +257,155 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
         </div>
       </section>
 
+      <section className="wasla-fade-up wasla-delay-1 relative grid min-h-dvh w-full items-center gap-10 overflow-hidden bg-[#f8fafa] px-4 py-16 text-stone-950 sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:px-14 xl:px-20">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(251,191,36,0.22),transparent_24%),radial-gradient(circle_at_82%_72%,rgba(20,184,166,0.16),transparent_28%)]" />
+
+        <div>
+          <div className="relative mb-3 inline-flex items-center gap-2 rounded-full bg-amber-300 px-3 py-1.5 text-xs font-black text-stone-950">
+            <WalletCards className="size-4" />
+            {t('landingFinanceEyebrow')}
+          </div>
+
+          <h2 className="relative max-w-2xl text-3xl font-black leading-tight text-stone-950 sm:text-4xl lg:text-5xl">
+            {t('landingFinanceTitle')}
+          </h2>
+
+          <p className="relative mt-4 max-w-xl text-sm leading-7 text-stone-600">{t('landingFinanceBody')}</p>
+
+          <div className="hidden lg:grid relative mt-7 gap-3 sm:grid-cols-3">
+            {[
+              {
+                Icon: ReceiptText,
+                title: t('landingFinanceDailyTitle'),
+                body: t('landingFinanceDailyBody'),
+              },
+              {
+                Icon: Store,
+                title: t('landingFinanceBranchTitle'),
+                body: t('landingFinanceBranchBody'),
+              },
+              {
+                Icon: TrendingUp,
+                title: t('landingFinanceReportsTitle'),
+                body: t('landingFinanceReportsBody'),
+              },
+            ].map(({ Icon, title, body }, index) => (
+              <div
+                key={title}
+                className={`wasla-owner-card-horizontal wasla-owner-card-${index + 1} rounded-xl border border-stone-200 bg-white/80 p-4 shadow-sm backdrop-blur`}
+              >
+                <Icon className="size-5 text-teal-600" />
+                <h3 className="mt-3 text-sm font-black text-stone-950">{title}</h3>
+                <p className="mt-1 text-xs leading-5 text-stone-500">{body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative min-h-[450px] overflow-visible px-1 py-5 sm:min-h-[500px] sm:px-5 lg:min-h-[550px]">
+          <div className="absolute inset-x-0 top-0 rounded-t-2xl h-16 bg-[linear-gradient(180deg,rgba(20,184,166,0.16),transparent)]" />
+
+          <div className="relative mx-auto max-w-2xl rounded-[1.75rem] border border-stone-200 bg-white/80 p-3 shadow-2xl shadow-teal-950/10 backdrop-blur">
+            <div className="rounded-[1.35rem] bg-white p-4 text-stone-950 shadow-xl sm:p-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-normal text-teal-700">
+                    {t('landingFinancePanelEyebrow')}
+                  </p>
+                  <h3 className="mt-1 text-xl font-black">{t('landingFinancePanelTitle')}</h3>
+                </div>
+
+                <span className="rounded-full bg-teal-50 px-3 py-1.5 text-xs font-black text-teal-700">
+                  {t('landingFinancePanelRange')}
+                </span>
+              </div>
+
+              <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
+                {[
+                  [t('landingFinanceIncome'), '6,450 EGP', 'text-emerald-700'],
+                  [t('landingFinanceExpenses'), '5,000 EGP', 'text-red-700'],
+                  [t('landingFinanceNet'), '1,450 EGP', 'text-teal-700'],
+                ].map(([label, value, tone]) => (
+                  <div key={label} className="rounded-xl border border-stone-200 bg-[#f8fafa] p-3 shadow-sm">
+                    <p className="text-[11px] font-black uppercase tracking-normal text-stone-500">{label}</p>
+                    <p className={`mt-2 text-sm font-black sm:text-lg ${tone}`}>{value}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-4 grid gap-3 lg:grid-cols-[0.95fr_1.05fr]">
+                <div className="rounded-xl border border-stone-200 bg-[#f8fafa] p-3 shadow-sm">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-black">{t('landingFinanceQuickEntry')}</p>
+                    <span className="rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-black text-emerald-700">
+                      {t('landingFinanceIncome')}
+                    </span>
+                  </div>
+
+                  <div className="mt-3 space-y-2">
+                    {[
+                      [t('landingFinanceCategoryOne'), 'bg-teal-200', null],
+                      [t('landingFinanceMethodOne'), 'bg-teal-200', 'true'],
+                      [t('landingFinanceExpenseLine'), 'bg-red-200', 'true'],
+                    ].map(([item, tone, showInSmall]) => (
+                      <div
+                        key={item}
+                        className={`${showInSmall ? 'flex' : 'hidden'} md:flex items-center justify-between rounded-lg bg-white px-3 py-2`}
+                      >
+                        <span className="text-xs font-bold text-stone-500">{item}</span>
+                        <span className={`h-2 w-16 rounded-full ${tone}`} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-stone-200 bg-[#f8fafa] p-3 shadow-sm">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-black">{t('landingFinanceBranchReport')}</p>
+                    <TrendingUp className="size-4 text-teal-600" />
+                  </div>
+
+                  <div className="mt-3 space-y-2">
+                    {[
+                      [t('landingFinanceBranchOne'), '1,450 EGP', 'bg-teal-50 text-teal-700', null],
+                      [t('landingFinanceBranchTwo'), '780 EGP', 'bg-emerald-50 text-emerald-700', 'true'],
+                      [t('landingFinanceBranchThree'), '520 EGP', 'bg-red-50 text-red-700', 'true'],
+                    ].map(([label, value, tone, showInSmall]) => (
+                      <div
+                        key={label}
+                        className={`${showInSmall ? 'flex' : 'hidden'} md:flex items-center justify-between gap-2 rounded-lg bg-white px-3 py-2`}
+                      >
+                        <span className="text-xs font-black text-stone-700">{label}</span>
+                        <span className={`rounded-full px-2 py-1 text-[11px] font-black ${tone}`}>
+                          {value}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="wasla-action-chip wasla-action-chip-1 absolute end-0 top-24 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-3 py-2 text-[11px] font-black text-stone-900 shadow-xl sm:end-4 sm:top-24 sm:text-xs">
+            <TrendingUp className="size-4 text-teal-600" />
+            {t('landingFinanceReportsTitle')}
+          </div>
+
+          <div className="wasla-action-chip wasla-action-chip-2 absolute bottom-24 start-0 inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-[11px] font-black text-stone-900 shadow-xl sm:bottom-20 sm:start-5 sm:text-xs">
+            <Store className="size-4 text-teal-600" />
+            {t('landingFinanceBranchTitle')}
+          </div>
+
+          <div className="wasla-action-chip wasla-action-chip-3 absolute bottom-6 end-2 inline-flex items-center gap-2 rounded-full bg-amber-300 px-3 py-2 text-[11px] font-black text-stone-950 shadow-xl sm:bottom-8 sm:end-8 sm:text-xs">
+            <WalletCards className="size-4" />
+            {t('landingFinanceNet')}
+          </div>
+        </div>
+      </section>
+
+      <PwaInstallSection variant="landing" />
+
       <section className="wasla-fade-up wasla-delay-2 w-full overflow-hidden bg-white px-4 py-20 text-stone-950 sm:px-8 lg:px-14 xl:px-20">
         <div className="grid items-center gap-8 lg:grid-cols-[1fr_0.9fr]">
           <div>
@@ -296,8 +457,6 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
           </div>
         </div>
       </section>
-
-      <PwaInstallSection variant="landing" />
 
       <footer className="border-t border-border bg-white px-4 py-8 sm:px-8 lg:px-14 xl:px-20">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
