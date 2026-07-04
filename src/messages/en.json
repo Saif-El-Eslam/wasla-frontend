@@ -371,6 +371,7 @@
     "allPermittedPeriod": "All permitted period",
     "fromDate": "From date",
     "toDate": "To date",
+    "allowedDateRangeMessage": "The allowed time range for your plan is {range}.",
     "financeGroup_day": "Day",
     "financeGroup_week": "Week",
     "financeGroup_month": "Month",

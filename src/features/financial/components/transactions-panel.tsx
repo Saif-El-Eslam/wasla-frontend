@@ -6,14 +6,17 @@ import { useTranslations } from 'next-intl';
 import { Badge, SecondaryButton, TabLoader } from '@/components/ui/dashboard-ui';
 import { toast } from '@/components/ui/toast-store';
 import { readError } from '@/features/dashboard/utils/dashboard-utils';
-import { textForLocale } from '@/lib/localized-text';
-import { useDeleteFinancialTransaction, useInfiniteFinancialTransactions } from '../hooks/use-financial';
 import {
+  allowedDateRangeFromIso,
+  clampDateRangeInputs,
   currentMonthStartDateInTimeZone,
   dateInputValueInTimeZone,
   endOfDateInputInTimeZone,
+  rollingAllowedDateRange,
   startOfDateInputInTimeZone,
-} from '../utils/financial-date';
+} from '@/lib/date';
+import { textForLocale } from '@/lib/localized-text';
+import { useDeleteFinancialTransaction, useFinanceAccess, useInfiniteFinancialTransactions } from '../hooks/use-financial';
 import { formatFinanceAmount } from '../utils/financial-format';
 
 export function TransactionsPanel({
@@ -26,9 +29,21 @@ export function TransactionsPanel({
   timeZone?: string;
 }) {
   const t = useTranslations('dashboard');
+  const access = useFinanceAccess();
+  const allowedRange = allowedDateRangeFromIso(
+    access.data?.allowance.allowedFrom,
+    access.data?.allowance.allowedTo,
+    timeZone,
+  );
+  const fallbackAllowedRange = rollingAllowedDateRange(access.data?.allowance.historyMonths ?? 3, timeZone);
+  const effectiveAllowedRange = {
+    from: allowedRange.from ?? fallbackAllowedRange.from,
+    to: allowedRange.to ?? fallbackAllowedRange.to,
+  };
   const [type, setType] = useState<'IN' | 'OUT' | ''>('');
   const [fromDate, setFromDate] = useState(() => currentMonthStartDateInTimeZone(timeZone));
   const [toDate, setToDate] = useState(() => dateInputValueInTimeZone(new Date(), timeZone));
+  const [rangeWasClamped, setRangeWasClamped] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const filters = useMemo(
     () => ({
@@ -47,6 +62,14 @@ export function TransactionsPanel({
     [transactions.data?.pages],
   );
   const totalCount = transactions.data?.pages[0]?.pagination.total ?? 0;
+
+  const updateRange = (nextFrom: string, nextTo: string) => {
+    const range = clampDateRangeInputs(nextFrom, nextTo, effectiveAllowedRange.from, effectiveAllowedRange.to);
+
+    setRangeWasClamped(range.clamped);
+    setFromDate(range.from);
+    setToDate(range.to);
+  };
 
   useEffect(() => {
     const node = loadMoreRef.current;
@@ -98,25 +121,34 @@ export function TransactionsPanel({
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <label className="space-y-1.5">
+        <label className="min-w-0 space-y-1.5">
           <span className="text-sm font-black text-stone-700">{t('fromDate')}</span>
           <input
-            className="h-11 w-full rounded-xl border border-border bg-white px-3 text-sm font-bold"
+            className="h-11 w-full min-w-0 rounded-xl border border-border bg-white px-3 text-sm font-bold"
             type="date"
             value={fromDate}
-            onChange={(event) => setFromDate(event.target.value)}
+            min={effectiveAllowedRange.from}
+            max={effectiveAllowedRange.to}
+            onChange={(event) => updateRange(event.target.value, toDate)}
           />
         </label>
-        <label className="space-y-1.5">
+        <label className="min-w-0 space-y-1.5">
           <span className="text-sm font-black text-stone-700">{t('toDate')}</span>
           <input
-            className="h-11 w-full rounded-xl border border-border bg-white px-3 text-sm font-bold"
+            className="h-11 w-full min-w-0 rounded-xl border border-border bg-white px-3 text-sm font-bold"
             type="date"
             value={toDate}
-            onChange={(event) => setToDate(event.target.value)}
+            min={effectiveAllowedRange.from}
+            max={effectiveAllowedRange.to}
+            onChange={(event) => updateRange(fromDate, event.target.value)}
           />
         </label>
       </div>
+      <p className={rangeWasClamped ? 'text-xs font-bold text-amber-700' : 'text-xs font-bold text-muted-foreground'}>
+        {t('allowedDateRangeMessage', {
+          range: `${effectiveAllowedRange.from} - ${effectiveAllowedRange.to}`,
+        })}
+      </p>
 
       {rows.length ? (
         <div className="space-y-2">

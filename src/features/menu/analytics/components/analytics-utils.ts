@@ -1,7 +1,7 @@
 import type { AnalyticsSummary, LocalizedValue } from '@/lib/api';
 import { textForLocale } from '@/lib/localized-text';
 
-export type Period = '7d' | '30d';
+export type Period = '7d' | '30d' | 'custom';
 
 export type AnalyticsChartDatum = {
   label: string;
@@ -27,6 +27,10 @@ export function percent(value: number) {
 
 export function changeCopy(change: number, period: Period) {
   const sign = change > 0 ? '+' : '';
+
+  if (period === 'custom') {
+    return `${sign}${change}% vs previous range`;
+  }
 
   return `${sign}${change}% vs previous ${period}`;
 }

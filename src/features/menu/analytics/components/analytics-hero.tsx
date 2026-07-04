@@ -12,6 +12,11 @@ export function AnalyticsHero({
   locale,
   period,
   onPeriodChange,
+  fromDate,
+  toDate,
+  minDate,
+  maxDate,
+  onDateRangeChange,
   labels,
 }: {
   selectedBranchId: string;
@@ -19,11 +24,18 @@ export function AnalyticsHero({
   branches: BranchOption[];
   locale: string;
   period: Period;
-  onPeriodChange: (period: Period) => void;
+  onPeriodChange: (period: Exclude<Period, 'custom'>) => void;
+  fromDate: string;
+  toDate: string;
+  minDate?: string;
+  maxDate?: string;
+  onDateRangeChange: (from: string, to: string) => void;
   labels: {
     allBranches: string;
     branchFilter: string;
     analytics: string;
+    fromDate: string;
+    toDate: string;
   };
 }) {
   return (
@@ -33,7 +45,7 @@ export function AnalyticsHero({
         icon={<Sparkles className="size-5 text-teal-700" />}
         title={labels.analytics}
       >
-        <div className="flex flex-col gap-2 sm:flex-row">
+        <div className="flex w-full flex-col gap-2 lg:w-auto lg:flex-row lg:items-end">
           <div className="flex h-12 rounded-3xl border border-white/70 bg-white/80 p-1 shadow-sm">
             {(['7d', '30d'] as const).map((item) => (
               <button
@@ -59,6 +71,30 @@ export function AnalyticsHero({
             includeAll
             allLabel={labels.allBranches}
           />
+          <div className="grid min-w-0 gap-2 sm:grid-cols-2 lg:w-[360px]">
+            <label className="min-w-0 space-y-1">
+              <span className="text-xs font-black text-stone-600">{labels.fromDate}</span>
+              <input
+                className="h-10 w-full min-w-0 rounded-2xl border border-teal-100 bg-white/95 px-3 text-xs font-black text-stone-800 shadow-sm outline-none focus:border-primary"
+                type="date"
+                value={fromDate}
+                min={minDate}
+                max={maxDate}
+                onChange={(event) => onDateRangeChange(event.target.value, toDate)}
+              />
+            </label>
+            <label className="min-w-0 space-y-1">
+              <span className="text-xs font-black text-stone-600">{labels.toDate}</span>
+              <input
+                className="h-10 w-full min-w-0 rounded-2xl border border-teal-100 bg-white/95 px-3 text-xs font-black text-stone-800 shadow-sm outline-none focus:border-primary"
+                type="date"
+                value={toDate}
+                min={minDate}
+                max={maxDate}
+                onChange={(event) => onDateRangeChange(fromDate, event.target.value)}
+              />
+            </label>
+          </div>
         </div>
       </SectionTitle>
     </section>

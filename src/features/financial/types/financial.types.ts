@@ -6,6 +6,8 @@ export type FinanceAllowance = {
   canUseFinance: boolean;
   canUseAdvancedFinanceAnalytics: boolean;
   historyMonths: 3 | 12;
+  allowedFrom: string;
+  allowedTo: string;
   subscriptionStatus: SubscriptionStatus;
   plan: MenuPlanCode;
 };

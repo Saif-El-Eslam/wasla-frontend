@@ -136,7 +136,7 @@ export function useRegenerateBranchQr(branchId: string) {
   });
 }
 
-export function useAnalyticsSummary(options: { period: '7d' | '30d'; branchId?: string }) {
+export function useAnalyticsSummary(options: { period?: '7d' | '30d'; from?: string; to?: string; branchId?: string }) {
   const locale = useLocale();
 
   return useQuery({

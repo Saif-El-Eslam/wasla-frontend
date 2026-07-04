@@ -28,9 +28,7 @@ function zonedParts(date: Date, timeZone?: string) {
     minute: '2-digit',
     second: '2-digit',
   });
-  const parts = Object.fromEntries(
-    formatter.formatToParts(date).map((part) => [part.type, part.value]),
-  );
+  const parts = Object.fromEntries(formatter.formatToParts(date).map((part) => [part.type, part.value]));
 
   return {
     year: Number(parts.year),
@@ -71,7 +69,8 @@ function zonedDateTimeToUtc(
   let utcMs = Date.UTC(year, month - 1, day, hour, minute, second, millisecond);
 
   for (let index = 0; index < 3; index += 1) {
-    utcMs = Date.UTC(year, month - 1, day, hour, minute, second, millisecond) -
+    utcMs =
+      Date.UTC(year, month - 1, day, hour, minute, second, millisecond) -
       timeZoneOffsetMs(new Date(utcMs), zone);
   }
 
@@ -118,6 +117,61 @@ export function permittedFromDateInTimeZone(months: number, timeZone?: string) {
 
   date.setMonth(date.getMonth() - months);
   return `${date.getFullYear()}-${padDatePart(date.getMonth() + 1)}-${padDatePart(date.getDate())}`;
+}
+
+export function daysAgoDateInputInTimeZone(days: number, timeZone?: string) {
+  const parts = zonedParts(new Date(), timeZone);
+  const date = new Date(parts.year, parts.month - 1, parts.day);
+
+  date.setDate(date.getDate() - days);
+  return `${date.getFullYear()}-${padDatePart(date.getMonth() + 1)}-${padDatePart(date.getDate())}`;
+}
+
+export function allowedDateRangeFromIso(
+  allowedFrom?: string | Date,
+  allowedTo?: string | Date,
+  timeZone?: string,
+) {
+  return {
+    from: allowedFrom ? dateInputValueInTimeZone(new Date(allowedFrom), timeZone) : undefined,
+    to: allowedTo
+      ? dateInputValueInTimeZone(new Date(allowedTo), timeZone)
+      : dateInputValueInTimeZone(new Date(), timeZone),
+  };
+}
+
+export function rollingAllowedDateRange(months: number, timeZone?: string) {
+  return {
+    from: permittedFromDateInTimeZone(months, timeZone),
+    to: dateInputValueInTimeZone(new Date(), timeZone),
+  };
+}
+
+export function clampDateInputToRange(value: string, allowedFrom?: string, allowedTo?: string) {
+  if (allowedFrom && value < allowedFrom) {
+    return { value: allowedFrom, clamped: true };
+  }
+
+  if (allowedTo && value > allowedTo) {
+    return { value: allowedTo, clamped: true };
+  }
+
+  return { value, clamped: false };
+}
+
+export function clampDateRangeInputs(from: string, to: string, allowedFrom?: string, allowedTo?: string) {
+  const clampedFrom = clampDateInputToRange(from, allowedFrom, allowedTo);
+  const clampedTo = clampDateInputToRange(to, allowedFrom, allowedTo);
+  let nextFrom = clampedFrom.value;
+  const nextTo = clampedTo.value;
+  let clamped = clampedFrom.clamped || clampedTo.clamped;
+
+  if (nextFrom > nextTo) {
+    nextFrom = nextTo;
+    clamped = true;
+  }
+
+  return { from: nextFrom, to: nextTo, clamped };
 }
 
 export function currentMonthStartDateInTimeZone(timeZone?: string) {

@@ -5,7 +5,7 @@ import { Landmark, ListTree, PlusCircle, ReceiptText, WalletCards } from 'lucide
 import { useTranslations } from 'next-intl';
 import { Badge, SectionTitle, TabLoader } from '@/components/ui/dashboard-ui';
 import { useMe } from '@/features/auth/hooks/use-me';
-import type { LocalizedValue } from '@/lib/api';
+import type { BranchOption } from '@/lib/api';
 import { FinanceLockedState } from './finance-locked-state';
 import { FinanceSummaryCards } from './finance-summary-cards';
 import { AddTransactionPanel } from './add-transaction-panel';
@@ -102,13 +102,10 @@ export function FinancialLaunchpadTab({ locale, currency }: { locale: string; cu
 
   const activeCards = cards.filter((card) => !card.adminOnly || isAdmin);
   const panelTitle = renderedPanel ? (cards.find((card) => card.id === renderedPanel)?.title ?? '') : '';
-  const branches = (dashboard.data?.dashboard.branches ?? []) as Array<{
-    id: string;
-    name: LocalizedValue;
-    slug: string;
-    active: boolean;
-    isMain?: boolean;
-  }>;
+  const branches = (dashboard.data?.dashboard.branches ?? []).map((branch) => ({
+    ...branch,
+    isMain: Boolean(branch.isMain),
+  })) satisfies BranchOption[];
 
   return (
     <div className="space-y-5">
@@ -156,7 +153,9 @@ export function FinancialLaunchpadTab({ locale, currency }: { locale: string; cu
           {renderedPanel === 'transactions' ? (
             <TransactionsPanel locale={locale} currency={currency} timeZone={timeZone} />
           ) : null}
-          {renderedPanel === 'reports' ? <ReportsPanel locale={locale} currency={currency} /> : null}
+          {renderedPanel === 'reports' ? (
+            <ReportsPanel branches={branches} locale={locale} currency={currency} />
+          ) : null}
           {renderedPanel === 'categories' ? <CategoriesPanel locale={locale} /> : null}
           {renderedPanel === 'paymentMethods' ? <PaymentMethodsPanel locale={locale} /> : null}
         </FinancialHubDrawer>

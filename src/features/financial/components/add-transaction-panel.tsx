@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { PrimaryButton, SecondaryButton, cx } from '@/components/ui/dashboard-ui';
 import { toast } from '@/components/ui/toast-store';
 import { readError } from '@/features/dashboard/utils/dashboard-utils';
+import { dateTimeInputToUtcIso, dateTimeInputValueInTimeZone } from '@/lib/date';
 import type { LocalizedValue } from '@/lib/api';
 import { textForLocale } from '@/lib/localized-text';
 import {
@@ -14,7 +15,6 @@ import {
   useTransactionCategories,
 } from '../hooks/use-financial';
 import type { FinancialTransactionType } from '../types/financial.types';
-import { dateTimeInputToUtcIso, dateTimeInputValueInTimeZone } from '../utils/financial-date';
 
 const defaultPaymentMethodValue = '__default_payment_method__';
 
@@ -31,7 +31,9 @@ export function AddTransactionPanel({
 }) {
   const t = useTranslations('dashboard');
   const [type, setType] = useState<FinancialTransactionType>('OUT');
-  const [branchId, setBranchId] = useState(branches.find((branch) => branch.active)?.id ?? branches[0]?.id ?? '');
+  const [branchId, setBranchId] = useState(
+    branches.find((branch) => branch.active)?.id ?? branches[0]?.id ?? '',
+  );
   const [categoryId, setCategoryId] = useState('');
   const [paymentMethodId, setPaymentMethodId] = useState(defaultPaymentMethodValue);
   const [amount, setAmount] = useState('');
@@ -42,6 +44,7 @@ export function AddTransactionPanel({
   const mutation = useCreateFinancialTransaction();
   const categoryOptions = categories.data?.categories ?? [];
   const methodOptions = paymentMethods.data?.paymentMethods ?? [];
+  const maxOccurredAt = dateTimeInputValueInTimeZone(new Date(), timeZone);
   const effectiveCategoryId = categoryOptions.some((category) => category.id === categoryId)
     ? categoryId
     : (categoryOptions[0]?.id ?? '');
@@ -50,10 +53,7 @@ export function AddTransactionPanel({
     : defaultPaymentMethodValue;
   const canSubmit = Boolean(branchId && effectiveCategoryId && amount);
 
-  const branchOptions = useMemo(
-    () => branches.filter((branch) => branch.active),
-    [branches],
-  );
+  const branchOptions = useMemo(() => branches.filter((branch) => branch.active), [branches]);
 
   const submit = (addAnother: boolean) => {
     if (!canSubmit) {
@@ -66,7 +66,9 @@ export function AddTransactionPanel({
         type,
         branchId,
         categoryId: effectiveCategoryId,
-        ...(selectedPaymentMethodId === defaultPaymentMethodValue ? {} : { paymentMethodId: selectedPaymentMethodId }),
+        ...(selectedPaymentMethodId === defaultPaymentMethodValue
+          ? {}
+          : { paymentMethodId: selectedPaymentMethodId }),
         amount: Number(amount),
         occurredAt: dateTimeInputToUtcIso(occurredAt, timeZone),
         note: note.trim() || undefined,
@@ -98,7 +100,11 @@ export function AddTransactionPanel({
             type="button"
             className={cx(
               'h-11 rounded-xl text-sm font-black transition',
-              type === item ? (item === 'IN' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-red-600 text-white shadow-sm') : 'text-stone-600',
+              type === item
+                ? item === 'IN'
+                  ? 'bg-emerald-600 text-white shadow-sm'
+                  : 'bg-red-600 text-white shadow-sm'
+                : 'text-stone-600',
             )}
             onClick={() => {
               setType(item);
@@ -113,7 +119,11 @@ export function AddTransactionPanel({
       <div className="grid gap-3 lg:grid-cols-2">
         <label className="space-y-1.5">
           <span className="text-sm font-black text-stone-700">{t('branch')}</span>
-          <select className="h-11 w-full rounded-xl border border-border bg-white px-3 text-sm font-bold" value={branchId} onChange={(event) => setBranchId(event.target.value)}>
+          <select
+            className="h-11 w-full rounded-xl border border-border bg-white px-3 text-sm font-bold"
+            value={branchId}
+            onChange={(event) => setBranchId(event.target.value)}
+          >
             {branchOptions.map((branch) => (
               <option key={branch.id} value={branch.id}>
                 {textForLocale(branch.name, locale) || branch.slug}
@@ -123,9 +133,16 @@ export function AddTransactionPanel({
         </label>
         <label className="space-y-1.5">
           <span className="text-sm font-black text-stone-700">{t('category')}</span>
-          <select className="h-11 w-full rounded-xl border border-border bg-white px-3 text-sm font-bold" value={effectiveCategoryId} onChange={(event) => setCategoryId(event.target.value)} disabled={categories.isLoading || !categoryOptions.length}>
+          <select
+            className="h-11 w-full rounded-xl border border-border bg-white px-3 text-sm font-bold"
+            value={effectiveCategoryId}
+            onChange={(event) => setCategoryId(event.target.value)}
+            disabled={categories.isLoading || !categoryOptions.length}
+          >
             {categories.isLoading ? <option value="">{t('loadingWorkspace')}</option> : null}
-            {!categories.isLoading && !categoryOptions.length ? <option value="">{t('noFinanceCategories')}</option> : null}
+            {!categories.isLoading && !categoryOptions.length ? (
+              <option value="">{t('noFinanceCategories')}</option>
+            ) : null}
             {categoryOptions.map((category) => (
               <option key={category.id} value={category.id}>
                 {textForLocale(category.name, locale)}
@@ -135,7 +152,12 @@ export function AddTransactionPanel({
         </label>
         <label className="space-y-1.5">
           <span className="text-sm font-black text-stone-700">{t('paymentMethod')}</span>
-          <select className="h-11 w-full rounded-xl border border-border bg-white px-3 text-sm font-bold" value={selectedPaymentMethodId} onChange={(event) => setPaymentMethodId(event.target.value)} disabled={paymentMethods.isLoading}>
+          <select
+            className="h-11 w-full rounded-xl border border-border bg-white px-3 text-sm font-bold"
+            value={selectedPaymentMethodId}
+            onChange={(event) => setPaymentMethodId(event.target.value)}
+            disabled={paymentMethods.isLoading}
+          >
             <option value={defaultPaymentMethodValue}>
               {paymentMethods.isLoading ? t('loadingWorkspace') : t('defaultPaymentMethod')}
             </option>
@@ -148,15 +170,41 @@ export function AddTransactionPanel({
         </label>
         <label className="space-y-1.5">
           <span className="text-sm font-black text-stone-700">{t('amount')}</span>
-          <input className="h-11 w-full rounded-xl border border-border bg-white px-3 text-sm font-bold" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0.00" />
+          <input
+            className="h-11 w-full rounded-xl border border-border bg-white px-3 text-sm font-bold"
+            inputMode="decimal"
+            value={amount}
+            onChange={(event) => {
+              const value = event.target.value;
+
+              // Allow empty string (for deleting) or positive decimal numbers
+              if (/^\d*\.?\d*$/.test(value)) {
+                setAmount(value);
+              }
+            }}
+            placeholder="0.00"
+          />
         </label>
         <label className="space-y-1.5">
           <span className="text-sm font-black text-stone-700">{t('date')}</span>
-          <input className="h-11 w-full rounded-xl border border-border bg-white px-3 text-sm font-bold" type="datetime-local" value={occurredAt} onChange={(event) => setOccurredAt(event.target.value)} />
+          <input
+            className="h-11 w-full min-w-0 rounded-xl border border-border bg-white px-3 text-sm font-bold"
+            type="datetime-local"
+            value={occurredAt}
+            max={maxOccurredAt}
+            onChange={(event) =>
+              setOccurredAt(event.target.value > maxOccurredAt ? maxOccurredAt : event.target.value)
+            }
+          />
         </label>
         <label className="space-y-1.5 lg:col-span-2">
           <span className="text-sm font-black text-stone-700">{t('noteOptional')}</span>
-          <textarea className="min-h-24 w-full rounded-xl border border-border bg-white px-3 py-2 text-sm font-bold outline-none focus:border-primary" value={note} onChange={(event) => setNote(event.target.value)} maxLength={500} />
+          <textarea
+            className="min-h-24 w-full rounded-xl border border-border bg-white px-3 py-2 text-sm font-bold outline-none focus:border-primary"
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+            maxLength={500}
+          />
         </label>
       </div>
 

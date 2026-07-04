@@ -470,8 +470,17 @@ export type BranchQrResponse = {
 };
 
 export type AnalyticsSummary = {
-  period: '7d' | '30d';
+  period: '7d' | '30d' | '90d' | 'all' | 'custom';
   branchId: string | null;
+  filters: {
+    from: string;
+    to: string;
+    clamped: boolean;
+  };
+  allowedRange: {
+    from: string;
+    to: string;
+  };
   metrics: Record<
     'venueViews' | 'views' | 'categoryViews' | 'itemViews' | 'scans' | 'whatsapp' | 'calls' | 'maps',
     {

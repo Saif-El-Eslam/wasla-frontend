@@ -4,7 +4,15 @@ import { useMemo, useState } from 'react';
 import { Building2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { EmptyState, TabLoader } from '@/components/ui/dashboard-ui';
-import { useAnalyticsSummary, useBranchOptions } from '@/features/venue/hooks/use-venue';
+import { useAnalyticsSummary, useBranchOptions, useVenue } from '@/features/venue/hooks/use-venue';
+import {
+  allowedDateRangeFromIso,
+  clampDateRangeInputs,
+  dateInputValueInTimeZone,
+  daysAgoDateInputInTimeZone,
+  endOfDateInputInTimeZone,
+  startOfDateInputInTimeZone,
+} from '@/lib/date';
 import { textForLocale } from '@/lib/localized-text';
 import { AnalyticsHero } from './analytics-hero';
 import { AnalyticsMetricGrid } from './analytics-metric-grid';
@@ -28,15 +36,42 @@ export function AnalyticsTab({
 }) {
   const t = useTranslations('dashboard');
   const [period, setPeriod] = useState<Period>('7d');
+  const venue = useVenue();
+  const timeZone = venue.data?.timezone;
+  const [fromDate, setFromDate] = useState(() => daysAgoDateInputInTimeZone(7, timeZone));
+  const [toDate, setToDate] = useState(() => dateInputValueInTimeZone(new Date(), timeZone));
+  const [rangeWasClamped, setRangeWasClamped] = useState(false);
   const branchOptions = useBranchOptions();
   const branches = branchOptions.data?.branches ?? [];
   const analytics = useAnalyticsSummary({
-    period,
+    period: period === 'custom' ? undefined : period,
+    from: startOfDateInputInTimeZone(fromDate, timeZone),
+    to: endOfDateInputInTimeZone(toDate, timeZone),
     branchId: selectedBranchId === 'all' ? undefined : selectedBranchId,
   });
   const summary = analytics.data;
+  const allowedRange = allowedDateRangeFromIso(
+    summary?.allowedRange.from,
+    summary?.allowedRange.to,
+    timeZone,
+  );
   const metrics = summary?.metrics;
-  const series = summary?.series ?? [];
+  const series = useMemo(() => summary?.series ?? [], [summary?.series]);
+
+  const updateRange = (nextFrom: string, nextTo: string, nextPeriod: Period = 'custom') => {
+    const range = clampDateRangeInputs(nextFrom, nextTo, allowedRange.from, allowedRange.to);
+
+    setPeriod(nextPeriod);
+    setRangeWasClamped(range.clamped);
+    setFromDate(range.from);
+    setToDate(range.to);
+  };
+
+  const updatePeriod = (nextPeriod: Exclude<Period, 'custom'>) => {
+    const days = nextPeriod === '30d' ? 30 : 7;
+
+    updateRange(daysAgoDateInputInTimeZone(days, timeZone), dateInputValueInTimeZone(new Date(), timeZone), nextPeriod);
+  };
 
   const viewTotal = metricCurrent(metrics, 'views');
   const scanTotal = metricCurrent(metrics, 'scans');
@@ -117,7 +152,7 @@ export function AnalyticsTab({
     [contactTotal, metrics, t],
   );
 
-  if (branchOptions.isLoading || analytics.isLoading) {
+  if (venue.isLoading || branchOptions.isLoading || analytics.isLoading) {
     return <TabLoader label={t('loadingWorkspace')} />;
   }
 
@@ -133,13 +168,25 @@ export function AnalyticsTab({
         branches={branches}
         locale={locale}
         period={period}
-        onPeriodChange={setPeriod}
+        onPeriodChange={updatePeriod}
+        fromDate={fromDate}
+        toDate={toDate}
+        minDate={allowedRange.from}
+        maxDate={allowedRange.to}
+        onDateRangeChange={updateRange}
         labels={{
           allBranches: t('allBranches'),
           branchFilter: t('branchFilter'),
           analytics: t('analytics'),
+          fromDate: t('fromDate'),
+          toDate: t('toDate'),
         }}
       />
+      <p className={rangeWasClamped || summary?.filters.clamped ? 'text-xs font-bold text-amber-700' : 'text-xs font-bold text-muted-foreground'}>
+        {t('allowedDateRangeMessage', {
+          range: `${allowedRange.from ?? fromDate} - ${allowedRange.to ?? toDate}`,
+        })}
+      </p>
 
       <AnalyticsMetricGrid
         labels={{

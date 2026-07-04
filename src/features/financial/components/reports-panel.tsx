@@ -3,7 +3,19 @@
 import { ArrowLeft, Download, Share2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { SecondaryButton, TabLoader, cx } from '@/components/ui/dashboard-ui';
+import { BranchSelect, SecondaryButton, TabLoader, cx } from '@/components/ui/dashboard-ui';
+import type { BranchOption } from '@/lib/api';
+import {
+  allowedDateRangeFromIso,
+  calendarMonthEndDateInput,
+  calendarWeekRangeDateInputs,
+  clampDateRangeInputs,
+  dateInputValueInTimeZone,
+  endOfDateInputInTimeZone,
+  permittedFromDateInTimeZone,
+  rollingAllowedDateRange,
+  startOfDateInputInTimeZone,
+} from '@/lib/date';
 import { textForLocale } from '@/lib/localized-text';
 import { useFinanceAccess, useFinancialAnalytics, useFinancialReport } from '../hooks/use-financial';
 import type { FinancialFilters, FinancialReportResponse } from '../types/financial.types';
@@ -16,14 +28,6 @@ import {
   shareReportCsv,
   type ReportExportGroup,
 } from '../utils/financial-export';
-import {
-  calendarMonthEndDateInput,
-  calendarWeekRangeDateInputs,
-  dateInputValueInTimeZone,
-  endOfDateInputInTimeZone,
-  permittedFromDateInTimeZone,
-  startOfDateInputInTimeZone,
-} from '../utils/financial-date';
 import { formatFinanceAmount, summaryTone } from '../utils/financial-format';
 import { MetricTile } from './finance-ui';
 
@@ -54,26 +58,49 @@ function parseWeekKey(key: string, timeZone?: string) {
   };
 }
 
-export function ReportsPanel({ locale, currency }: { locale: string; currency: string }) {
+export function ReportsPanel({
+  branches,
+  currency,
+  locale,
+}: {
+  branches: BranchOption[];
+  currency: string;
+  locale: string;
+}) {
   const t = useTranslations('dashboard');
   const access = useFinanceAccess();
   const timeZone = access.data?.timeZone;
   const historyMonths = access.data?.allowance.historyMonths ?? 3;
+  const allowedRange = allowedDateRangeFromIso(
+    access.data?.allowance.allowedFrom,
+    access.data?.allowance.allowedTo,
+    timeZone,
+  );
+  const fallbackAllowedRange = rollingAllowedDateRange(historyMonths, timeZone);
+  const effectiveAllowedRange = {
+    from: allowedRange.from ?? fallbackAllowedRange.from,
+    to: allowedRange.to ?? fallbackAllowedRange.to,
+  };
   const [groupBy, setGroupBy] = useState<ReportGroupBy>('all');
   const [fromDate, setFromDate] = useState(() => permittedFromDateInTimeZone(3, timeZone));
   const [toDate, setToDate] = useState(() => dateInputValueInTimeZone(new Date(), timeZone));
+  const [branchId, setBranchId] = useState('all');
   const [visibleCount, setVisibleCount] = useState(pageSize);
   const [selectedGroup, setSelectedGroup] = useState<ReportExportGroup | null>(null);
   const [rangeTouched, setRangeTouched] = useState(false);
+  const [rangeWasClamped, setRangeWasClamped] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
-  const effectiveFromDate = rangeTouched ? fromDate : permittedFromDateInTimeZone(historyMonths, timeZone);
-  const effectiveToDate = rangeTouched ? toDate : dateInputValueInTimeZone(new Date(), timeZone);
+  const defaultFromDate = effectiveAllowedRange.from;
+  const defaultToDate = effectiveAllowedRange.to;
+  const effectiveFromDate = rangeTouched ? fromDate : defaultFromDate;
+  const effectiveToDate = rangeTouched ? toDate : defaultToDate;
   const baseFilters = useMemo<FinancialFilters>(
     () => ({
+      branchId,
       from: startOfDateInputInTimeZone(effectiveFromDate, timeZone),
       to: endOfDateInputInTimeZone(effectiveToDate, timeZone),
     }),
-    [effectiveFromDate, effectiveToDate, timeZone],
+    [branchId, effectiveFromDate, effectiveToDate, timeZone],
   );
   const analyticsGroupBy = groupBy === 'all' ? 'day' : groupBy;
   const reportsReady = Boolean(access.data);
@@ -140,6 +167,17 @@ export function ReportsPanel({ locale, currency }: { locale: string; currency: s
       overviewSections(groups, locale, currency),
     );
 
+  const updateRange = (nextFrom: string, nextTo: string) => {
+    const range = clampDateRangeInputs(nextFrom, nextTo, effectiveAllowedRange.from, effectiveAllowedRange.to);
+
+    setRangeTouched(true);
+    setRangeWasClamped(range.clamped);
+    setFromDate(range.from);
+    setToDate(range.to);
+    setVisibleCount(pageSize);
+    setSelectedGroup(null);
+  };
+
   if (access.isLoading || overviewReport.isLoading || (groupBy !== 'all' && analytics.isLoading)) {
     return <TabLoader label={t('loadingWorkspace')} />;
   }
@@ -195,36 +233,54 @@ export function ReportsPanel({ locale, currency }: { locale: string; currency: s
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="space-y-1.5">
+      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+        <label className="min-w-0 space-y-1.5">
           <span className="text-sm font-black text-stone-700">{t('fromDate')}</span>
           <input
-            className="h-11 w-full rounded-xl border border-border bg-white px-3 text-sm font-bold"
+            className="h-11 w-full min-w-0 rounded-xl border border-border bg-white px-3 text-sm font-bold"
             type="date"
             value={effectiveFromDate}
+            min={effectiveAllowedRange.from}
+            max={effectiveAllowedRange.to}
             onChange={(event) => {
-              setRangeTouched(true);
-              setFromDate(event.target.value);
-              setVisibleCount(pageSize);
-              setSelectedGroup(null);
+              updateRange(event.target.value, effectiveToDate);
             }}
           />
         </label>
-        <label className="space-y-1.5">
+        <label className="min-w-0 space-y-1.5">
           <span className="text-sm font-black text-stone-700">{t('toDate')}</span>
           <input
-            className="h-11 w-full rounded-xl border border-border bg-white px-3 text-sm font-bold"
+            className="h-11 w-full min-w-0 rounded-xl border border-border bg-white px-3 text-sm font-bold"
             type="date"
             value={effectiveToDate}
+            min={effectiveAllowedRange.from}
+            max={effectiveAllowedRange.to}
             onChange={(event) => {
-              setRangeTouched(true);
-              setToDate(event.target.value);
-              setVisibleCount(pageSize);
-              setSelectedGroup(null);
+              updateRange(effectiveFromDate, event.target.value);
             }}
           />
         </label>
+        <div className="min-w-0 space-y-1.5 sm:min-w-[230px]">
+          <span className="text-sm font-black text-stone-700">{t('branchFilter')}</span>
+          <BranchSelect
+            branches={branches}
+            value={branchId}
+            onChange={(value) => {
+              setBranchId(value);
+              setVisibleCount(pageSize);
+              setSelectedGroup(null);
+            }}
+            locale={locale}
+            includeAll
+            allLabel={t('allBranches')}
+          />
+        </div>
       </div>
+      <p className={cx('text-xs font-bold', rangeWasClamped ? 'text-amber-700' : 'text-muted-foreground')}>
+        {t('allowedDateRangeMessage', {
+          range: `${effectiveAllowedRange.from} - ${effectiveAllowedRange.to}`,
+        })}
+      </p>
 
       {overviewReport.data?.report.summary ? (
         <div className="grid grid-cols-3 gap-2 sm:gap-3">
