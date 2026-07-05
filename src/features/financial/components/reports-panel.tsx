@@ -3,6 +3,7 @@
 import { ArrowLeft, Download, Share2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useQueryClient } from '@tanstack/react-query';
 import { BranchSelect, SecondaryButton, TabLoader, cx } from '@/components/ui/dashboard-ui';
 import type { BranchOption } from '@/lib/api';
 import {
@@ -17,12 +18,17 @@ import {
   startOfDateInputInTimeZone,
 } from '@/lib/date';
 import { textForLocale } from '@/lib/localized-text';
-import { useFinanceAccess, useFinancialAnalytics, useFinancialReport } from '../hooks/use-financial';
+import { financialService } from '../api/financial.api';
+import {
+  financialQueryKeys,
+  useFinanceAccess,
+  useFinancialAnalytics,
+  useFinancialReport,
+} from '../hooks/use-financial';
 import type { FinancialFilters, FinancialReportResponse } from '../types/financial.types';
 import {
   downloadReportCsv,
   groupLabel,
-  groupSections,
   overviewSections,
   reportSections,
   shareReportCsv,
@@ -39,31 +45,32 @@ type ReportData = FinancialReportResponse['report'];
 const pageSize = 8;
 
 function csvLabels(locale: string, t: ReturnType<typeof useTranslations>): ReportCsvLabels {
-  const local = locale === 'ar'
-    ? {
-        expenses: 'المصروفات',
-        group: 'المجموعة',
-        groupSummary: 'ملخص المجموعة',
-        metric: 'المؤشر',
-        name: 'الاسم',
-        overview: 'نظرة عامة',
-        summary: 'الملخص',
-        total: 'الإجمالي',
-        type: 'النوع',
-        value: 'القيمة',
-      }
-    : {
-        expenses: 'Expenses',
-        group: 'Group',
-        groupSummary: 'Group summary',
-        metric: 'Metric',
-        name: 'Name',
-        overview: 'Overview',
-        summary: 'Summary',
-        total: 'Total',
-        type: 'Type',
-        value: 'Value',
-      };
+  const local =
+    locale === 'ar'
+      ? {
+          expenses: 'المصروفات',
+          group: 'المجموعة',
+          groupSummary: 'ملخص المجموعة',
+          metric: 'المؤشر',
+          name: 'الاسم',
+          overview: 'نظرة عامة',
+          summary: 'الملخص',
+          total: 'الإجمالي',
+          type: 'النوع',
+          value: 'القيمة',
+        }
+      : {
+          expenses: 'Expenses',
+          group: 'Group',
+          groupSummary: 'Group summary',
+          metric: 'Metric',
+          name: 'Name',
+          overview: 'Overview',
+          summary: 'Summary',
+          total: 'Total',
+          type: 'Type',
+          value: 'Value',
+        };
 
   return {
     branch: t('branch'),
@@ -111,6 +118,7 @@ export function ReportsPanel({
   locale: string;
 }) {
   const t = useTranslations('dashboard');
+  const queryClient = useQueryClient();
   const access = useFinanceAccess();
   const timeZone = access.data?.timeZone;
   const allowedRange = allowedDateRangeFromIso(
@@ -131,6 +139,7 @@ export function ReportsPanel({
   const [branchId, setBranchId] = useState('all');
   const [visibleCount, setVisibleCount] = useState(pageSize);
   const [selectedGroup, setSelectedGroup] = useState<ReportExportGroup | null>(null);
+  const [exportingGroupKey, setExportingGroupKey] = useState<string | null>(null);
   const [rangeTouched, setRangeTouched] = useState(false);
   const [rangeWasClamped, setRangeWasClamped] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
@@ -149,21 +158,26 @@ export function ReportsPanel({
   );
   const analyticsGroupBy = groupBy === 'all' ? 'day' : groupBy;
   const reportsReady = Boolean(access.data);
-  const analytics = useFinancialAnalytics({ ...baseFilters, groupBy: analyticsGroupBy }, reportsReady && groupBy !== 'all');
+  const analytics = useFinancialAnalytics(
+    { ...baseFilters, groupBy: analyticsGroupBy },
+    reportsReady && groupBy !== 'all',
+  );
   const overviewReport = useFinancialReport(baseFilters, reportsReady);
   const groups = useMemo<ReportExportGroup[]>(() => {
     if (groupBy === 'all') {
       const summary = overviewReport.data?.report.summary;
 
       return summary
-        ? [{
-            key: 'all',
-            label: t('allPermittedPeriod'),
-            income: summary.income,
-            expenses: summary.expenses,
-            net: summary.net,
-            count: summary.count,
-          }]
+        ? [
+            {
+              key: 'all',
+              label: t('allPermittedPeriod'),
+              income: summary.income,
+              expenses: summary.expenses,
+              net: summary.net,
+              count: summary.count,
+            },
+          ]
         : [];
     }
 
@@ -212,8 +226,65 @@ export function ReportsPanel({
       overviewSections(groups, locale, currency, labels),
     );
 
+  const groupDetailReport = async (group: ReportExportGroup) => {
+    const filters = groupFilters(groupBy, group, baseFilters, timeZone);
+
+    if (!filters) {
+      return null;
+    }
+
+    return queryClient.fetchQuery({
+      queryKey: [...financialQueryKeys.report(filters), locale] as const,
+      queryFn: () => financialService.report(filters),
+      staleTime: 60 * 1000,
+    });
+  };
+
+  const downloadGroupDetailsCsv = async (group: ReportExportGroup) => {
+    setExportingGroupKey(group.key);
+    try {
+      const detail = await groupDetailReport(group);
+
+      if (!detail) {
+        return;
+      }
+
+      downloadReportCsv(
+        `financial-report-${group.key}-details.csv`,
+        groupLabel(group, locale),
+        reportSections(detail.report, locale, currency, labels),
+      );
+    } finally {
+      setExportingGroupKey(null);
+    }
+  };
+
+  const shareGroupDetailsCsv = async (group: ReportExportGroup) => {
+    setExportingGroupKey(group.key);
+    try {
+      const detail = await groupDetailReport(group);
+
+      if (!detail) {
+        return;
+      }
+
+      await shareReportCsv(
+        `financial-report-${group.key}-details.csv`,
+        groupLabel(group, locale),
+        reportSections(detail.report, locale, currency, labels),
+      );
+    } finally {
+      setExportingGroupKey(null);
+    }
+  };
+
   const updateRange = (nextFrom: string, nextTo: string) => {
-    const range = clampDateRangeInputs(nextFrom, nextTo, effectiveAllowedRange.from, effectiveAllowedRange.to);
+    const range = clampDateRangeInputs(
+      nextFrom,
+      nextTo,
+      effectiveAllowedRange.from,
+      effectiveAllowedRange.to,
+    );
 
     setRangeTouched(true);
     setRangeWasClamped(range.clamped);
@@ -252,7 +323,9 @@ export function ReportsPanel({
               type="button"
               className={cx(
                 'h-9 rounded-xl border px-3 text-xs font-black',
-                groupBy === item ? 'border-primary bg-teal-50 text-primary' : 'border-stone-200 bg-white text-stone-600',
+                groupBy === item
+                  ? 'border-primary bg-teal-50 text-primary'
+                  : 'border-stone-200 bg-white text-stone-600',
               )}
               onClick={() => {
                 setGroupBy(item);
@@ -330,63 +403,92 @@ export function ReportsPanel({
 
       {overviewReport.data?.report.summary ? (
         <div className="grid grid-cols-3 gap-2 sm:gap-3">
-          <MetricTile title={t('income')} value={formatFinanceAmount(overviewReport.data.report.summary.income, currency)} tone="text-emerald-700" />
-          <MetricTile title={t('expense')} value={formatFinanceAmount(overviewReport.data.report.summary.expenses, currency)} tone="text-red-700" />
-          <MetricTile title={t('net')} value={formatFinanceAmount(overviewReport.data.report.summary.net, currency)} tone={summaryTone(overviewReport.data.report.summary)} />
+          <MetricTile
+            title={t('income')}
+            value={formatFinanceAmount(overviewReport.data.report.summary.income, currency)}
+            tone="text-emerald-700"
+          />
+          <MetricTile
+            title={t('expense')}
+            value={formatFinanceAmount(overviewReport.data.report.summary.expenses, currency)}
+            tone="text-red-700"
+          />
+          <MetricTile
+            title={t('net')}
+            value={formatFinanceAmount(overviewReport.data.report.summary.net, currency)}
+            tone={summaryTone(overviewReport.data.report.summary)}
+          />
         </div>
       ) : null}
 
       <div className="grid gap-3 lg:grid-cols-2">
-        {visibleGroups.map((group) => (
-          <div
-            key={group.key}
-            className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm transition hover:border-teal-200 hover:shadow-md"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <button type="button" className="min-w-0 flex-1 text-start" onClick={() => setSelectedGroup(group)}>
-                <p className="font-black text-stone-950">{groupLabel(group, locale)}</p>
-                <p className="mt-1 text-xs font-bold text-muted-foreground">{group.count} {t('transactions')}</p>
-              </button>
-              <div className="flex gap-2">
+        {visibleGroups.map((group) => {
+          const exporting = exportingGroupKey === group.key;
+
+          return (
+            <div
+              key={group.key}
+              className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm transition hover:border-teal-200 hover:shadow-md"
+            >
+              <div className="flex items-start justify-between gap-3">
                 <button
                   type="button"
-                  className="flex size-9 items-center justify-center rounded-xl border border-stone-200 text-stone-500"
-                  onClick={() =>
-                    downloadReportCsv(
-                      `financial-report-${group.key}.csv`,
-                      groupLabel(group, locale),
-                      groupSections(group, currency, labels),
-                    )
-                  }
+                  className="min-w-0 flex-1 text-start"
+                  onClick={() => setSelectedGroup(group)}
                 >
-                  <Download className="size-4" />
+                  <p className="font-black text-stone-950">{groupLabel(group, locale)}</p>
+                  <p className="mt-1 text-xs font-bold text-muted-foreground">
+                    {group.count} {t('transactions')}
+                  </p>
                 </button>
-                <button
-                  type="button"
-                  className="flex size-9 items-center justify-center rounded-xl border border-stone-200 text-stone-500"
-                  onClick={() =>
-                    shareReportCsv(
-                      `financial-report-${group.key}.csv`,
-                      groupLabel(group, locale),
-                      groupSections(group, currency, labels),
-                    )
-                  }
-                >
-                  <Share2 className="size-4" />
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    className="flex size-9 items-center justify-center rounded-xl border border-stone-200 text-stone-500"
+                    disabled={exporting}
+                    onClick={() => void downloadGroupDetailsCsv(group)}
+                  >
+                    <Download className="size-4" />
+                  </button>
+                  <button
+                    type="button"
+                    className="flex size-9 items-center justify-center rounded-xl border border-stone-200 text-stone-500"
+                    disabled={exporting}
+                    onClick={() => void shareGroupDetailsCsv(group)}
+                  >
+                    <Share2 className="size-4" />
+                  </button>
+                </div>
               </div>
+              <button
+                type="button"
+                className="mt-4 grid w-full grid-cols-3 gap-2 text-start text-xs font-black"
+                onClick={() => setSelectedGroup(group)}
+              >
+                <span className="rounded-xl bg-emerald-50 px-2 py-2 text-emerald-700">
+                  {formatFinanceAmount(group.income, currency)}
+                </span>
+                <span className="rounded-xl bg-red-50 px-2 py-2 text-red-700">
+                  {formatFinanceAmount(group.expenses, currency)}
+                </span>
+                <span
+                  className={cx(
+                    'rounded-xl bg-stone-50 px-2 py-2',
+                    group.net >= 0 ? 'text-emerald-700' : 'text-red-700',
+                  )}
+                >
+                  {formatFinanceAmount(group.net, currency)}
+                </span>
+              </button>
             </div>
-            <button type="button" className="mt-4 grid w-full grid-cols-3 gap-2 text-start text-xs font-black" onClick={() => setSelectedGroup(group)}>
-              <span className="rounded-xl bg-emerald-50 px-2 py-2 text-emerald-700">{formatFinanceAmount(group.income, currency)}</span>
-              <span className="rounded-xl bg-red-50 px-2 py-2 text-red-700">{formatFinanceAmount(group.expenses, currency)}</span>
-              <span className={cx('rounded-xl bg-stone-50 px-2 py-2', group.net >= 0 ? 'text-emerald-700' : 'text-red-700')}>{formatFinanceAmount(group.net, currency)}</span>
-            </button>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {!groups.length ? (
-        <p className="rounded-2xl border border-dashed border-stone-200 bg-white p-5 text-sm font-bold text-muted-foreground">{t('noReportResults')}</p>
+        <p className="rounded-2xl border border-dashed border-stone-200 bg-white p-5 text-sm font-bold text-muted-foreground">
+          {t('noReportResults')}
+        </p>
       ) : null}
       <div ref={loadMoreRef} className="h-6" />
     </div>
@@ -473,24 +575,14 @@ function ReportDetails({
         <div className="flex gap-2">
           <SecondaryButton
             onClick={() =>
-              downloadReportCsv(
-                `financial-report-${group.key}-details.csv`,
-                label,
-                detailSections,
-              )
+              downloadReportCsv(`financial-report-${group.key}-details.csv`, label, detailSections)
             }
           >
             <Download className="size-4" />
             CSV
           </SecondaryButton>
           <SecondaryButton
-            onClick={() =>
-              shareReportCsv(
-                `financial-report-${group.key}-details.csv`,
-                label,
-                detailSections,
-              )
-            }
+            onClick={() => shareReportCsv(`financial-report-${group.key}-details.csv`, label, detailSections)}
           >
             <Share2 className="size-4" />
             {t('share')}
@@ -499,16 +591,30 @@ function ReportDetails({
       </div>
 
       <section className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
-        <p className="text-xs font-black uppercase tracking-normal text-muted-foreground">{t('reportDetails')}</p>
+        <p className="text-xs font-black uppercase tracking-normal text-muted-foreground">
+          {t('reportDetails')}
+        </p>
         <h3 className="mt-1 text-lg font-black text-stone-950">{label}</h3>
       </section>
 
       {report ? (
         <>
           <div className="grid grid-cols-3 gap-2 sm:gap-3">
-            <MetricTile title={t('income')} value={formatFinanceAmount(report.summary.income, currency)} tone="text-emerald-700" />
-            <MetricTile title={t('expense')} value={formatFinanceAmount(report.summary.expenses, currency)} tone="text-red-700" />
-            <MetricTile title={t('net')} value={formatFinanceAmount(report.summary.net, currency)} tone={summaryTone(report.summary)} />
+            <MetricTile
+              title={t('income')}
+              value={formatFinanceAmount(report.summary.income, currency)}
+              tone="text-emerald-700"
+            />
+            <MetricTile
+              title={t('expense')}
+              value={formatFinanceAmount(report.summary.expenses, currency)}
+              tone="text-red-700"
+            />
+            <MetricTile
+              title={t('net')}
+              value={formatFinanceAmount(report.summary.net, currency)}
+              tone={summaryTone(report.summary)}
+            />
           </div>
           <DetailSection title={t('categoryReport')}>
             {report.byCategory.map((item) => (

@@ -46,6 +46,10 @@ export type ReportExportGroup = {
 
 type ReportData = FinancialReportResponse['report'];
 
+const arabicTextPattern = /[\u0600-\u06FF]/;
+const rightToLeftMark = '\u200F';
+const csvLineBreak = '\r\n';
+
 function downloadTextFile(filename: string, mimeType: string, content: string) {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
@@ -62,22 +66,60 @@ function csvCell(value: ExportCell) {
   return /[",\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }
 
-function sectionToCsv(section: ExportSection) {
+function csvDirectionCell(value: ExportCell, rtl: boolean): ExportCell {
+  if (typeof value !== 'string' || !rtl || !arabicTextPattern.test(value)) {
+    return value;
+  }
+
+  return `${rightToLeftMark}${value}`;
+}
+
+function rowToCsv(row: ExportRow, rtl: boolean) {
+  const cells = row.map((cell) => csvDirectionCell(cell, rtl));
+  const orderedCells = rtl ? cells.reverse() : cells;
+
+  return orderedCells.map(csvCell).join(',');
+}
+
+function sectionWidth(section: ExportSection) {
+  return Math.max(
+    section.headers?.length ?? 0,
+    ...section.rows.map((row) => row.length),
+    1,
+  );
+}
+
+function titleRow(title: string, rtl: boolean, width: number): ExportRow {
+  if (!rtl) {
+    return [title];
+  }
+
+  return [title, ...Array(Math.max(width - 1, 0)).fill('')];
+}
+
+function sectionToCsv(section: ExportSection, rtl: boolean) {
+  const width = sectionWidth(section);
   const rows: ExportRow[] = [
     [],
-    [`========== ${section.title.toUpperCase()} ==========`],
+    titleRow(`========== ${section.title.toUpperCase()} ==========`, rtl, width),
     ...(section.headers ? [section.headers] : []),
     ...section.rows,
   ];
 
-  return rows.map((row) => row.map(csvCell).join(',')).join('\n');
+  return rows.map((row) => rowToCsv(row, rtl)).join(csvLineBreak);
 }
 
 function reportCsvContent(title: string, sections: ExportSection[]) {
+  const rtl = arabicTextPattern.test(
+    [title, ...sections.flatMap((section) => [section.title, ...(section.headers ?? []), ...section.rows.flat()])]
+      .join(' '),
+  );
+  const width = Math.max(...sections.map(sectionWidth), 1);
+
   return `\uFEFF${[
-    [`========== ${title.toUpperCase()} ==========`].map(csvCell).join(','),
-    ...sections.map(sectionToCsv),
-  ].join('\n')}`;
+    rowToCsv(titleRow(`========== ${title.toUpperCase()} ==========`, rtl, width), rtl),
+    ...sections.map((section) => sectionToCsv(section, rtl)),
+  ].join(csvLineBreak)}`;
 }
 
 export function downloadReportCsv(filename: string, title: string, sections: ExportSection[]) {
