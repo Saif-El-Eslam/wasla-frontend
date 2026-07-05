@@ -312,6 +312,8 @@
     "viewPlans": "View plans",
     "financeActive": "Finance active",
     "historyMonths": "{count} months history",
+    "historyDays": "{count} days history",
+    "allTimeAnalytics": "All-time history",
     "addTransaction": "Add transaction",
     "addTransactionCardBody": "Record income or expenses in a few taps.",
     "transactions": "Transactions",

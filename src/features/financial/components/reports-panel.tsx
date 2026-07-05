@@ -11,9 +11,9 @@ import {
   calendarWeekRangeDateInputs,
   clampDateRangeInputs,
   dateInputValueInTimeZone,
+  daysAgoDateInputInTimeZone,
   endOfDateInputInTimeZone,
-  permittedFromDateInTimeZone,
-  rollingAllowedDateRange,
+  rollingAllowedDaysRange,
   startOfDateInputInTimeZone,
 } from '@/lib/date';
 import { textForLocale } from '@/lib/localized-text';
@@ -70,19 +70,20 @@ export function ReportsPanel({
   const t = useTranslations('dashboard');
   const access = useFinanceAccess();
   const timeZone = access.data?.timeZone;
-  const historyMonths = access.data?.allowance.historyMonths ?? 3;
   const allowedRange = allowedDateRangeFromIso(
     access.data?.allowance.allowedFrom,
     access.data?.allowance.allowedTo,
     timeZone,
   );
-  const fallbackAllowedRange = rollingAllowedDateRange(historyMonths, timeZone);
+  const fallbackAllowedRange = access.data?.allowance.allTimeHistory
+    ? { from: undefined, to: dateInputValueInTimeZone(new Date(), timeZone) }
+    : rollingAllowedDaysRange(access.data?.allowance.historyDays ?? 7, timeZone);
   const effectiveAllowedRange = {
     from: allowedRange.from ?? fallbackAllowedRange.from,
     to: allowedRange.to ?? fallbackAllowedRange.to,
   };
   const [groupBy, setGroupBy] = useState<ReportGroupBy>('all');
-  const [fromDate, setFromDate] = useState(() => permittedFromDateInTimeZone(3, timeZone));
+  const [fromDate, setFromDate] = useState(() => daysAgoDateInputInTimeZone(7, timeZone));
   const [toDate, setToDate] = useState(() => dateInputValueInTimeZone(new Date(), timeZone));
   const [branchId, setBranchId] = useState('all');
   const [visibleCount, setVisibleCount] = useState(pageSize);
@@ -90,8 +91,8 @@ export function ReportsPanel({
   const [rangeTouched, setRangeTouched] = useState(false);
   const [rangeWasClamped, setRangeWasClamped] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
-  const defaultFromDate = effectiveAllowedRange.from;
-  const defaultToDate = effectiveAllowedRange.to;
+  const defaultFromDate = effectiveAllowedRange.from ?? daysAgoDateInputInTimeZone(7, timeZone);
+  const defaultToDate = effectiveAllowedRange.to ?? dateInputValueInTimeZone(new Date(), timeZone);
   const effectiveFromDate = rangeTouched ? fromDate : defaultFromDate;
   const effectiveToDate = rangeTouched ? toDate : defaultToDate;
   const baseFilters = useMemo<FinancialFilters>(

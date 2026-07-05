@@ -312,6 +312,8 @@
     "viewPlans": "عرض الخطط",
     "financeActive": "الحسابات مفعلة",
     "historyMonths": "تاريخ {count} شهور",
+    "historyDays": "تاريخ {count} يوم",
+    "allTimeAnalytics": "كل التاريخ",
     "addTransaction": "إضافة معاملة",
     "addTransactionCardBody": "سجل إيراد أو مصروف في خطوات قليلة.",
     "transactions": "المعاملات",

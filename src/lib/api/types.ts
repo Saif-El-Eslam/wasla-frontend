@@ -625,7 +625,8 @@ export type TenantSubscriptionResponse = {
       customQrAssets: boolean;
       financeModule: boolean;
       financeAdvancedAnalytics: boolean;
-      financeHistoryMonths: number;
+      financeHistoryDays: number | null;
+      allTimeFinanceHistory: boolean;
     };
   };
   usage: {

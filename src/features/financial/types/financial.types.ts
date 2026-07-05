@@ -5,7 +5,8 @@ export type FinancialTransactionType = 'IN' | 'OUT';
 export type FinanceAllowance = {
   canUseFinance: boolean;
   canUseAdvancedFinanceAnalytics: boolean;
-  historyMonths: 3 | 12;
+  historyDays: number | null;
+  allTimeHistory: boolean;
   allowedFrom: string;
   allowedTo: string;
   subscriptionStatus: SubscriptionStatus;

@@ -12,7 +12,7 @@ import {
   currentMonthStartDateInTimeZone,
   dateInputValueInTimeZone,
   endOfDateInputInTimeZone,
-  rollingAllowedDateRange,
+  rollingAllowedDaysRange,
   startOfDateInputInTimeZone,
 } from '@/lib/date';
 import { textForLocale } from '@/lib/localized-text';
@@ -35,7 +35,9 @@ export function TransactionsPanel({
     access.data?.allowance.allowedTo,
     timeZone,
   );
-  const fallbackAllowedRange = rollingAllowedDateRange(access.data?.allowance.historyMonths ?? 3, timeZone);
+  const fallbackAllowedRange = access.data?.allowance.allTimeHistory
+    ? { from: undefined, to: dateInputValueInTimeZone(new Date(), timeZone) }
+    : rollingAllowedDaysRange(access.data?.allowance.historyDays ?? 7, timeZone);
   const effectiveAllowedRange = {
     from: allowedRange.from ?? fallbackAllowedRange.from,
     to: allowedRange.to ?? fallbackAllowedRange.to,
@@ -45,14 +47,18 @@ export function TransactionsPanel({
   const [toDate, setToDate] = useState(() => dateInputValueInTimeZone(new Date(), timeZone));
   const [rangeWasClamped, setRangeWasClamped] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const effectiveDateRange = useMemo(
+    () => clampDateRangeInputs(fromDate, toDate, effectiveAllowedRange.from, effectiveAllowedRange.to),
+    [effectiveAllowedRange.from, effectiveAllowedRange.to, fromDate, toDate],
+  );
   const filters = useMemo(
     () => ({
       type: type || undefined,
-      from: startOfDateInputInTimeZone(fromDate, timeZone),
-      to: endOfDateInputInTimeZone(toDate, timeZone),
+      from: startOfDateInputInTimeZone(effectiveDateRange.from, timeZone),
+      to: endOfDateInputInTimeZone(effectiveDateRange.to, timeZone),
       limit: 10,
     }),
-    [fromDate, timeZone, toDate, type],
+    [effectiveDateRange.from, effectiveDateRange.to, timeZone, type],
   );
   const transactions = useInfiniteFinancialTransactions(filters);
   const deleteMutation = useDeleteFinancialTransaction();
@@ -126,10 +132,10 @@ export function TransactionsPanel({
           <input
             className="h-11 w-full min-w-0 rounded-xl border border-border bg-white px-3 text-sm font-bold"
             type="date"
-            value={fromDate}
+            value={effectiveDateRange.from}
             min={effectiveAllowedRange.from}
             max={effectiveAllowedRange.to}
-            onChange={(event) => updateRange(event.target.value, toDate)}
+            onChange={(event) => updateRange(event.target.value, effectiveDateRange.to)}
           />
         </label>
         <label className="min-w-0 space-y-1.5">
@@ -137,10 +143,10 @@ export function TransactionsPanel({
           <input
             className="h-11 w-full min-w-0 rounded-xl border border-border bg-white px-3 text-sm font-bold"
             type="date"
-            value={toDate}
+            value={effectiveDateRange.to}
             min={effectiveAllowedRange.from}
             max={effectiveAllowedRange.to}
-            onChange={(event) => updateRange(fromDate, event.target.value)}
+            onChange={(event) => updateRange(effectiveDateRange.from, event.target.value)}
           />
         </label>
       </div>

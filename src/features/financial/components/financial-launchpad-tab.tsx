@@ -67,7 +67,9 @@ export function FinancialLaunchpadTab({ locale, currency }: { locale: string; cu
         id: 'reports',
         title: t('reports'),
         description: t('financeReportsCardBody'),
-        metric: t('historyMonths', { count: access.data?.allowance.historyMonths ?? 3 }),
+        metric: access.data?.allowance.allTimeHistory
+          ? t('allTimeAnalytics')
+          : t('historyDays', { count: access.data?.allowance.historyDays ?? 7 }),
         icon: Landmark,
         accent: 'from-amber-500 to-orange-500',
       },
@@ -90,7 +92,12 @@ export function FinancialLaunchpadTab({ locale, currency }: { locale: string; cu
         adminOnly: true,
       },
     ];
-  }, [access.data?.allowance.historyMonths, dashboard.data?.dashboard.month, t]);
+  }, [
+    access.data?.allowance.allTimeHistory,
+    access.data?.allowance.historyDays,
+    dashboard.data?.dashboard.month,
+    t,
+  ]);
 
   if (access.isLoading) {
     return <TabLoader label={t('loadingWorkspace')} />;
@@ -113,7 +120,9 @@ export function FinancialLaunchpadTab({ locale, currency }: { locale: string; cu
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone="teal">{t('financeActive')}</Badge>
           <Badge tone="amber">
-            {t('historyMonths', { count: access.data?.allowance.historyMonths ?? 3 })}
+            {access.data?.allowance.allTimeHistory
+              ? t('allTimeAnalytics')
+              : t('historyDays', { count: access.data?.allowance.historyDays ?? 7 })}
           </Badge>
         </div>
       </SectionTitle>

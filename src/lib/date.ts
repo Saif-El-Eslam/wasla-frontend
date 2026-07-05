@@ -147,6 +147,13 @@ export function rollingAllowedDateRange(months: number, timeZone?: string) {
   };
 }
 
+export function rollingAllowedDaysRange(days: number, timeZone?: string) {
+  return {
+    from: daysAgoDateInputInTimeZone(days, timeZone),
+    to: dateInputValueInTimeZone(new Date(), timeZone),
+  };
+}
+
 export function clampDateInputToRange(value: string, allowedFrom?: string, allowedTo?: string) {
   if (allowedFrom && value < allowedFrom) {
     return { value: allowedFrom, clamped: true };
