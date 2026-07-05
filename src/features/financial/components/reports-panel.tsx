@@ -26,6 +26,7 @@ import {
   overviewSections,
   reportSections,
   shareReportCsv,
+  type ReportCsvLabels,
   type ReportExportGroup,
 } from '../utils/financial-export';
 import { formatFinanceAmount, summaryTone } from '../utils/financial-format';
@@ -36,6 +37,48 @@ type ReportGroupBy = 'all' | 'day' | 'week' | 'month' | 'branch' | 'category' | 
 type ReportData = FinancialReportResponse['report'];
 
 const pageSize = 8;
+
+function csvLabels(locale: string, t: ReturnType<typeof useTranslations>): ReportCsvLabels {
+  const local = locale === 'ar'
+    ? {
+        expenses: 'المصروفات',
+        group: 'المجموعة',
+        groupSummary: 'ملخص المجموعة',
+        metric: 'المؤشر',
+        name: 'الاسم',
+        overview: 'نظرة عامة',
+        summary: 'الملخص',
+        total: 'الإجمالي',
+        type: 'النوع',
+        value: 'القيمة',
+      }
+    : {
+        expenses: 'Expenses',
+        group: 'Group',
+        groupSummary: 'Group summary',
+        metric: 'Metric',
+        name: 'Name',
+        overview: 'Overview',
+        summary: 'Summary',
+        total: 'Total',
+        type: 'Type',
+        value: 'Value',
+      };
+
+  return {
+    branch: t('branch'),
+    branchReport: t('branchReport'),
+    category: t('category'),
+    categoryReport: t('categoryReport'),
+    expense: t('expense'),
+    income: t('income'),
+    net: t('net'),
+    paymentMethod: t('paymentMethod'),
+    paymentMethodReport: t('paymentMethodReport'),
+    transactions: t('transactions'),
+    ...local,
+  };
+}
 
 function parseDayKey(key: string, timeZone?: string) {
   return { from: startOfDateInputInTimeZone(key, timeZone), to: endOfDateInputInTimeZone(key, timeZone) };
@@ -91,6 +134,7 @@ export function ReportsPanel({
   const [rangeTouched, setRangeTouched] = useState(false);
   const [rangeWasClamped, setRangeWasClamped] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const labels = useMemo(() => csvLabels(locale, t), [locale, t]);
   const defaultFromDate = effectiveAllowedRange.from ?? daysAgoDateInputInTimeZone(7, timeZone);
   const defaultToDate = effectiveAllowedRange.to ?? dateInputValueInTimeZone(new Date(), timeZone);
   const effectiveFromDate = rangeTouched ? fromDate : defaultFromDate;
@@ -157,7 +201,7 @@ export function ReportsPanel({
     downloadReportCsv(
       'financial-report-overview.csv',
       t('reportsOverview'),
-      overviewSections(groups, locale, currency),
+      overviewSections(groups, locale, currency, labels),
     );
   };
 
@@ -165,7 +209,7 @@ export function ReportsPanel({
     shareReportCsv(
       'financial-report-overview.csv',
       t('reportsOverview'),
-      overviewSections(groups, locale, currency),
+      overviewSections(groups, locale, currency, labels),
     );
 
   const updateRange = (nextFrom: string, nextTo: string) => {
@@ -191,6 +235,7 @@ export function ReportsPanel({
         label={groupLabel(selectedGroup, locale)}
         locale={locale}
         report={detailReport.data?.report}
+        csvLabels={labels}
         loading={detailReport.isLoading}
         onBack={() => setSelectedGroup(null)}
       />
@@ -310,7 +355,7 @@ export function ReportsPanel({
                     downloadReportCsv(
                       `financial-report-${group.key}.csv`,
                       groupLabel(group, locale),
-                      groupSections(group, currency),
+                      groupSections(group, currency, labels),
                     )
                   }
                 >
@@ -323,7 +368,7 @@ export function ReportsPanel({
                     shareReportCsv(
                       `financial-report-${group.key}.csv`,
                       groupLabel(group, locale),
-                      groupSections(group, currency),
+                      groupSections(group, currency, labels),
                     )
                   }
                 >
@@ -397,6 +442,7 @@ function ReportDetails({
   loading,
   onBack,
   report,
+  csvLabels: labels,
 }: {
   currency: string;
   group: ReportExportGroup;
@@ -405,11 +451,12 @@ function ReportDetails({
   loading: boolean;
   onBack: () => void;
   report?: ReportData;
+  csvLabels: ReportCsvLabels;
 }) {
   const t = useTranslations('dashboard');
   const detailSections = useMemo(
-    () => (report ? reportSections(report, locale, currency) : []),
-    [currency, locale, report],
+    () => (report ? reportSections(report, locale, currency, labels) : []),
+    [currency, labels, locale, report],
   );
 
   if (loading) {

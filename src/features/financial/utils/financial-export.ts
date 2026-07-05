@@ -12,6 +12,29 @@ export type ExportSection = {
   rows: ExportRow[];
 };
 
+export type ReportCsvLabels = {
+  branch: string;
+  branchReport: string;
+  category: string;
+  categoryReport: string;
+  expense: string;
+  expenses: string;
+  group: string;
+  groupSummary: string;
+  income: string;
+  metric: string;
+  name: string;
+  net: string;
+  overview: string;
+  paymentMethod: string;
+  paymentMethodReport: string;
+  summary: string;
+  total: string;
+  transactions: string;
+  type: string;
+  value: string;
+};
+
 export type ReportExportGroup = {
   key: string;
   label: LocalizedValue | string;
@@ -51,10 +74,10 @@ function sectionToCsv(section: ExportSection) {
 }
 
 function reportCsvContent(title: string, sections: ExportSection[]) {
-  return [
+  return `\uFEFF${[
     [`========== ${title.toUpperCase()} ==========`].map(csvCell).join(','),
     ...sections.map(sectionToCsv),
-  ].join('\n');
+  ].join('\n')}`;
 }
 
 export function downloadReportCsv(filename: string, title: string, sections: ExportSection[]) {
@@ -85,23 +108,32 @@ export function groupLabel(group: ReportExportGroup, locale: string) {
   return textForLocale(group.label, locale) || group.key;
 }
 
-export function groupSections(group: ReportExportGroup, currency: string): ExportSection[] {
+export function groupSections(
+  group: ReportExportGroup,
+  currency: string,
+  labels: ReportCsvLabels,
+): ExportSection[] {
   return [{
-    title: 'Group summary',
-    headers: ['Metric', 'Value'],
+    title: labels.groupSummary,
+    headers: [labels.metric, labels.value],
     rows: [
-      ['Transactions', group.count],
-      ['Income', formatFinanceAmount(group.income, currency)],
-      ['Expenses', formatFinanceAmount(group.expenses, currency)],
-      ['Net', formatFinanceAmount(group.net, currency)],
+      [labels.transactions, group.count],
+      [labels.income, formatFinanceAmount(group.income, currency)],
+      [labels.expenses, formatFinanceAmount(group.expenses, currency)],
+      [labels.net, formatFinanceAmount(group.net, currency)],
     ],
   }];
 }
 
-export function overviewSections(groups: ReportExportGroup[], locale: string, currency: string): ExportSection[] {
+export function overviewSections(
+  groups: ReportExportGroup[],
+  locale: string,
+  currency: string,
+  labels: ReportCsvLabels,
+): ExportSection[] {
   return [{
-    title: 'Overview',
-    headers: ['Group', 'Transactions', 'Income', 'Expenses', 'Net'],
+    title: labels.overview,
+    headers: [labels.group, labels.transactions, labels.income, labels.expenses, labels.net],
     rows: groups.map((group) => [
       groupLabel(group, locale),
       group.count,
@@ -112,13 +144,18 @@ export function overviewSections(groups: ReportExportGroup[], locale: string, cu
   }];
 }
 
-export function reportSections(report: ReportData, locale: string, currency: string): ExportSection[] {
+export function reportSections(
+  report: ReportData,
+  locale: string,
+  currency: string,
+  labels: ReportCsvLabels,
+): ExportSection[] {
   return [
     {
-      title: 'Summary',
-      headers: ['Name', 'Transactions', 'Income', 'Expenses', 'Net'],
+      title: labels.summary,
+      headers: [labels.name, labels.transactions, labels.income, labels.expenses, labels.net],
       rows: [[
-        'Total',
+        labels.total,
         report.summary.count,
         formatFinanceAmount(report.summary.income, currency),
         formatFinanceAmount(report.summary.expenses, currency),
@@ -126,19 +163,19 @@ export function reportSections(report: ReportData, locale: string, currency: str
       ]],
     },
     {
-      title: 'Category report',
-      headers: ['Category', 'Type', 'Transactions', 'Income', 'Expenses'],
+      title: labels.categoryReport,
+      headers: [labels.category, labels.type, labels.transactions, labels.income, labels.expenses],
       rows: report.byCategory.map((item) => [
         textForLocale(item.name, locale),
-        item.type,
+        item.type === 'IN' ? labels.income : labels.expense,
         item.count,
         item.type === 'IN' ? formatFinanceAmount(item.amount, currency) : '',
         item.type === 'OUT' ? formatFinanceAmount(item.amount, currency) : '',
       ]),
     },
     {
-      title: 'Branch report',
-      headers: ['Branch', 'Transactions', 'Income', 'Expenses', 'Net'],
+      title: labels.branchReport,
+      headers: [labels.branch, labels.transactions, labels.income, labels.expenses, labels.net],
       rows: report.byBranch.map((item) => [
         textForLocale(item.name, locale),
         item.count,
@@ -148,8 +185,8 @@ export function reportSections(report: ReportData, locale: string, currency: str
       ]),
     },
     {
-      title: 'Payment method report',
-      headers: ['Payment method', 'Transactions', 'Income', 'Expenses', 'Net'],
+      title: labels.paymentMethodReport,
+      headers: [labels.paymentMethod, labels.transactions, labels.income, labels.expenses, labels.net],
       rows: report.byPaymentMethod.map((item) => [
         textForLocale(item.name, locale),
         item.count,
