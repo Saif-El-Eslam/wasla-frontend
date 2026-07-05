@@ -70,7 +70,11 @@ export function AnalyticsTab({
   const updatePeriod = (nextPeriod: Exclude<Period, 'custom'>) => {
     const days = nextPeriod === '30d' ? 30 : 7;
 
-    updateRange(daysAgoDateInputInTimeZone(days, timeZone), dateInputValueInTimeZone(new Date(), timeZone), nextPeriod);
+    updateRange(
+      daysAgoDateInputInTimeZone(days, timeZone),
+      dateInputValueInTimeZone(new Date(), timeZone),
+      nextPeriod,
+    );
   };
 
   const viewTotal = metricCurrent(metrics, 'views');
@@ -182,7 +186,13 @@ export function AnalyticsTab({
           toDate: t('toDate'),
         }}
       />
-      <p className={rangeWasClamped || summary?.filters.clamped ? 'text-xs font-bold text-amber-700' : 'text-xs font-bold text-muted-foreground'}>
+      <p
+        className={
+          rangeWasClamped || summary?.filters.clamped
+            ? 'text-xs font-bold text-amber-700'
+            : 'text-xs font-bold text-muted-foreground'
+        }
+      >
         {t('allowedDateRangeMessage', {
           range: `${allowedRange.from ?? fromDate} - ${allowedRange.to ?? toDate}`,
         })}
@@ -214,7 +224,7 @@ export function AnalyticsTab({
         period={period}
       />
 
-      <div className="grid gap-4 2xl:grid-cols-[1fr_0.95fr]">
+      <div className="grid gap-4 2xl:grid-cols-2">
         <DailyViewsSection
           data={dailyViews}
           title={t('dailyViews')}

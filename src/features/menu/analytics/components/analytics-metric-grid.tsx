@@ -23,8 +23,8 @@ function StatPill({
   const TrendIcon = change < 0 ? TrendingDown : TrendingUp;
 
   return (
-    <Card className="min-w-0 overflow-hidden p-3">
-      <div className={cx('relative min-h-32 rounded-3xl p-4', tone)}>
+    <Card className="min-w-0 overflow-hidden p-1 md:p-3">
+      <div className={cx('relative min-h-32 rounded-3xl p-2 md:p-4', tone)}>
         <div className="flex items-start justify-between gap-3">
           <span className="rounded-2xl bg-white/70 p-2 shadow-sm">
             <Icon className="size-4" />
@@ -37,7 +37,7 @@ function StatPill({
         </div>
         <p className="mt-5 truncate text-3xl font-black">{value.toLocaleString()}</p>
         <p className="truncate text-xs font-black opacity-80">{label}</p>
-        <p className="mt-3 text-[10px] font-bold opacity-70">{changeCopy(change, period)}</p>
+        <p className="hidden md:block mt-3 text-[10px] font-bold opacity-70">{changeCopy(change, period)}</p>
       </div>
     </Card>
   );
@@ -70,7 +70,7 @@ export function AnalyticsMetricGrid({
   period: Period;
 }) {
   return (
-    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-3 grid-cols-2 xl:grid-cols-4">
       <StatPill
         icon={Eye}
         label={labels.views}

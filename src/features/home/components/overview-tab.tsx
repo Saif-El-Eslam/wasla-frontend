@@ -22,7 +22,7 @@ export function OverviewTab({ locale }: { locale: string }) {
   return (
     <div className="space-y-5">
       <SectionTitle eyebrow={t('overviewEyebrow')} title={t('overviewTitle')} />
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 grid-cols-2 xl:grid-cols-4">
         {[
           { label: t('branches'), value: branches.length, icon: Building2, accent: true },
           { label: t('menusReady'), value: totals.menus, icon: UtensilsCrossed },
@@ -32,12 +32,24 @@ export function OverviewTab({ locale }: { locale: string }) {
           const Icon = stat.icon;
 
           return (
-            <Card key={stat.label} className={cx(stat.accent && 'bg-gradient-to-br from-teal-600 to-teal-700 text-white')}>
-              <div className={cx('flex size-10 items-center justify-center rounded-2xl', stat.accent ? 'bg-white/20' : 'bg-teal-50 text-primary')}>
+            <Card
+              key={stat.label}
+              className={cx(stat.accent && 'bg-gradient-to-br from-teal-600 to-teal-700 text-white')}
+            >
+              <div
+                className={cx(
+                  'flex size-10 items-center justify-center rounded-2xl',
+                  stat.accent ? 'bg-white/20' : 'bg-teal-50 text-primary',
+                )}
+              >
                 <Icon className="size-5" />
               </div>
-              <p className={cx('mt-4 text-3xl font-black', stat.accent ? 'text-white' : 'text-stone-950')}>{stat.value.toLocaleString()}</p>
-              <p className={cx('text-sm', stat.accent ? 'text-teal-100' : 'text-muted-foreground')}>{stat.label}</p>
+              <p className={cx('mt-4 text-3xl font-black', stat.accent ? 'text-white' : 'text-stone-950')}>
+                {stat.value.toLocaleString()}
+              </p>
+              <p className={cx('text-sm', stat.accent ? 'text-teal-100' : 'text-muted-foreground')}>
+                {stat.label}
+              </p>
             </Card>
           );
         })}
@@ -51,9 +63,14 @@ export function OverviewTab({ locale }: { locale: string }) {
                 const stats = branch.stats;
 
                 return (
-                  <div key={branch.id} className="grid gap-3 rounded-xl bg-stone-50 px-3 py-3 text-sm sm:grid-cols-[1fr_auto_auto] sm:items-center">
+                  <div
+                    key={branch.id}
+                    className="grid gap-3 rounded-xl bg-stone-50 px-3 py-3 text-sm sm:grid-cols-[1fr_auto_auto] sm:items-center"
+                  >
                     <div>
-                      <p className="font-bold text-stone-900">{textForLocale(branch.name, locale) || branch.slug}</p>
+                      <p className="font-bold text-stone-900">
+                        {textForLocale(branch.name, locale) || branch.slug}
+                      </p>
                       <p className="text-xs text-muted-foreground">
                         {branch.hasMenu
                           ? t('categoriesAndItems', { categories: stats.categories, items: stats.items })
@@ -95,4 +112,3 @@ export function OverviewTab({ locale }: { locale: string }) {
     </div>
   );
 }
-
