@@ -4,7 +4,14 @@ import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Building2, Menu as MenuIcon, CheckCircle2, GitBranch, Plus, UtensilsCrossed } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { api, type CreateCategoryInput, type CreateItemInput, type Menu, type MenuCategory, type MenuItem } from '@/lib/api';
+import {
+  api,
+  type CreateCategoryInput,
+  type CreateItemInput,
+  type Menu,
+  type MenuCategory,
+  type MenuItem,
+} from '@/lib/api';
 import {
   Badge,
   BranchSelect,
@@ -44,7 +51,7 @@ import {
   type MenuFormInput,
   type MenuFormValues,
 } from '@/features/menu/schemas/menu.schema';
-import { PublicPreview } from '@/features/public/menu/components/menu/public-preview';
+import { PublicPreview } from '@/features/public/components/menu/public-preview';
 import { cleanupUploadedImages, uploadImageDirect } from '@/lib/api/image-upload';
 
 const emptyLocalizedDraft: LocalizedDraft = { en: '', ar: '' };

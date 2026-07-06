@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Filter, GitBranch, MapPin, Search, Star } from 'lucide-react';
 import type { PublicVenue, PublicVenueListResponse } from '@/lib/api';
-import { publicMenuApi } from '@/features/public/menu/api/public-menu.api';
+import { publicMenuApi } from '@/features/public/api/public-menu.api';
 import { textForLocale } from '@/lib/localized-text';
 import { optimizedImageUrl } from '@/lib/image-url';
 import { useDebounce } from '@/hooks/use-debounce';

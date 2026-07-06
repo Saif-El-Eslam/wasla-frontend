@@ -18,7 +18,7 @@ import { Badge, EmptyState } from '@/components/ui/dashboard-ui';
 import { AppImage } from '@/components/ui/app-image';
 import { textForLocale } from '@/lib/localized-text';
 import { optimizedImageUrl } from '@/lib/image-url';
-import { publicMenuApi } from '@/features/public/menu/api/public-menu.api';
+import { publicMenuApi } from '@/features/public/api/public-menu.api';
 import { PublicBranchActions } from '../branch/public-branch-actions';
 import { PublicCategoryNav } from './public-category-nav';
 import { PublicItemModal } from './public-item-modal';

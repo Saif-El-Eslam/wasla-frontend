@@ -282,6 +282,7 @@ export type Menu = {
   categories: MenuCategory[];
   qrCode?: MenuQrCode | null;
   analytics?: MenuAnalytics | null;
+  venue?: Venue | null;
 };
 
 export type ExtractionJobStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'APPROVED' | 'REJECTED';

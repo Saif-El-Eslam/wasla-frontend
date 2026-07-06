@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { ArrowRight, GitBranch, Loader2, Search, Store } from 'lucide-react';
 import type { LocalizedValue, PublicBranch, PublicVenue } from '@/lib/api';
-import { publicMenuApi } from '@/features/public/menu/api/public-menu.api';
+import { publicMenuApi } from '@/features/public/api/public-menu.api';
 import { textForLocale } from '@/lib/localized-text';
 import { optimizedImageUrl } from '@/lib/image-url';
 import { useDebounce } from '@/hooks/use-debounce';
@@ -192,7 +192,11 @@ export function LandingQuickSearch({ locale }: { locale: string }) {
                               <span className="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-teal-50">
                                 {venue.logoUrl ? (
                                   <AppImage
-                                    src={optimizedImageUrl(venue.logoUrl, { width: 120, height: 120, crop: 'fill' })}
+                                    src={optimizedImageUrl(venue.logoUrl, {
+                                      width: 120,
+                                      height: 120,
+                                      crop: 'fill',
+                                    })}
                                     alt=""
                                     fill
                                     sizes="40px"

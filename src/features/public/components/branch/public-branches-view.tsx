@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { ChevronLeft, ChevronRight, GitBranch, MapPin } from 'lucide-react';
 import type { PublicBranch, PublicVenue } from '@/lib/api';
-import { publicMenuApi } from '@/features/public/menu/api/public-menu.api';
+import { publicMenuApi } from '@/features/public/api/public-menu.api';
 import { AppImage } from '@/components/ui/app-image';
 import { textForLocale } from '@/lib/localized-text';
 import { optimizedImageUrl } from '@/lib/image-url';

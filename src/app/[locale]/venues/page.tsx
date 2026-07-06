@@ -1,5 +1,5 @@
-import { publicMenuApi } from '@/features/public/menu/api/public-menu.api';
-import { PublicVenuesBrowser } from '@/features/public/menu/components/venue/public-venues-browser';
+import { publicMenuApi } from '@/features/public/api/public-menu.api';
+import { PublicVenuesBrowser } from '@/features/public/components/venue/public-venues-browser';
 import type { PublicVenueListResponse } from '@/lib/api';
 
 type SearchParams = {

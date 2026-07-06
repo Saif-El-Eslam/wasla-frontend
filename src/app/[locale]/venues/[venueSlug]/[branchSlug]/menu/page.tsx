@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
-import { publicMenuApi } from '@/features/public/menu/api/public-menu.api';
-import { PublicMenuExperience } from '@/features/public/menu/components/menu/public-menu-experience';
+import { publicMenuApi } from '@/features/public/api/public-menu.api';
+import { PublicMenuExperience } from '@/features/public/components/menu/public-menu-experience';
 
 export default async function PublicBranchMenuPage({
   params,
