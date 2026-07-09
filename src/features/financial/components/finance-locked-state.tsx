@@ -3,9 +3,21 @@
 import { LockKeyhole, WalletCards } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Badge, Card, PrimaryButton, SectionTitle } from '@/components/ui/dashboard-ui';
+import { usePathname, useRouter } from 'next/navigation';
 
 export function FinanceLockedState() {
   const t = useTranslations('dashboard');
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const openSupportSettings = () => {
+    const params = new URLSearchParams({
+      tab: 'settings',
+      settings: 'support',
+    });
+
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   return (
     <div className="space-y-5">
@@ -27,7 +39,7 @@ export function FinanceLockedState() {
               </p>
             </div>
           </div>
-          <PrimaryButton className="shrink-0">
+          <PrimaryButton className="shrink-0" onClick={openSupportSettings}>
             <WalletCards className="size-4" />
             {t('viewPlans')}
           </PrimaryButton>
