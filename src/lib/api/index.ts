@@ -1,4 +1,4 @@
-import { analyticsService } from '@/features/menu/analytics/api/analytics.api';
+﻿import { analyticsService } from '@/features/menu/analytics/api/analytics.api';
 import { authService } from '@/features/auth/api/auth.api';
 import { branchService } from '@/features/branches/api/branch.api';
 import { feedbackService } from '@/features/feedback/api/feedback.api';
@@ -66,6 +66,7 @@ export type {
   PublicBranch,
   PublicBranchMenuResponse,
   PublicFeedbackInput,
+  PublicFeedbackListResponse,
   PublicFeedbackResponse,
   PublicVenue,
   PublicVenueListResponse,
@@ -169,3 +170,4 @@ export const api = {
   approveExtraction: menuService.approveExtraction,
   rejectExtraction: menuService.rejectExtraction,
 };
+

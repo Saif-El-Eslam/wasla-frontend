@@ -19,9 +19,7 @@ export function FeedbackSummaryGrid({ summary }: { summary?: FeedbackSummary }) 
       <Card className="border-amber-100 bg-amber-50/60 p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-black uppercase tracking-wider text-amber-700">
-              {t('averageRating')}
-            </p>
+            <p className="text-xs font-black uppercase tracking-wider text-amber-700">{t('averageRating')}</p>
             <p className="mt-2 text-3xl font-black text-stone-950">
               {formatRating(summary?.averageRating ?? 0)}
             </p>
@@ -32,9 +30,7 @@ export function FeedbackSummaryGrid({ summary }: { summary?: FeedbackSummary }) 
       <Card className="border-rose-100 bg-rose-50/60 p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-black uppercase tracking-wider text-rose-700">
-              {t('privateIssues')}
-            </p>
+            <p className="text-xs font-black uppercase tracking-wider text-rose-700">{t('issues')}</p>
             <p className="mt-2 text-3xl font-black text-stone-950">{summary?.privateIssues ?? 0}</p>
           </div>
           <TriangleAlert className="size-8 text-rose-500" />

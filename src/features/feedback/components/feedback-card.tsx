@@ -1,6 +1,6 @@
-'use client';
+﻿'use client';
 
-import { CheckCircle2, Star } from 'lucide-react';
+import { Archive, CheckCircle2, RotateCcw, Star } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Badge, Card, cx } from '@/components/ui/dashboard-ui';
 import type { GuestFeedback, GuestFeedbackStatus } from '@/lib/api';
@@ -28,7 +28,7 @@ export function FeedbackCard({
     <Card
       className={cx('border-stone-200 bg-white p-4', item.rating <= 3 && 'border-amber-200 bg-amber-50/30')}
     >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex gap-3 justify-between flex-row sm:items-start">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center gap-1 text-amber-500">
@@ -44,12 +44,26 @@ export function FeedbackCard({
             {item.googleReviewClickedAt ? <Badge tone="teal">{t('googleRedirected')}</Badge> : null}
           </div>
           <p className="mt-2 text-sm font-black text-stone-950">{branchName}</p>
+          {item.guestName || item.guestPhone ? (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {item.guestName ? (
+                <span className="rounded-full bg-stone-100 px-2.5 py-1 text-xs font-black text-stone-700">
+                  {item.guestName}
+                </span>
+              ) : null}
+              {item.guestPhone ? (
+                <span className="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-black text-teal-700">
+                  {item.guestPhone}
+                </span>
+              ) : null}
+            </div>
+          ) : null}
           <p className="mt-1 text-xs font-bold text-muted-foreground">
             {new Date(item.createdAt).toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US')}
           </p>
         </div>
-        <div className="flex gap-2">
-          {item.status !== 'REVIEWED' ? (
+        <div className="flex flex-wrap gap-2">
+          {item.status !== 'REVIEWED' && item.status !== 'ARCHIVED' ? (
             <button
               type="button"
               className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-emerald-100 bg-emerald-50 px-3 text-xs font-black text-emerald-700 disabled:opacity-50"
@@ -57,9 +71,30 @@ export function FeedbackCard({
               disabled={pending}
             >
               <CheckCircle2 className="size-4" />
-              {t('markReviewed')}
+              <span className="hidden md:inline">{t('markReviewed')}</span>
             </button>
           ) : null}
+          {item.status === 'ARCHIVED' ? (
+            <button
+              type="button"
+              className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-teal-100 bg-teal-50 px-3 text-xs font-black text-teal-700 disabled:opacity-50"
+              onClick={() => onStatusChange('REVIEWED')}
+              disabled={pending}
+            >
+              <RotateCcw className="size-4" />
+              <span className="hidden md:inline">{t('unarchiveFeedback')}</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-stone-200 bg-stone-50 px-3 text-xs font-black text-stone-600 disabled:opacity-50"
+              onClick={() => onStatusChange('ARCHIVED')}
+              disabled={pending}
+            >
+              <Archive className="size-4" />
+              <span className="hidden md:inline">{t('archiveFeedback')}</span>
+            </button>
+          )}
         </div>
       </div>
 

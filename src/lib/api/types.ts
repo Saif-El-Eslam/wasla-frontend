@@ -1,4 +1,4 @@
-export type ApiEnvelope<T> = {
+﻿export type ApiEnvelope<T> = {
   success: true;
   data: T;
 };
@@ -206,6 +206,8 @@ export type PublicFeedbackInput = {
   menuId?: string;
   rating: number;
   comment?: string;
+  guestName?: string;
+  guestPhone?: string;
   locale?: 'ar' | 'en';
 };
 
@@ -216,6 +218,15 @@ export type PublicFeedbackResponse = {
     googleReviewUrl: string | null;
     privateIssue: boolean;
   };
+};
+
+export type PublicFeedbackListResponse = {
+  summary: {
+    averageRating: number;
+    total: number;
+  };
+  feedback: Array<Pick<GuestFeedback, 'id' | 'rating' | 'comment' | 'guestName' | 'createdAt' | 'branch'>>;
+  pagination: PaginationMeta;
 };
 
 export type AssignedBranch = Pick<Branch, 'id' | 'name' | 'slug' | 'isMain' | 'active'>;
@@ -524,6 +535,8 @@ export type GuestFeedback = {
   menuId: string | null;
   rating: number;
   comment: string | null;
+  guestName: string | null;
+  guestPhone: string | null;
   status: GuestFeedbackStatus;
   locale: string | null;
   googleReviewOffered: boolean;
@@ -780,3 +793,6 @@ export type AdminPlansResponse = {
 export type AdminFeaturesResponse = {
   features: PlanFeature[];
 };
+
+
+

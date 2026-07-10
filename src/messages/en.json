@@ -1,4 +1,4 @@
-{
+﻿{
   "app": {
     "name": "Wasla",
     "dashboard": "Dashboard",
@@ -206,8 +206,8 @@
     "publicPreview": "Public preview",
     "signOut": "Sign out",
     "logout": "Sign out",
-    "languageName": "العربية",
-    "languageShort": "ع",
+    "languageName": "Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©",
+    "languageShort": "Ø¹",
     "settingsHint": "Settings",
     "openSettings": "Open settings",
     "notifications": "Notifications",
@@ -305,8 +305,9 @@
     "feedbackEyebrow": "Review booster",
     "feedbackBody": "Guest ratings, private issues, and Google review redirects are grouped by branch.",
     "averageRating": "Average rating",
-    "allFeedback": "All feedback",
-    "privateIssues": "Private issues",
+    "all": "All",
+    "issues": "Issues",
+    "archivedFeedback": "Archived",
     "privateIssue": "Private issue",
     "googleRedirects": "Google redirects",
     "googleRedirected": "Google redirected",
@@ -314,6 +315,8 @@
     "showPrivateIssues": "Show private issues",
     "showAllFeedback": "Show all feedback",
     "markReviewed": "Mark reviewed",
+    "archiveFeedback": "Archive",
+    "unarchiveFeedback": "Unarchive",
     "page": "Page",
     "previous": "Previous",
     "next": "Next",
@@ -848,3 +851,4 @@
     }
   }
 }
+

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -32,14 +32,16 @@ export function FeedbackTab({ locale }: { locale: string }) {
   const branchesQuery = useBranchOptions();
   const branches = branchesQuery.data?.branches ?? [];
   const issueOnly = filter === 'issues';
+  const status: GuestFeedbackStatus | undefined = filter === 'archived' ? 'ARCHIVED' : undefined;
   const options = useMemo(
     () => ({
       branchId: branchId === 'all' ? undefined : branchId,
       issueOnly: issueOnly ? true : undefined,
+      status,
       page,
       limit: pageSize,
     }),
-    [branchId, issueOnly, page],
+    [branchId, issueOnly, status, page],
   );
   const feedback = useFeedbackDashboard(options);
   const summary = feedback.data?.summary;
@@ -49,7 +51,7 @@ export function FeedbackTab({ locale }: { locale: string }) {
     mutationFn: ({ feedbackId, status }: { feedbackId: string; status: GuestFeedbackStatus }) =>
       api.updateFeedbackStatus(feedbackId, status),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.feedbackDashboard(options) });
+      void queryClient.invalidateQueries({ queryKey: ['feedback', 'dashboard'] });
     },
   });
 
@@ -124,3 +126,5 @@ export function FeedbackTab({ locale }: { locale: string }) {
     </div>
   );
 }
+
+

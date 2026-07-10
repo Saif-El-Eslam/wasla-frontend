@@ -1,8 +1,9 @@
-import type {
+﻿import type {
   ApiEnvelope,
   PublicAnalyticsEventInput,
   PublicBranchMenuResponse,
   PublicFeedbackInput,
+  PublicFeedbackListResponse,
   PublicFeedbackResponse,
   PublicVenueListResponse,
   PublicVenueResponse,
@@ -86,6 +87,17 @@ export const publicMenuApi = {
       body: JSON.stringify(input),
       keepalive: true,
     }).catch(() => ({ tracked: false })),
+  feedback: (params: { venueId: string; branchId: string; page?: number; limit?: number; locale?: string }) =>
+    publicApi<PublicFeedbackListResponse>(
+      `/public/feedback${toQueryString({
+        venueId: params.venueId,
+        branchId: params.branchId,
+        page: params.page ?? 1,
+        limit: params.limit ?? 8,
+      })}`,
+      { cache: 'no-store' },
+      params.locale,
+    ),
   submitFeedback: (input: PublicFeedbackInput) =>
     publicApi<PublicFeedbackResponse>('/public/feedback', {
       method: 'POST',
@@ -98,3 +110,5 @@ export const publicMenuApi = {
       keepalive: true,
     }).catch(() => ({ tracked: false })),
 };
+
+

@@ -1,10 +1,10 @@
-'use client';
+﻿'use client';
 
-import { MessageSquareHeart, TriangleAlert } from 'lucide-react';
+import { Archive, MessageSquareHeart, TriangleAlert } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cx } from '@/components/ui/dashboard-ui';
 
-export type FeedbackFilter = 'all' | 'issues';
+export type FeedbackFilter = 'issues' | 'all' | 'archived';
 
 export function FeedbackFilterSwitcher({
   value,
@@ -19,12 +19,13 @@ export function FeedbackFilterSwitcher({
     label: string;
     icon: React.ComponentType<{ className?: string }>;
   }> = [
-    { value: 'all', label: t('allFeedback'), icon: MessageSquareHeart },
-    { value: 'issues', label: t('privateIssues'), icon: TriangleAlert },
+    { value: 'issues', label: t('issues'), icon: TriangleAlert },
+    { value: 'all', label: t('all'), icon: MessageSquareHeart },
+    { value: 'archived', label: t('archivedFeedback'), icon: Archive },
   ];
 
   return (
-    <div className="grid w-full grid-cols-2 rounded-2xl border border-stone-200 bg-stone-50 p-1 sm:w-auto sm:inline-grid">
+    <div className="grid w-full grid-cols-3 rounded-2xl border border-stone-200 bg-stone-50 p-1 sm:w-auto sm:inline-grid">
       {options.map((option) => {
         const Icon = option.icon;
         const active = value === option.value;
@@ -43,7 +44,11 @@ export function FeedbackFilterSwitcher({
             aria-pressed={active}
           >
             <Icon
-              className={cx('size-4 shrink-0', option.value === 'issues' && active ? 'text-rose-500' : '')}
+              className={cx(
+                'size-4 shrink-0',
+                option.value === 'issues' && active ? 'text-rose-500' : '',
+                option.value === 'archived' && active ? 'text-stone-500' : '',
+              )}
             />
             <span className="truncate">{option.label}</span>
           </button>
