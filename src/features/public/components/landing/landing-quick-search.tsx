@@ -12,6 +12,7 @@ import { optimizedImageUrl } from '@/lib/image-url';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useThrottle } from '@/hooks/use-throttle';
 import { AppImage } from '@/components/ui/app-image';
+import { publicHref } from '@/features/public/utils/public-url';
 
 const venueTypes = [
   'ALL',
@@ -137,7 +138,7 @@ export function LandingQuickSearch({ locale }: { locale: string }) {
       params.set('type', type);
     }
 
-    router.push(`/${locale}/venues${params.toString() ? `?${params.toString()}` : ''}`);
+    router.push(publicHref(locale, 'venues', params));
   };
 
   return (
@@ -186,7 +187,7 @@ export function LandingQuickSearch({ locale }: { locale: string }) {
                         return (
                           <div key={venue.id} className="border-b border-border last:border-b-0">
                             <Link
-                              href={`/${locale}/venues/${venue.slug}/branches`}
+                              href={publicHref(locale, `venues/${venue.slug}/branches`)}
                               className="flex items-center gap-3 px-3 py-3 text-start transition hover:bg-stone-50"
                             >
                               <span className="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-teal-50">
@@ -231,7 +232,7 @@ export function LandingQuickSearch({ locale }: { locale: string }) {
                                     return (
                                       <Link
                                         key={branch.id}
-                                        href={`/${locale}/venues/${venue.slug}/${branch.slug}/menu`}
+                                        href={publicHref(locale, `venues/${venue.slug}/${branch.slug}/menu`)}
                                         className="flex items-center gap-2 rounded-lg px-2 py-2 text-start transition hover:bg-white"
                                       >
                                         <GitBranch className="size-4 shrink-0 text-teal-700" />

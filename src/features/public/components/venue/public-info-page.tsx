@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { ArrowLeft, ArrowRight, Gauge, Home } from 'lucide-react';
 import { LogoMark } from '@/components/ui/logo-mark';
+import { publicHref } from '@/features/public/utils/public-url';
 
 type PublicInfoPageKey = 'about' | 'contact' | 'privacy' | 'terms';
 
@@ -14,13 +15,13 @@ export async function PublicInfoPage({ locale, pageKey }: { locale: string; page
   return (
     <main dir={isRtl ? 'rtl' : 'ltr'} className="min-h-dvh bg-[#f8fafa] text-stone-950">
       <header className="flex items-center justify-between gap-3 px-4 py-5 sm:px-8 lg:px-14 xl:px-20">
-        <Link href={`/${locale}`} className="flex items-center gap-2 transition hover:-translate-y-0.5">
+        <Link href={publicHref(locale)} className="flex items-center gap-2 transition hover:-translate-y-0.5">
           <LogoMark className="flex size-9 items-center justify-center text-lg font-black text-white" />
           <span className="text-lg font-black text-teal-700">{commonT('wasla')}</span>
         </Link>
         <div className="flex items-center gap-2">
           <Link
-            href={`/${locale === 'ar' ? 'en' : 'ar'}/${pageKey}`}
+            href={publicHref(locale === 'ar' ? 'en' : 'ar', pageKey)}
             className="inline-flex h-10 items-center rounded-xl border border-border bg-white px-3 text-xs font-black text-stone-700 shadow-sm"
           >
             {locale === 'ar' ? 'EN' : 'AR'}
@@ -40,7 +41,7 @@ export async function PublicInfoPage({ locale, pageKey }: { locale: string; page
         <div className="relative max-w-4xl">
           <div className="flex items-center gap-4">
             <Link
-              href={`/${locale}`}
+              href={publicHref(locale)}
               className="inline-flex h-10 items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3 text-xs font-black text-white backdrop-blur"
             >
               <BackIcon className="size-4" />

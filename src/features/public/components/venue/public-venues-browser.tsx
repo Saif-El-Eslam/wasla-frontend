@@ -13,6 +13,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { useThrottle } from '@/hooks/use-throttle';
 import { LogoMark } from '@/components/ui/logo-mark';
 import { AppImage } from '@/components/ui/app-image';
+import { publicHref } from '@/features/public/utils/public-url';
 
 const venueTypes = [
   'ALL',
@@ -35,7 +36,7 @@ function VenueCard({ venue, locale }: { venue: PublicVenue; locale: string }) {
 
   return (
     <Link
-      href={`/${locale}/venues/${venue.slug}/branches`}
+      href={publicHref(locale, `venues/${venue.slug}/branches`)}
       className="group block overflow-hidden rounded-2xl border border-border bg-white text-start shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
     >
       <div className="relative h-40 overflow-hidden bg-stone-100">
@@ -180,7 +181,7 @@ export function PublicVenuesBrowser({
 
     lastRequestedRef.current = nextSignature;
     setSearchLoading(true);
-    router.replace(`/${locale}/venues${params.toString() ? `?${params.toString()}` : ''}`, { scroll: false });
+    router.replace(publicHref(locale, 'venues', params), { scroll: false });
   }, [initialType, locale, router, throttledSearch]);
 
   useEffect(() => {
@@ -223,7 +224,7 @@ export function PublicVenuesBrowser({
     }
     lastRequestedRef.current = `${search.trim()}|${initialType || 'ALL'}`;
     setSearchLoading(true);
-    router.push(`/${locale}/venues${params.toString() ? `?${params.toString()}` : ''}`);
+    router.push(publicHref(locale, 'venues', params));
   };
 
   return (
@@ -234,14 +235,14 @@ export function PublicVenuesBrowser({
           <header className="relative px-4 pb-4 pt-8 sm:px-8 lg:px-14 xl:px-20">
             <div className="relative flex items-center justify-between gap-4">
               <div className="flex flex-col gap-8">
-                <Link href={`/${locale}`} className="flex w-fit items-center gap-2">
+                <Link href={publicHref(locale)} className="flex w-fit items-center gap-2">
                   <LogoMark className="flex size-8 items-center justify-center text-sm font-black text-white" />
                   <span className="text-base font-black text-white">{commonT('wasla')}</span>
                 </Link>
                 <h1 className="text-4xl font-black text-white sm:text-5xl">{t('discoverVenues')}</h1>
               </div>
               <Link
-                href={`/${locale === 'ar' ? 'en' : 'ar'}/venues`}
+                href={publicHref(locale === 'ar' ? 'en' : 'ar', 'venues')}
                 className="inline-flex h-10 items-center rounded-xl border border-white/20 bg-white/10 px-3 text-xs font-black text-white backdrop-blur"
               >
                 {locale === 'ar' ? 'EN' : 'AR'}
@@ -274,7 +275,7 @@ export function PublicVenuesBrowser({
               return (
                 <Link
                   key={type}
-                  href={`/${locale}/venues${params.toString() ? `?${params.toString()}` : ''}`}
+                  href={publicHref(locale, 'venues', params)}
                   onClick={() => {
                     if (!active) {
                       setSearchLoading(true);

@@ -25,6 +25,7 @@ import { PublicItemModal } from './public-item-modal';
 import { PublicMenuItemCard } from './public-menu-item-card';
 import { PublicReviewBooster } from './public-review-booster';
 import { LogoMark } from '@/components/ui/logo-mark';
+import { publicHref, withPublicParam } from '@/features/public/utils/public-url';
 
 type VenueLike = Venue | PublicVenue;
 type BranchLike = Branch | BranchManagement | PublicBranch;
@@ -192,7 +193,7 @@ export function PublicMenuExperience({
           <div>
             {backHref ? (
               <Link
-                href={backHref}
+                href={withPublicParam(backHref)}
                 className="inline-flex h-10 items-center gap-1 rounded-full bg-black/40 px-3 text-xs font-black text-white backdrop-blur"
               >
                 {isRtl ? <ChevronRight className="size-4" /> : <ChevronLeft className="size-4" />}
@@ -204,14 +205,14 @@ export function PublicMenuExperience({
             {toolbar}
             {languageHref ? (
               <Link
-                href={languageHref}
+                href={withPublicParam(languageHref)}
                 className="inline-flex h-10 items-center rounded-full bg-black/40 px-3 text-xs font-black text-white backdrop-blur"
               >
                 {locale === 'ar' ? 'EN' : 'AR'}
               </Link>
             ) : null}
 
-            <Link href={`/${locale}`} className="flex w-fit items-center gap-2">
+            <Link href={publicHref(locale)} className="flex w-fit items-center gap-2">
               <LogoMark className="flex size-8 items-center justify-center text-sm font-black text-white" />
             </Link>
           </div>

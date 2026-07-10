@@ -11,6 +11,7 @@ import { textForLocale } from '@/lib/localized-text';
 import { optimizedImageUrl } from '@/lib/image-url';
 import { PublicBranchActions } from './public-branch-actions';
 import { LogoMark } from '@/components/ui/logo-mark';
+import { publicHref } from '@/features/public/utils/public-url';
 
 export function PublicBranchesView({
   venue,
@@ -47,7 +48,7 @@ export function PublicBranchesView({
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_86%_20%,rgba(251,191,36,0.22),transparent_26%),linear-gradient(0deg,rgba(4,47,46,0.84),rgba(4,47,46,0.18))]" />
         <div className="absolute inset-x-4 top-4 flex items-center justify-between sm:inset-x-8 lg:inset-x-14 xl:inset-x-20">
           <Link
-            href={`/${locale}/venues`}
+            href={publicHref(locale, 'venues')}
             className="inline-flex h-10 items-center gap-1 rounded-full bg-black/40 px-3 text-xs font-black text-white backdrop-blur"
           >
             {isRtl ? <ChevronRight className="size-4" /> : <ChevronLeft className="size-4" />}
@@ -56,12 +57,12 @@ export function PublicBranchesView({
 
           <div className="flex items-center gap-4">
             <Link
-              href={`/${locale === 'ar' ? 'en' : 'ar'}/venues/${venue.slug}/branches`}
+              href={publicHref(locale === 'ar' ? 'en' : 'ar', `venues/${venue.slug}/branches`)}
               className="inline-flex h-10 items-center rounded-full bg-black/40 px-3 text-xs font-black text-white backdrop-blur"
             >
               {locale === 'ar' ? 'EN' : 'AR'}
             </Link>
-            <Link href={`/${locale}`} className="flex w-fit items-center gap-2">
+            <Link href={publicHref(locale)} className="flex w-fit items-center gap-2">
               <LogoMark className="flex size-8 items-center justify-center text-sm font-black text-white" />
             </Link>
           </div>
@@ -104,7 +105,7 @@ export function PublicBranchesView({
           {branches.map((branch) => (
             <Link
               key={branch.id}
-              href={`/${locale}/venues/${venue.slug}/${branch.slug}/menu`}
+              href={publicHref(locale, `venues/${venue.slug}/${branch.slug}/menu`)}
               className="flex items-center gap-3 rounded-2xl border border-border bg-white p-4 text-start shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
               <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-teal-50">

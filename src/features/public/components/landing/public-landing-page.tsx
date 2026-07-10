@@ -21,6 +21,7 @@ import { LogoMark } from '@/components/ui/logo-mark';
 import { AppImage } from '@/components/ui/app-image';
 import { PwaInstallSection } from '@/components/shared/pwa-install-section';
 import { LandingQuickSearch } from './landing-quick-search';
+import { publicHref } from '@/features/public/utils/public-url';
 
 export async function PublicLandingPage({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: 'public' });
@@ -31,13 +32,13 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
     <main dir={isRtl ? 'rtl' : 'ltr'} className="min-h-dvh overflow-hidden bg-[#f8fafa] text-stone-950">
       <AuthSessionRedirect locale={locale} launchOnly />
       <header className="absolute inset-x-0 top-0 z-40 flex items-center justify-between gap-3 px-4 py-4 sm:px-8 lg:px-14 xl:px-20">
-        <Link href={`/${locale}`} className="flex items-center gap-2 transition hover:-translate-y-0.5">
+        <Link href={publicHref(locale)} className="flex items-center gap-2 transition hover:-translate-y-0.5">
           <LogoMark className="flex size-9 items-center justify-center text-lg font-black text-white shadow-lg shadow-teal-900/10" />
           <span className="text-lg font-black text-white">{commonT('wasla')}</span>
         </Link>
         <div className="flex items-center gap-2">
           <Link
-            href={`/${locale === 'ar' ? 'en' : 'ar'}`}
+            href={publicHref(locale === 'ar' ? 'en' : 'ar')}
             className="inline-flex h-10 items-center rounded-xl border border-border bg-white px-3 text-xs font-black text-stone-700 shadow-sm"
           >
             {locale === 'ar' ? 'EN' : 'AR'}
@@ -83,7 +84,7 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
                 <ArrowRight className="size-4" />
               </Link>
               <Link
-                href={`/${locale}/venues`}
+                href={publicHref(locale, 'venues')}
                 className="z-9 inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/15 px-5 text-sm font-black text-white shadow-sm backdrop-blur hover:bg-white/20"
               >
                 <Store className="size-4" />
@@ -169,7 +170,7 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
               {t('addYourVenue')}
             </Link>
             <Link
-              href={`/${locale}/venues`}
+              href={publicHref(locale, 'venues')}
               className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 text-sm font-black text-white shadow-sm backdrop-blur"
             >
               <Store className="size-4" />
@@ -460,7 +461,7 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
 
       <footer className="border-t border-border bg-white px-4 py-8 sm:px-8 lg:px-14 xl:px-20">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <Link href={`/${locale}`} className="flex w-fit items-center gap-2">
+          <Link href={publicHref(locale)} className="flex w-fit items-center gap-2">
             <LogoMark className="flex size-8 items-center justify-center text-sm font-black text-white" />
             <span className="text-base font-black text-teal-700">{commonT('wasla')}</span>
           </Link>
@@ -471,7 +472,7 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
               ['privacy', t('footerPrivacy')],
               ['terms', t('footerTerms')],
             ].map(([href, label]) => (
-              <Link key={href} href={`/${locale}/${href}`} className="hover:text-teal-700">
+              <Link key={href} href={publicHref(locale, href)} className="hover:text-teal-700">
                 {label}
               </Link>
             ))}

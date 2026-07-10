@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { publicHref } from '@/features/public/utils/public-url';
 
 export default async function PublicVenuePage({
   params,
@@ -6,5 +7,6 @@ export default async function PublicVenuePage({
   params: Promise<{ locale: string; venueSlug: string }>;
 }) {
   const { locale, venueSlug } = await params;
-  redirect(`/${locale}/venues/${venueSlug}/branches`);
+
+  redirect(publicHref(locale, `venues/${venueSlug}/branches`));
 }
