@@ -379,11 +379,8 @@
     "noPaymentMethod": "No payment method",
     "defaultPaymentMethod": "Default payment method",
     "noReportResults": "No finance data for this range yet.",
-    "all": "All",
     "share": "Share",
     "delete": "Delete",
-    "active": "Active",
-    "inactive": "Inactive",
     "add": "Add",
     "nameEnglish": "English name",
     "nameArabic": "Arabic name",
@@ -615,7 +612,6 @@
       "REJECTED": "Rejected"
     },
     "cancel": "Cancel",
-    "delete": "Delete",
     "deleteItemWarning": "Are you sure you want to delete this item?",
     "deleteCategoryWarning": "Are you sure you want to delete this category?",
     "deleteMenuWarning": "Are you sure you want to delete this menu?",
@@ -851,4 +847,3 @@
     }
   }
 }
-
