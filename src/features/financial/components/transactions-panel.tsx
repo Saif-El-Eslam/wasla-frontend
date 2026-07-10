@@ -187,7 +187,7 @@ export function TransactionsPanel({
                 ) : null}
               </div>
               <SecondaryButton
-                disabled={deleteMutation.isPending}
+                loading={deleteMutation.isPending}
                 onClick={() =>
                   deleteMutation.mutate(transaction.id, {
                     onSuccess: () => toast.success(t('transactionDeleted')),

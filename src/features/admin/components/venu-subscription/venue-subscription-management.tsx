@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import type { UseMutationResult } from '@tanstack/react-query';
 import { PlusCircle, Save, Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Card } from '@/components/ui/dashboard-ui';
+import { Card, LoadingSpinner } from '@/components/ui/dashboard-ui';
 import type {
   AdminVenueSubscriptionRow,
   AdminVenuesResponse,
@@ -125,7 +125,7 @@ function AssignSubscriptionPanel({
           type="submit"
           disabled={!venueId || mutation.isPending}
         >
-          <PlusCircle className="size-4" />
+          {mutation.isPending ? <LoadingSpinner /> : <PlusCircle className="size-4" />}
           {t('venueCrm.assignButton')}
         </button>
       </div>
@@ -215,7 +215,7 @@ function VenueSubscriptionRow({
           onClick={() => mutation.mutate({ venueId: venue.id, plan, status, currentPeriodEnds })}
           aria-label={t('venueCrm.save')}
         >
-          <Save className="size-4" />
+          {mutation.isPending ? <LoadingSpinner /> : <Save className="size-4" />}
         </button>
       </td>
     </tr>

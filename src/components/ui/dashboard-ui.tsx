@@ -14,6 +14,7 @@ export { DashboardShell } from './dashboard-shell';
 export { EmptyState } from './empty-state';
 export { FormPanel } from './form-panel';
 export { IconButton } from './icon-button';
+export { ButtonLoadingContent, LoadingSpinner } from './loading-spinner';
 export { PaginationControls } from './pagination-controls';
 export { PrimaryButton } from './primary-button';
 export { SecondaryButton } from './secondary-button';

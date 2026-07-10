@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Badge, Card, cx } from '@/components/ui/dashboard-ui';
+import { Badge, Card, LoadingSpinner, cx } from '@/components/ui/dashboard-ui';
 import type {
   AdminFeaturesResponse,
   AdminPlansResponse,
@@ -400,7 +400,7 @@ function PlanEditorCard({
                   disabled={isSavingPlan}
                   className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-black text-white transition hover:bg-teal-700 disabled:opacity-60"
                 >
-                  <Save className="size-4" />
+                  {isSavingPlan ? <LoadingSpinner /> : <Save className="size-4" />}
                   {t('plans.save')}
                 </button>
               </div>

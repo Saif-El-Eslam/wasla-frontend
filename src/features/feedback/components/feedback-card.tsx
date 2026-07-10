@@ -1,8 +1,8 @@
-﻿'use client';
+'use client';
 
 import { Archive, CheckCircle2, RotateCcw, Star } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Badge, Card, cx } from '@/components/ui/dashboard-ui';
+import { Badge, Card, LoadingSpinner, cx } from '@/components/ui/dashboard-ui';
 import type { GuestFeedback, GuestFeedbackStatus } from '@/lib/api';
 import { textForLocale } from '@/lib/localized-text';
 
@@ -70,7 +70,7 @@ export function FeedbackCard({
               onClick={() => onStatusChange('REVIEWED')}
               disabled={pending}
             >
-              <CheckCircle2 className="size-4" />
+              {pending ? <LoadingSpinner /> : <CheckCircle2 className="size-4" />}
               <span className="hidden md:inline">{t('markReviewed')}</span>
             </button>
           ) : null}
@@ -81,7 +81,7 @@ export function FeedbackCard({
               onClick={() => onStatusChange('REVIEWED')}
               disabled={pending}
             >
-              <RotateCcw className="size-4" />
+              {pending ? <LoadingSpinner /> : <RotateCcw className="size-4" />}
               <span className="hidden md:inline">{t('unarchiveFeedback')}</span>
             </button>
           ) : (
@@ -91,7 +91,7 @@ export function FeedbackCard({
               onClick={() => onStatusChange('ARCHIVED')}
               disabled={pending}
             >
-              <Archive className="size-4" />
+              {pending ? <LoadingSpinner /> : <Archive className="size-4" />}
               <span className="hidden md:inline">{t('archiveFeedback')}</span>
             </button>
           )}

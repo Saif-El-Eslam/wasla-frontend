@@ -85,7 +85,7 @@ export function CategoriesPanel({ locale }: { locale: string }) {
                     </div>
                     <div className="flex flex-wrap justify-end gap-2">
                       <SecondaryButton
-                        disabled={updateMutation.isPending}
+                        loading={updateMutation.isPending}
                         onClick={() =>
                           updateMutation.mutate({
                             categoryId: category.id,
@@ -101,7 +101,7 @@ export function CategoriesPanel({ locale }: { locale: string }) {
                       </SecondaryButton>
                       {transactionCount === 0 ? (
                         <SecondaryButton
-                          disabled={deleteMutation.isPending}
+                          loading={deleteMutation.isPending}
                           onClick={() =>
                             deleteMutation.mutate(category.id, {
                               onSuccess: () => toast.success(t('categoryDeleted')),

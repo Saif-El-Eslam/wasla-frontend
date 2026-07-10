@@ -3,7 +3,7 @@
 import type { UseMutationResult } from '@tanstack/react-query';
 import { BarChart3 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Card, cx } from '@/components/ui/dashboard-ui';
+import { Card, LoadingSpinner, cx } from '@/components/ui/dashboard-ui';
 import type {
   AdminFeaturesResponse,
   AdminPlansResponse,
@@ -15,7 +15,10 @@ import type {
 import { textForLocale } from '@/lib/localized-text';
 import { mappingDraft } from '../../utils/admin-subscriptions';
 
-const qrBrandingOptions: Array<{ value: QrBrandingLevel; labelKey: 'waslaSigned' | 'venueLogo' | 'fullCustom' }> = [
+const qrBrandingOptions: Array<{
+  value: QrBrandingLevel;
+  labelKey: 'waslaSigned' | 'venueLogo' | 'fullCustom';
+}> = [
   { value: 'WASLA_SIGNED', labelKey: 'waslaSigned' },
   { value: 'VENUE_LOGO', labelKey: 'venueLogo' },
   { value: 'FULL_CUSTOM', labelKey: 'fullCustom' },
@@ -41,12 +44,19 @@ export function PlanFeatureMatrix({
 
   return (
     <Card className="border-teal-100 bg-white p-4 sm:p-5">
-      <div className="flex items-start gap-2">
-        <BarChart3 className="mt-0.5 size-5 shrink-0 text-primary" />
-        <div>
-          <h2 className="text-lg font-black text-stone-950">{t('matrix.title')}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{t('matrix.body')}</p>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-2">
+          <BarChart3 className="mt-0.5 size-5 shrink-0 text-primary" />
+          <div>
+            <h2 className="text-lg font-black text-stone-950">{t('matrix.title')}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{t('matrix.body')}</p>
+          </div>
         </div>
+        {mutation.isPending ? (
+          <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-primary">
+            <LoadingSpinner />
+          </span>
+        ) : null}
       </div>
       <div className="mt-4 overflow-x-auto rounded-2xl border border-teal-50">
         <table className="w-full min-w-[960px] text-left text-sm">

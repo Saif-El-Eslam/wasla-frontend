@@ -437,7 +437,8 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
           <div className="flex flex-col gap-2 sm:flex-row items-center justify-center">
             <SecondaryButton
               onClick={() => startMutation.mutate()}
-              disabled={!canUpload || startMutation.isPending || isBusy}
+              loading={startMutation.isPending}
+              disabled={!canUpload || isBusy}
               className="w-full bg-foreground rounded-3xl inline-flex h-11 items-center justify-center gap-2 px-4 text-sm font-bold text-primary-foreground shadow-md shadow-black-200 transition hover:brightness-95 disabled:opacity-55 hover:bg-foreground/90 disabled:bg-foreground/50 disabled:text-primary-foreground/50"
             >
               <Sparkles className="size-4" />
@@ -446,7 +447,8 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
             {/* {job?.status === 'FAILED' || job?.status === 'REJECTED' ? (
               <PrimaryButton
                 onClick={() => retryMutation.mutate()}
-                disabled={!canUpload || retryMutation.isPending}
+                loading={retryMutation.isPending}
+                disabled={!canUpload}
               >
                 <RefreshCw className="size-4" />
                 {t('retryExtraction')}

@@ -5,6 +5,7 @@ import { LogOut, Store } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 export function MobileAppShell({ children }: { children: React.ReactNode }) {
   const appT = useTranslations('app');
@@ -42,7 +43,7 @@ export function MobileAppShell({ children }: { children: React.ReactNode }) {
             aria-label={dashboardT('signOut')}
             title={dashboardT('signOut')}
           >
-            <LogOut className="size-5" aria-hidden="true" />
+            {logoutMutation.isPending ? <LoadingSpinner /> : <LogOut className="size-5" aria-hidden="true" />}
           </button>
         </header>
         {children}

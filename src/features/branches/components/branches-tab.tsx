@@ -27,6 +27,7 @@ import {
   PrimaryButton,
   SectionTitle,
   TabLoader,
+  LoadingSpinner,
   slugify,
 } from '@/components/ui/dashboard-ui';
 import { ConfirmationModal } from '@/components/ui/confirmation-modal';
@@ -521,7 +522,7 @@ export function BranchesTab({
               </button>
               <PrimaryButton
                 type="submit"
-                disabled={isSubmitting || createBranchMutation.isPending || updateBranchMutation.isPending}
+                loading={isSubmitting || createBranchMutation.isPending || updateBranchMutation.isPending}
               >
                 <CheckCircle2 className="size-4" />
                 {editingBranch ? t('saveBranch') : t('createBranch')}
@@ -585,7 +586,9 @@ export function BranchesTab({
                         }}
                         disabled={toggleBranchMutation.isPending}
                       >
-                        {branch.active ? (
+                        {toggleBranchMutation.isPending ? (
+                          <LoadingSpinner />
+                        ) : branch.active ? (
                           <ToggleRight className="size-4 text-primary" />
                         ) : (
                           <ToggleLeft className="size-4" />
@@ -611,7 +614,7 @@ export function BranchesTab({
                           }}
                           disabled={setMainMutation.isPending}
                         >
-                          <Star className="size-4" />
+                          {setMainMutation.isPending ? <LoadingSpinner /> : <Star className="size-4" />}
                           {t('setMain')}
                         </button>
                       ) : null}

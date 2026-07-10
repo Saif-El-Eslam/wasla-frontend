@@ -22,6 +22,7 @@ import { useTranslations } from 'next-intl';
 import { api, ApiError } from '@/lib/api';
 import { FormInput } from '@/components/ui/form-input';
 import { LogoMark } from '@/components/ui/logo-mark';
+import { ButtonLoadingContent, LoadingSpinner } from '@/components/ui/loading-spinner';
 import { cx } from '@/components/ui/cx';
 import { publicLandingHref } from '@/features/auth/utils/pwa-public-navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -148,7 +149,7 @@ export default function SetupPage() {
             disabled={logoutMutation.isPending}
             onClick={() => logoutMutation.mutate()}
           >
-            <LogOut className="size-4" />
+            {logoutMutation.isPending ? <LoadingSpinner /> : <LogOut className="size-4" />}
             <span className="hidden sm:inline">{dashboardT('logout')}</span>
           </button>
         </div>
@@ -334,12 +335,10 @@ export default function SetupPage() {
                   className="wasla-shimmer inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl px-4 text-sm font-black text-white shadow-lg shadow-teal-950/15 transition hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-60"
                   disabled={setupMutation.isPending}
                 >
-                  {setupMutation.isPending ? (
-                    <span className="inline-flex size-4 animate-spin rounded-full border-2 border-white/50 border-t-white" />
-                  ) : (
-                    <ArrowRight className="size-4" />
-                  )}
-                  {setupMutation.isPending ? commonT('saving') : t('createVenue')}
+                  <ButtonLoadingContent loading={setupMutation.isPending} spinnerClassName="text-white">
+                    {setupMutation.isPending ? null : <ArrowRight className="size-4" />}
+                    {setupMutation.isPending ? commonT('saving') : t('createVenue')}
+                  </ButtonLoadingContent>
                 </button>
               </div>
             </div>

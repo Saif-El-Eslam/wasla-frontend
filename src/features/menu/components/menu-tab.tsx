@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -21,6 +21,7 @@ import {
   FormPanel,
   PrimaryButton,
   TabLoader,
+  LoadingSpinner,
 } from '@/components/ui/dashboard-ui';
 import { readError, toLocalized, type LocalizedDraft } from '@/features/dashboard/utils/dashboard-utils';
 import { FormInput } from '@/components/ui/form-input';
@@ -578,7 +579,7 @@ export function MenuTab({
                   locale={locale}
                 />
 
-                <PrimaryButton onClick={() => setFormMode('menu')} disabled={createMenuMutation.isPending}>
+                <PrimaryButton onClick={() => setFormMode('menu')} loading={createMenuMutation.isPending}>
                   <Plus className="size-4" />
                   {t('addMenu')}
                 </PrimaryButton>

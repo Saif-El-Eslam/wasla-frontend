@@ -21,6 +21,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { api, ApiError } from '@/lib/api';
 import { FormInput } from '@/components/ui/form-input';
+import { ButtonLoadingContent } from '@/components/ui/loading-spinner';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import {
@@ -441,12 +442,10 @@ export function AuthPanel({ mode }: { mode: Mode }) {
                   className="wasla-shimmer inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl px-4 text-sm font-black text-white shadow-lg shadow-teal-950/15 transition hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-60"
                   disabled={pending}
                 >
-                  {pending ? (
-                    <span className="inline-flex size-4 animate-spin rounded-full border-2 border-white/50 border-t-white" />
-                  ) : (
-                    <SubmitIcon className="size-4" />
-                  )}
-                  {pending ? commonT('pleaseWait') : submitLabel}
+                  <ButtonLoadingContent loading={pending} spinnerClassName="text-white">
+                    {pending ? null : <SubmitIcon className="size-4" />}
+                    {pending ? commonT('pleaseWait') : submitLabel}
+                  </ButtonLoadingContent>
                 </button>
               </form>
 

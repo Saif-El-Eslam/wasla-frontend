@@ -209,7 +209,7 @@ export function AddTransactionPanel({
       </div>
 
       <div className="sticky bottom-0 flex flex-col gap-2 border-t border-stone-200 bg-[#f8fafa]/95 py-3 backdrop-blur sm:flex-row sm:justify-end">
-        <SecondaryButton onClick={() => submit(true)} disabled={mutation.isPending || !canSubmit}>
+        <SecondaryButton onClick={() => submit(true)} loading={mutation.isPending} disabled={!canSubmit}>
           <SaveAll className="size-4" />
           {t('saveAndAddAnother')}
         </SecondaryButton>
