@@ -209,11 +209,11 @@ export function PublicReviewBooster({
 
       {open ? (
         <div
-          className="fixed inset-0 z-50 max-h-[80vh] grid place-items-center overflow-y-auto bg-stone-950/20 px-3 py-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-stone-950/20 px-3 py-4 backdrop-blur-sm"
           onClick={() => setOpen(false)}
         >
           <div
-            className="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-3xl border border-white/70 bg-white p-4 shadow-2xl"
+            className="max-h-[calc(100dvh-20vh)] w-full max-w-md overflow-y-auto rounded-3xl border border-white/70 bg-white p-4 shadow-2xl"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-3">
