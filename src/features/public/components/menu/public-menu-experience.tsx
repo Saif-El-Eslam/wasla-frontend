@@ -24,6 +24,7 @@ import { PublicCategoryNav } from './public-category-nav';
 import { PublicItemModal } from './public-item-modal';
 import { PublicMenuItemCard } from './public-menu-item-card';
 import { PublicReviewBooster } from './public-review-booster';
+import { LogoMark } from '@/components/ui/logo-mark';
 
 type VenueLike = Venue | PublicVenue;
 type BranchLike = Branch | BranchManagement | PublicBranch;
@@ -199,7 +200,7 @@ export function PublicMenuExperience({
               </Link>
             ) : null}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             {toolbar}
             {languageHref ? (
               <Link
@@ -209,6 +210,10 @@ export function PublicMenuExperience({
                 {locale === 'ar' ? 'EN' : 'AR'}
               </Link>
             ) : null}
+
+            <Link href={`/${locale}`} className="flex w-fit items-center gap-2">
+              <LogoMark className="flex size-8 items-center justify-center text-sm font-black text-white" />
+            </Link>
           </div>
         </div>
         <div className="absolute bottom-0 left-1/2 z-20 flex size-20 -translate-x-1/2 translate-y-1/2 items-center justify-center overflow-hidden rounded-2xl border-4 border-white bg-primary text-3xl font-black text-white shadow-xl">

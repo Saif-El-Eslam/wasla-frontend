@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useMemo, useState } from 'react';
 import { ExternalLink, MessageSquareHeart, Send, Star, X } from 'lucide-react';
@@ -208,8 +208,8 @@ export function PublicReviewBooster({
       </button>
 
       {open ? (
-        <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-stone-950/20 px-3 py-4 backdrop-blur-sm">
-          <div className="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-3xl border border-white/70 bg-white p-4 shadow-2xl">
+        <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-stone-950/20 px-3 py-4 backdrop-blur-sm" onClick={() => setOpen(false)}>
+          <div className="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-3xl border border-white/70 bg-white p-4 shadow-2xl" onClick={(event) => event.stopPropagation()}>
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-black uppercase tracking-wider text-amber-600">

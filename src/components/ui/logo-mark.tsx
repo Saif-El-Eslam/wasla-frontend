@@ -10,37 +10,51 @@ const failedLogoSources = new Set<string>();
 export function LogoMark({
   className,
   imageClassName,
-  src = '/icon-192.png',
+  shape = 'rounded',
+  sizes = '48px',
+  src,
+  variant = 'mark',
 }: {
   className?: string;
   imageClassName?: string;
+  shape?: 'circle' | 'none' | 'rounded';
+  sizes?: string;
   src?: string;
+  variant?: 'mark' | 'wordmark';
 }) {
-  const [loaded, setLoaded] = useState(() => loadedLogoSources.has(src));
-  const [failed, setFailed] = useState(() => failedLogoSources.has(src));
+  const resolvedSrc = src ?? '/favicon.svg'; // (variant === 'wordmark' ? '/wasla-wordmark.svg' : '/wasla-mark.svg');
+  const [loaded, setLoaded] = useState(() => loadedLogoSources.has(resolvedSrc));
+  const [failed, setFailed] = useState(() => failedLogoSources.has(resolvedSrc));
 
   useEffect(() => {
-    setLoaded(loadedLogoSources.has(src));
-    setFailed(failedLogoSources.has(src));
-  }, [src]);
+    setLoaded(loadedLogoSources.has(resolvedSrc));
+    setFailed(failedLogoSources.has(resolvedSrc));
+  }, [resolvedSrc]);
 
   return (
-    <span className={cx('rounded-sm relative overflow-hidden', className)}>
+    <span
+      className={cx(
+        'relative overflow-hidden',
+        shape === 'circle' && 'rounded-full',
+        shape === 'rounded' && 'rounded-sm',
+        className,
+      )}
+    >
       <span className={cx('flex size-full items-center justify-center', failed ? '' : 'sr-only')}>W</span>
       {failed ? null : (
         <Image
-          src={src}
+          src={resolvedSrc}
           alt=""
           fill
           loading={loaded ? 'eager' : 'lazy'}
-          sizes="48px"
+          sizes={sizes}
           className={cx('object-contain', imageClassName)}
           onLoad={() => {
-            loadedLogoSources.add(src);
+            loadedLogoSources.add(resolvedSrc);
             setLoaded(true);
           }}
           onError={() => {
-            failedLogoSources.add(src);
+            failedLogoSources.add(resolvedSrc);
             setFailed(true);
           }}
         />

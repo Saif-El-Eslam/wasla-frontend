@@ -10,6 +10,7 @@ import { AppImage } from '@/components/ui/app-image';
 import { textForLocale } from '@/lib/localized-text';
 import { optimizedImageUrl } from '@/lib/image-url';
 import { PublicBranchActions } from './public-branch-actions';
+import { LogoMark } from '@/components/ui/logo-mark';
 
 export function PublicBranchesView({
   venue,
@@ -52,12 +53,18 @@ export function PublicBranchesView({
             {isRtl ? <ChevronRight className="size-4" /> : <ChevronLeft className="size-4" />}
             {t('back')}
           </Link>
-          <Link
-            href={`/${locale === 'ar' ? 'en' : 'ar'}/venues/${venue.slug}/branches`}
-            className="inline-flex h-10 items-center rounded-full bg-black/40 px-3 text-xs font-black text-white backdrop-blur"
-          >
-            {locale === 'ar' ? 'EN' : 'AR'}
-          </Link>
+
+          <div className="flex items-center gap-4">
+            <Link
+              href={`/${locale === 'ar' ? 'en' : 'ar'}/venues/${venue.slug}/branches`}
+              className="inline-flex h-10 items-center rounded-full bg-black/40 px-3 text-xs font-black text-white backdrop-blur"
+            >
+              {locale === 'ar' ? 'EN' : 'AR'}
+            </Link>
+            <Link href={`/${locale}`} className="flex w-fit items-center gap-2">
+              <LogoMark className="flex size-8 items-center justify-center text-sm font-black text-white" />
+            </Link>
+          </div>
         </div>
         <div className="absolute bottom-8 start-4 flex items-center gap-4 sm:start-8 lg:start-14 xl:start-20">
           <div className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border-4 border-white bg-teal-600 text-2xl font-black text-white shadow-lg">
