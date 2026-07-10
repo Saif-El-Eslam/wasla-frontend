@@ -208,8 +208,14 @@ export function PublicReviewBooster({
       </button>
 
       {open ? (
-        <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-stone-950/20 px-3 py-4 backdrop-blur-sm" onClick={() => setOpen(false)}>
-          <div className="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-3xl border border-white/70 bg-white p-4 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-50 max-h-[80vh] grid place-items-center overflow-y-auto bg-stone-950/20 px-3 py-4 backdrop-blur-sm"
+          onClick={() => setOpen(false)}
+        >
+          <div
+            className="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-3xl border border-white/70 bg-white p-4 shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-black uppercase tracking-wider text-amber-600">
@@ -254,7 +260,9 @@ export function PublicReviewBooster({
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-black text-amber-700">
                       {formatTemplate(labels.average, {
-                        rating: reviews.summary.averageRating ? reviews.summary.averageRating.toFixed(1) : '0.0',
+                        rating: reviews.summary.averageRating
+                          ? reviews.summary.averageRating.toFixed(1)
+                          : '0.0',
                       })}
                     </span>
                     <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-black text-stone-600">
@@ -282,7 +290,9 @@ export function PublicReviewBooster({
                           </div>
                         </div>
                         {item.comment ? (
-                          <p className="mt-2 text-sm font-semibold leading-6 text-stone-700">{item.comment}</p>
+                          <p className="mt-2 text-sm font-semibold leading-6 text-stone-700">
+                            {item.comment}
+                          </p>
                         ) : null}
                       </div>
                     ))}
