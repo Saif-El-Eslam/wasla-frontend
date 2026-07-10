@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -168,7 +168,7 @@ export function SettingsTab({
     const nextParams = new URLSearchParams(searchParams.toString());
     nextParams.set('tab', 'settings');
     nextParams.set('settings', tab);
-    router.replace(`${pathname}?${nextParams.toString()}`, { scroll: false });
+    router.push(`${pathname}?${nextParams.toString()}`, { scroll: false });
   };
 
   const returnToMobileSettingsMenu = () => {
@@ -176,7 +176,7 @@ export function SettingsTab({
     const nextParams = new URLSearchParams(searchParams.toString());
     nextParams.set('tab', 'settings');
     nextParams.delete('settings');
-    router.replace(`${pathname}?${nextParams.toString()}`, { scroll: false });
+    router.push(`${pathname}?${nextParams.toString()}`, { scroll: false });
   };
 
   const updateMeMutation = useMutation({
@@ -331,3 +331,4 @@ export function SettingsTab({
     </div>
   );
 }
+

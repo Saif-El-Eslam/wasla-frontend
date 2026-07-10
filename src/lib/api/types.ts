@@ -82,6 +82,7 @@ export type Branch = {
   whatsapp: string | null;
   address: LocalizedValue | null;
   googleMapsUrl: string | null;
+  googleReviewUrl: string | null;
   instagramUrl: string | null;
   facebookUrl: string | null;
   openingHours?: OpeningHours | null;
@@ -197,6 +198,24 @@ export type PublicAnalyticsEventInput = {
   menuId?: string;
   categoryId?: string;
   itemId?: string;
+};
+
+export type PublicFeedbackInput = {
+  venueId: string;
+  branchId: string;
+  menuId?: string;
+  rating: number;
+  comment?: string;
+  locale?: 'ar' | 'en';
+};
+
+export type PublicFeedbackResponse = {
+  feedback: GuestFeedback;
+  booster: {
+    showGoogleReview: boolean;
+    googleReviewUrl: string | null;
+    privateIssue: boolean;
+  };
 };
 
 export type AssignedBranch = Pick<Branch, 'id' | 'name' | 'slug' | 'isMain' | 'active'>;
@@ -409,6 +428,7 @@ export type SetupVenueInput = {
   whatsapp?: string;
   address?: LocalizedText;
   googleMapsUrl?: string;
+  googleReviewUrl?: string;
   instagramUrl?: string;
   facebookUrl?: string;
   branchName: LocalizedText;
@@ -495,6 +515,36 @@ export type AnalyticsSummary = {
   topItems: Array<{ itemId: string; name: LocalizedValue | null; views: number }>;
 };
 
+export type GuestFeedbackStatus = 'NEW' | 'REVIEWED' | 'ARCHIVED';
+
+export type GuestFeedback = {
+  id: string;
+  venueId: string;
+  branchId: string;
+  menuId: string | null;
+  rating: number;
+  comment: string | null;
+  status: GuestFeedbackStatus;
+  locale: string | null;
+  googleReviewOffered: boolean;
+  googleReviewClickedAt: string | null;
+  ownerNotifiedAt: string | null;
+  createdAt: string;
+  branch: Pick<Branch, 'id' | 'name' | 'slug'>;
+};
+
+export type FeedbackDashboardResponse = {
+  summary: {
+    averageRating: number;
+    privateIssues: number;
+    redirectCount: number;
+    total: number;
+    ratingBuckets: Array<{ rating: number; count: number }>;
+  };
+  feedback: GuestFeedback[];
+  pagination: PaginationMeta;
+};
+
 export type CreateBranchInput = {
   name: LocalizedText;
   slug: string;
@@ -505,6 +555,7 @@ export type CreateBranchInput = {
   whatsapp?: string;
   address?: LocalizedText;
   googleMapsUrl?: string;
+  googleReviewUrl?: string;
   instagramUrl?: string;
   facebookUrl?: string;
   openingHours?: OpeningHours;

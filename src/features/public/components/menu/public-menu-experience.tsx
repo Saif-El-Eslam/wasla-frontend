@@ -23,6 +23,7 @@ import { PublicBranchActions } from '../branch/public-branch-actions';
 import { PublicCategoryNav } from './public-category-nav';
 import { PublicItemModal } from './public-item-modal';
 import { PublicMenuItemCard } from './public-menu-item-card';
+import { PublicReviewBooster } from './public-review-booster';
 
 type VenueLike = Venue | PublicVenue;
 type BranchLike = Branch | BranchManagement | PublicBranch;
@@ -314,6 +315,7 @@ export function PublicMenuExperience({
           onClose={() => setSelectedItem(null)}
         />
       ) : null}
+      <PublicReviewBooster venue={venue} branch={branch} menu={menu} locale={locale} />
     </div>
   );
 }

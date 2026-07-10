@@ -2,6 +2,8 @@ import type {
   ApiEnvelope,
   PublicAnalyticsEventInput,
   PublicBranchMenuResponse,
+  PublicFeedbackInput,
+  PublicFeedbackResponse,
   PublicVenueListResponse,
   PublicVenueResponse,
 } from '@/lib/api';
@@ -82,6 +84,17 @@ export const publicMenuApi = {
     publicApi<{ tracked: boolean }>('/public/analytics', {
       method: 'POST',
       body: JSON.stringify(input),
+      keepalive: true,
+    }).catch(() => ({ tracked: false })),
+  submitFeedback: (input: PublicFeedbackInput) =>
+    publicApi<PublicFeedbackResponse>('/public/feedback', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    }),
+  trackGoogleReviewClick: (feedbackId: string) =>
+    publicApi<{ tracked: boolean }>('/public/feedback/google-click', {
+      method: 'POST',
+      body: JSON.stringify({ feedbackId }),
       keepalive: true,
     }).catch(() => ({ tracked: false })),
 };

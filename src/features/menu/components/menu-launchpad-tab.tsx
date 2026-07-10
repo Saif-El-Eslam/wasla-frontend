@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { BarChart3, QrCode, UtensilsCrossed } from 'lucide-react';
+import { BarChart3, MessageSquareHeart, QrCode, UtensilsCrossed } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { FeedbackTab } from '@/features/feedback/components/feedback-tab';
 import { AnalyticsTab } from '@/features/menu/analytics/components/analytics-tab';
 import { QrTab } from '@/features/menu/qr/components/qr-tab';
 import { useBranchOverview } from '@/features/venue/hooks/use-venue';
@@ -79,6 +80,16 @@ export function MenuLaunchpadTab({
       accent: 'from-indigo-500 to-sky-500',
       visual: 'chart',
     },
+    {
+      id: 'feedback',
+      title: t('hubFeedbackTitle'),
+      description: t('hubFeedbackBody'),
+      metric: t('hubFeedbackMetric'),
+      metricTone: 'bg-rose-50 text-rose-800',
+      icon: MessageSquareHeart,
+      accent: 'from-rose-500 to-amber-500',
+      visual: 'chart',
+    },
   ];
 
   useEffect(() => {
@@ -102,7 +113,9 @@ export function MenuLaunchpadTab({
         ? t('hubQrTitle')
         : renderedPanel === 'analytics'
           ? t('hubAnalyticsTitle')
-          : '';
+          : renderedPanel === 'feedback'
+            ? t('hubFeedbackTitle')
+            : '';
 
   if (overview.isLoading) {
     return <TabLoader label={t('loadingWorkspace')} />;
@@ -155,6 +168,7 @@ export function MenuLaunchpadTab({
               locale={locale}
             />
           ) : null}
+          {renderedPanel === 'feedback' ? <FeedbackTab locale={locale} /> : null}
         </MenuHubDrawer>
       ) : null}
     </div>

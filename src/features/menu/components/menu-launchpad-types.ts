@@ -1,4 +1,4 @@
-export type MenuHubPanel = 'menu' | 'qr' | 'analytics';
+export type MenuHubPanel = 'menu' | 'qr' | 'analytics' | 'feedback';
 
 export type LaunchpadCard = {
   id: MenuHubPanel;

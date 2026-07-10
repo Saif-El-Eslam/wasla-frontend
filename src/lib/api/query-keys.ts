@@ -15,11 +15,15 @@ export const queryKeys = {
   analytics: (branchId: string, filters?: Record<string, unknown>) =>
     ['branch', branchId, 'analytics', filters ?? {}] as const,
   analyticsSummary: (filters?: Record<string, unknown>) => ['analytics', 'summary', filters ?? {}] as const,
+  feedbackDashboard: (filters?: Record<string, unknown>) => ['feedback', 'dashboard', filters ?? {}] as const,
   financeAccess: ['finance', 'access'] as const,
   financeDashboard: (filters?: Record<string, unknown>) => ['finance', 'dashboard', filters ?? {}] as const,
-  financialTransactions: (filters?: Record<string, unknown>) => ['finance', 'transactions', filters ?? {}] as const,
-  financialCategories: (filters?: Record<string, unknown>) => ['finance', 'categories', filters ?? {}] as const,
-  financialPaymentMethods: (filters?: Record<string, unknown>) => ['finance', 'payment-methods', filters ?? {}] as const,
+  financialTransactions: (filters?: Record<string, unknown>) =>
+    ['finance', 'transactions', filters ?? {}] as const,
+  financialCategories: (filters?: Record<string, unknown>) =>
+    ['finance', 'categories', filters ?? {}] as const,
+  financialPaymentMethods: (filters?: Record<string, unknown>) =>
+    ['finance', 'payment-methods', filters ?? {}] as const,
   financialAnalytics: (filters?: Record<string, unknown>) => ['finance', 'analytics', filters ?? {}] as const,
   financialReport: (filters?: Record<string, unknown>) => ['finance', 'report', filters ?? {}] as const,
   subscription: ['subscription'] as const,

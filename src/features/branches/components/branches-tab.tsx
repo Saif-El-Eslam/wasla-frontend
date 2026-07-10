@@ -100,6 +100,7 @@ export function BranchesTab({
       logoUrl: '',
       coverUrl: '',
       googleMapsUrl: '',
+      googleReviewUrl: '',
       instagramUrl: '',
       facebookUrl: '',
       openingHours: { from: '', to: '' },
@@ -151,6 +152,7 @@ export function BranchesTab({
       logoUrl: '',
       coverUrl: '',
       googleMapsUrl: '',
+      googleReviewUrl: '',
       instagramUrl: '',
       facebookUrl: '',
       openingHours: { from: '', to: '' },
@@ -180,6 +182,7 @@ export function BranchesTab({
       logoUrl: branch.logoUrl ?? '',
       coverUrl: branch.coverUrl ?? '',
       googleMapsUrl: branch.googleMapsUrl ?? '',
+      googleReviewUrl: branch.googleReviewUrl ?? '',
       instagramUrl: branch.instagramUrl ?? '',
       facebookUrl: branch.facebookUrl ?? '',
       openingHours: normalizeOpeningHours(branch.openingHours) ?? { from: '', to: '' },
@@ -225,6 +228,7 @@ export function BranchesTab({
           logoUrl,
           coverUrl,
           googleMapsUrl: values.googleMapsUrl ?? '',
+          googleReviewUrl: values.googleReviewUrl ?? '',
           instagramUrl: values.instagramUrl ?? '',
           facebookUrl: values.facebookUrl ?? '',
           openingHours,
@@ -264,6 +268,7 @@ export function BranchesTab({
         logoUrl: payload.logoUrl ?? null,
         coverUrl: payload.coverUrl ?? null,
         googleMapsUrl: payload.googleMapsUrl ?? null,
+        googleReviewUrl: payload.googleReviewUrl ?? null,
         instagramUrl: payload.instagramUrl ?? null,
         facebookUrl: payload.facebookUrl ?? null,
         openingHours: payload.openingHours ?? null,
@@ -458,6 +463,15 @@ export function BranchesTab({
                 type="url"
                 placeholder={t('googleMapsUrl')}
                 label={t('googleMapsUrl')}
+                clearLabel={t('clearLink')}
+              />
+
+              <ClearableFormInput
+                form={form}
+                name="googleReviewUrl"
+                type="url"
+                placeholder={t('googleReviewUrl')}
+                label={t('googleReviewUrl')}
                 clearLabel={t('clearLink')}
               />
 

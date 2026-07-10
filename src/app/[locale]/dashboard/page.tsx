@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -10,6 +10,7 @@ import { BranchesTab } from '@/features/branches/components/branches-tab';
 import { Badge, Card, DashboardShell, PrimaryButton, type DashboardTab } from '@/components/ui/dashboard-ui';
 import { DashboardLoading } from '@/components/ui/dashboard-loading';
 import { FinancialsTab } from '@/features/financials-tab';
+import type { FinancePanel } from '@/features/financial/components/finance-ui';
 import { MenuLaunchpadTab, type MenuHubPanel } from '@/features/menu/components/menu-launchpad-tab';
 import { OverviewTab } from '@/features/home/components/overview-tab';
 // import { PublicPreview } from '@/features/public/menu/components/menu/public-preview';
@@ -19,7 +20,9 @@ import { useVenue } from '@/features/venue/hooks/use-venue';
 import { textForLocale } from '@/lib/localized-text';
 
 const dashboardTabs: DashboardTab[] = ['overview', 'branches', 'menu', 'financials', 'settings'];
-const legacyMenuPanelTabs: MenuHubPanel[] = ['qr', 'analytics'];
+const legacyMenuPanelTabs: MenuHubPanel[] = ['qr', 'analytics', 'feedback'];
+const menuPanels: MenuHubPanel[] = ['menu', 'qr', 'analytics', 'feedback'];
+const financePanels: FinancePanel[] = ['add', 'transactions', 'reports', 'categories', 'paymentMethods'];
 
 function dashboardTabFromUrl(tab: string | null): DashboardTab {
   if (legacyMenuPanelTabs.includes(tab as MenuHubPanel)) {
@@ -31,6 +34,14 @@ function dashboardTabFromUrl(tab: string | null): DashboardTab {
 
 function menuPanelFromUrl(tab: string | null): MenuHubPanel | null {
   return legacyMenuPanelTabs.includes(tab as MenuHubPanel) ? (tab as MenuHubPanel) : null;
+}
+
+function dashboardPanelFromUrl(panel: string | null): MenuHubPanel | null {
+  return menuPanels.includes(panel as MenuHubPanel) ? (panel as MenuHubPanel) : null;
+}
+
+function financePanelFromUrl(panel: string | null): FinancePanel | null {
+  return financePanels.includes(panel as FinancePanel) ? (panel as FinancePanel) : null;
 }
 
 export default function DashboardPage() {
@@ -48,9 +59,9 @@ export default function DashboardPage() {
   const [selectedMenuBranchId, setSelectedMenuBranchId] = useState('');
   const [selectedQrBranchId, setSelectedQrBranchId] = useState('');
   const [selectedAnalyticsBranchId, setSelectedAnalyticsBranchId] = useState('all');
-  const [activeMenuPanel, setActiveMenuPanel] = useState<MenuHubPanel | null>(() =>
-    menuPanelFromUrl(searchParams.get('tab')),
-  );
+  const activeMenuPanel =
+    dashboardPanelFromUrl(searchParams.get('panel')) ?? menuPanelFromUrl(searchParams.get('tab'));
+  const activeFinancePanel = financePanelFromUrl(searchParams.get('finance'));
   // const [publicPreviewOpen, setPublicPreviewOpen] = useState(false);
 
   const logoutMutation = useMutation({
@@ -63,10 +74,6 @@ export default function DashboardPage() {
 
   const changeDashboardTab = useCallback(
     (tab: DashboardTab) => {
-      if (tab !== 'menu') {
-        setActiveMenuPanel(null);
-      }
-
       const nextParams = new URLSearchParams(searchParams.toString());
 
       if (tab === 'overview') {
@@ -75,10 +82,51 @@ export default function DashboardPage() {
         nextParams.set('tab', tab);
       }
 
+      nextParams.delete('panel');
+      nextParams.delete('finance');
       nextParams.delete('settings');
+      nextParams.delete('menuView');
 
       const query = nextParams.toString();
-      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+      router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const changeMenuPanel = useCallback(
+    (panel: MenuHubPanel | null) => {
+      const nextParams = new URLSearchParams(searchParams.toString());
+      nextParams.set('tab', 'menu');
+      nextParams.delete('finance');
+      nextParams.delete('settings');
+
+      if (panel) {
+        nextParams.set('panel', panel);
+      } else {
+        nextParams.delete('panel');
+        nextParams.delete('menuView');
+      }
+
+      router.push(`${pathname}?${nextParams.toString()}`, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const changeFinancePanel = useCallback(
+    (panel: FinancePanel | null) => {
+      const nextParams = new URLSearchParams(searchParams.toString());
+      nextParams.set('tab', 'financials');
+      nextParams.delete('panel');
+      nextParams.delete('settings');
+      nextParams.delete('menuView');
+
+      if (panel) {
+        nextParams.set('finance', panel);
+      } else {
+        nextParams.delete('finance');
+      }
+
+      router.push(`${pathname}?${nextParams.toString()}`, { scroll: false });
     },
     [pathname, router, searchParams],
   );
@@ -150,7 +198,7 @@ export default function DashboardPage() {
         {activeTab === 'menu' ? (
           <MenuLaunchpadTab
             activePanel={activeMenuPanel}
-            onActivePanelChange={setActiveMenuPanel}
+            onActivePanelChange={changeMenuPanel}
             locale={locale}
             currency={venue.data?.currency ?? 'EGP'}
             selectedMenuBranchId={selectedMenuBranchId}
@@ -164,23 +212,25 @@ export default function DashboardPage() {
             locale={locale}
             onOpenMenu={(branchId) => {
               setSelectedMenuBranchId(branchId);
-              setActiveMenuPanel('menu');
-              changeDashboardTab('menu');
+              changeMenuPanel('menu');
             }}
             onOpenQr={(branchId) => {
               setSelectedQrBranchId(branchId);
-              setActiveMenuPanel('qr');
-              changeDashboardTab('menu');
+              changeMenuPanel('qr');
             }}
             onOpenStats={(branchId) => {
               setSelectedAnalyticsBranchId(branchId);
-              setActiveMenuPanel('analytics');
-              changeDashboardTab('menu');
+              changeMenuPanel('analytics');
             }}
           />
         ) : null}
         {activeTab === 'financials' ? (
-          <FinancialsTab locale={locale} currency={venue.data?.currency ?? 'EGP'} />
+          <FinancialsTab
+            activePanel={activeFinancePanel}
+            onActivePanelChange={changeFinancePanel}
+            locale={locale}
+            currency={venue.data?.currency ?? 'EGP'}
+          />
         ) : null}
         {activeTab === 'settings' ? (
           <SettingsTab
@@ -204,3 +254,13 @@ export default function DashboardPage() {
     </>
   );
 }
+
+
+
+
+
+
+
+
+
+

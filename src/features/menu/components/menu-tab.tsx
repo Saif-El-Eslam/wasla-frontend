@@ -1,9 +1,10 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Building2, Menu as MenuIcon, CheckCircle2, GitBranch, Plus, UtensilsCrossed } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   api,
   type CreateCategoryInput,
@@ -91,6 +92,9 @@ export function MenuTab({
   const t = useTranslations('dashboard');
   const commonT = useTranslations('common');
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const branchOptions = useBranchOptions();
   const branches = branchOptions.data?.branches ?? [];
   const defaultBranchId = branches.find((item) => item.active)?.id ?? branches[0]?.id ?? '';
@@ -112,7 +116,7 @@ export function MenuTab({
   );
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
   const [itemToDelete, setItemToDelete] = useState<{ categoryId: string; itemId: string } | null>(null);
-  const [activeTab, setActiveTab] = useState<'build' | 'preview'>('build');
+  const activeTab = searchParams.get('menuView') === 'preview' ? 'preview' : 'build';
   const [categoryImageFile, setCategoryImageFile] = useState<File | null>(null);
   const [itemImageFile, setItemImageFile] = useState<File | null>(null);
   const menuForm = useForm<MenuFormInput, unknown, MenuFormValues>({
@@ -150,7 +154,16 @@ export function MenuTab({
     : (menu?.categories[0]?.id ?? '');
 
   const handleTabChange = (tab: 'build' | 'preview') => {
-    setActiveTab(tab);
+    const nextParams = new URLSearchParams(searchParams.toString());
+
+    if (tab === 'preview') {
+      nextParams.set('menuView', 'preview');
+    } else {
+      nextParams.delete('menuView');
+    }
+
+    const query = nextParams.toString();
+    router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
 
     requestAnimationFrame(() => {
       contentRef.current?.scrollIntoView({
@@ -630,11 +643,11 @@ export function MenuTab({
                 <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone-500">
                   <span>{t('categories', { count: menu.categories.length })}</span>
 
-                  <span className="text-stone-300">•</span>
+                  <span className="text-stone-300">â€¢</span>
 
                   <span className="font-medium text-stone-700">{textForLocale(branch?.name, locale)}</span>
 
-                  <span className="text-stone-300">•</span>
+                  <span className="text-stone-300">â€¢</span>
 
                   <span>
                     {t('itemsInBranch', {
@@ -678,7 +691,7 @@ export function MenuTab({
           <div className="space-y-2">
             <div className="flex rounded-3xl bg-stone-100 p-1">
               <button
-                onClick={() => setActiveTab('build')}
+                onClick={() => handleTabChange('build')}
                 className={`flex-1 rounded-3xl py-2 font-semibold transition-all ${
                   activeTab === 'build'
                     ? 'bg-white text-stone-900 shadow text-sm'
@@ -786,3 +799,8 @@ export function MenuTab({
     </div>
   );
 }
+
+
+
+
+

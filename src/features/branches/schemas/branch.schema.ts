@@ -17,6 +17,7 @@ export const branchSchema = z
     logoUrl: fieldValidations.url(),
     coverUrl: fieldValidations.url(),
     googleMapsUrl: fieldValidations.url(),
+    googleReviewUrl: fieldValidations.url(),
     instagramUrl: fieldValidations.url(),
     facebookUrl: fieldValidations.url(),
 

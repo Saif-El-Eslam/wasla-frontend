@@ -1,6 +1,7 @@
 import { analyticsService } from '@/features/menu/analytics/api/analytics.api';
 import { authService } from '@/features/auth/api/auth.api';
 import { branchService } from '@/features/branches/api/branch.api';
+import { feedbackService } from '@/features/feedback/api/feedback.api';
 import { financialService } from '@/features/financial/api/financial.api';
 import { menuService } from '@/features/menu/api/menu.api';
 import { subscriptionService } from '@/features/subscription/api/subscription.api';
@@ -43,6 +44,9 @@ export type {
   ExtractionJobResponse,
   ExtractionJobStatus,
   ExtractionLimits,
+  FeedbackDashboardResponse,
+  GuestFeedback,
+  GuestFeedbackStatus,
   ImageUploadScope,
   ImageUploadSignature,
   ListQueryOptions,
@@ -61,6 +65,8 @@ export type {
   PublicAnalyticsEventType,
   PublicBranch,
   PublicBranchMenuResponse,
+  PublicFeedbackInput,
+  PublicFeedbackResponse,
   PublicVenue,
   PublicVenueListResponse,
   PublicVenueResponse,
@@ -96,6 +102,8 @@ export const api = {
   updateMe: authService.updateMe,
   updatePassword: authService.updatePassword,
   analyticsSummary: analyticsService.summary,
+  feedbackDashboard: feedbackService.dashboard,
+  updateFeedbackStatus: feedbackService.updateStatus,
   financeAccess: financialService.access,
   financeDashboard: financialService.dashboard,
   financialTransactions: financialService.transactions,

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useMemo, useState } from 'react';
 import { Landmark, ListTree, PlusCircle, ReceiptText, WalletCards } from 'lucide-react';
@@ -17,13 +17,23 @@ import { ReportsPanel } from './reports-panel';
 import { TransactionsPanel } from './transactions-panel';
 import { useFinanceAccess, useFinanceDashboard } from '../hooks/use-financial';
 
-export function FinancialLaunchpadTab({ locale, currency }: { locale: string; currency: string }) {
+export function FinancialLaunchpadTab({
+  locale,
+  currency,
+  activePanel,
+  onActivePanelChange,
+}: {
+  locale: string;
+  currency: string;
+  activePanel: FinancePanel | null;
+  onActivePanelChange: (panel: FinancePanel | null) => void;
+}) {
   const t = useTranslations('dashboard');
   const me = useMe();
   const access = useFinanceAccess();
   const canUseFinance = Boolean(access.data?.allowance.canUseFinance);
   const dashboard = useFinanceDashboard({}, canUseFinance);
-  const [activePanel, setActivePanel] = useState<FinancePanel | null>(null);
+
   const [renderedPanel, setRenderedPanel] = useState<FinancePanel | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const isAdmin = access.data?.isAdmin ?? (me.data?.role === 'OWNER' || me.data?.role === 'MANAGER');
@@ -138,7 +148,7 @@ export function FinancialLaunchpadTab({ locale, currency }: { locale: string; cu
       <div className="rounded-2xl border border-teal-100 bg-white p-4 shadow-glass sm:p-5">
         <div className="grid grid-cols-2 gap-3 xl:grid-cols-3">
           {activeCards.map((card) => (
-            <FinanceCard key={card.id} card={card} onClick={() => setActivePanel(card.id)} />
+            <FinanceCard key={card.id} card={card} onClick={() => onActivePanelChange(card.id)} />
           ))}
         </div>
       </div>
@@ -149,14 +159,14 @@ export function FinancialLaunchpadTab({ locale, currency }: { locale: string; cu
           title={panelTitle}
           hubLabel={t('financials')}
           closeLabel={t('close')}
-          onClose={() => setActivePanel(null)}
+          onClose={() => onActivePanelChange(null)}
         >
           {renderedPanel === 'add' ? (
             <AddTransactionPanel
               branches={branches}
               locale={locale}
               timeZone={timeZone}
-              onClose={() => setActivePanel(null)}
+              onClose={() => onActivePanelChange(null)}
             />
           ) : null}
           {renderedPanel === 'transactions' ? (
@@ -172,3 +182,7 @@ export function FinancialLaunchpadTab({ locale, currency }: { locale: string; cu
     </div>
   );
 }
+
+
+
+

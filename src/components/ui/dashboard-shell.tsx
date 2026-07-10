@@ -132,7 +132,9 @@ export function DashboardShell({
               >
                 <LogoMark className="flex size-9 shrink-0 items-center justify-center text-sm font-black text-white" />
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-black text-stone-950">{venueName || commonT('wasla')}</p>
+                  <p className="truncate text-sm font-black text-stone-950">
+                    {venueName || commonT('wasla')}
+                  </p>
                   <p className="text-xs text-muted-foreground">{commonT('wasla')}</p>
                 </div>
               </Link>
