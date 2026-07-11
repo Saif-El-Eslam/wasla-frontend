@@ -131,7 +131,7 @@ export function MenuLaunchpadTab({
       </SectionTitle>
 
       <div className="rounded-2xl border border-teal-100 bg-white p-4 shadow-glass sm:p-5">
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 lg:gap-4">
+        <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 lg:gap-4">
           {cards.map((card) => (
             <MenuLaunchpadCard
               key={card.id}

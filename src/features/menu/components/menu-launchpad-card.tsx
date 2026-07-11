@@ -37,7 +37,7 @@ export function MenuLaunchpadCard({
 
       <div className="mt-3 lg:mt-5">
         <h3 className="text-base font-black text-stone-950 lg:text-lg">{card.title}</h3>
-        <p className="mt-1.5 text-sm leading-5 text-muted-foreground lg:mt-2 lg:min-h-12 lg:leading-6">
+        <p className="mt-1.5 text-xs leading-5 text-muted-foreground lg:mt-2 lg:min-h-12 lg:leading-6">
           {card.description}
         </p>
       </div>
