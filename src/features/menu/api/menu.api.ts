@@ -112,8 +112,10 @@ export const menuService = {
     apiClient<ExtractionJobResponse>(`/branches/${branchId}/menu/extractions/${jobId}`),
   startExtraction: (branchId: string, images: File[]) =>
     uploadExtraction(`/branches/${branchId}/menu/extractions`, images),
-  retryExtraction: (branchId: string, jobId: string, images: File[]) =>
-    uploadExtraction(`/branches/${branchId}/menu/extractions/${jobId}/retry`, images),
+  retryExtraction: (branchId: string, jobId: string) =>
+    apiClient<StartExtractionResponse>(`/branches/${branchId}/menu/extractions/${jobId}/retry`, {
+      method: 'POST',
+    }),
   approveExtraction: (branchId: string, jobId: string, extractedMenu?: ExtractedMenu) =>
     apiClient<ApproveExtractionResponse>(`/branches/${branchId}/menu/extractions/${jobId}/approve`, {
       method: 'POST',

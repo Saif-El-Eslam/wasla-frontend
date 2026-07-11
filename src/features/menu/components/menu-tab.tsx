@@ -644,11 +644,11 @@ export function MenuTab({
                 <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone-500">
                   <span>{t('categories', { count: menu.categories.length })}</span>
 
-                  <span className="text-stone-300">â€¢</span>
+                  <span className="text-stone-300">•</span>
 
                   <span className="font-medium text-stone-700">{textForLocale(branch?.name, locale)}</span>
 
-                  <span className="text-stone-300">â€¢</span>
+                  <span className="text-stone-300">•</span>
 
                   <span>
                     {t('itemsInBranch', {
@@ -800,8 +800,3 @@ export function MenuTab({
     </div>
   );
 }
-
-
-
-
-

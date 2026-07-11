@@ -1,4 +1,4 @@
-﻿export type ApiEnvelope<T> = {
+export type ApiEnvelope<T> = {
   success: true;
   data: T;
 };
@@ -378,6 +378,11 @@ export type ExtractionJob = {
   modelProvider: string;
   modelName: string;
   imageCount: number;
+  attemptCount: number;
+  maxAttempts: number;
+  nextAttemptAt: string;
+  lastAttemptAt: string | null;
+  providerResponseId: string | null;
   rawModelResponse: string | null;
   extractedMenu: ExtractedMenu | null;
   confidenceScore: number | null;
@@ -793,6 +798,3 @@ export type AdminPlansResponse = {
 export type AdminFeaturesResponse = {
   features: PlanFeature[];
 };
-
-
-

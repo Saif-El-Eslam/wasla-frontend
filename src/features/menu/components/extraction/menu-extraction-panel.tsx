@@ -2,10 +2,17 @@
 
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Sparkles, ImagePlus } from 'lucide-react';
+import { Sparkles, ImagePlus, RefreshCw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { api, type ExtractedMenu, type Menu } from '@/lib/api';
-import { Badge, Card, SecondaryButton, SectionTitle, TabLoader } from '@/components/ui/dashboard-ui';
+import {
+  Badge,
+  Card,
+  PrimaryButton,
+  SecondaryButton,
+  SectionTitle,
+  TabLoader,
+} from '@/components/ui/dashboard-ui';
 import { readError } from '@/features/dashboard/utils/dashboard-utils';
 import { replaceCachedMenu } from '@/features/menu/cache/menu-cache';
 import { useExtractionJob, useLatestExtractionJob } from '@/features/venue/hooks/use-venue';
@@ -96,7 +103,7 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
         throw new Error('No extraction job selected');
       }
 
-      return api.retryExtraction(branchId, job.id, files);
+      return api.retryExtraction(branchId, job.id);
     },
     onSuccess: ({ job: retriedJob, menu: returnedMenu }) => {
       setActiveJobId(retriedJob.id);
@@ -444,16 +451,12 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
               <Sparkles className="size-4" />
               {menu ? t('extractAndMerge') : t('extractAndCreate')}
             </SecondaryButton>
-            {/* {job?.status === 'FAILED' || job?.status === 'REJECTED' ? (
-              <PrimaryButton
-                onClick={() => retryMutation.mutate()}
-                loading={retryMutation.isPending}
-                disabled={!canUpload}
-              >
+            {job?.status === 'FAILED' || job?.status === 'REJECTED' ? (
+              <PrimaryButton onClick={() => retryMutation.mutate()} loading={retryMutation.isPending}>
                 <RefreshCw className="size-4" />
                 {t('retryExtraction')}
               </PrimaryButton>
-            ) : null} */}
+            ) : null}
           </div>
         </div>
 
