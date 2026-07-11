@@ -565,7 +565,7 @@
     "noImagesSelected": "مفيش صور مختارة لسه",
     "extractAndMerge": "استخراج وإضافة للمنيو الحالي",
     "extractAndCreate": "استخراج وإنشاء منيو جديد بالكامل",
-    "retryExtraction": "إعادة المحاولة تاني",
+    "retryExtraction": "حاول تاني",
     "extractionLimitSummary": "باقي لك {remaining} من أصل {total} محاولات استخراج هذا الشهر - بحد أقصى {images} صور في المرة",
     "tooManyExtractionImages": "الخطة الحالية بتسمح بـ {count} صور بس في المرة الواحدة.",
     "extractingMenu": "الذكاء الاصطناعي بيقرأ ويحلل المنيو حالياً... ثواني معك",

@@ -592,7 +592,7 @@
     "noImagesSelected": "No images selected",
     "extractAndMerge": "Extract and merge",
     "extractAndCreate": "Extract and create",
-    "retryExtraction": "Retry extraction",
+    "retryExtraction": "Retry",
     "extractionLimitSummary": "{remaining}/{total} extractions left this month - up to {images} images",
     "tooManyExtractionImages": "Select up to {count} images for this plan.",
     "extractingMenu": "Extracting menu...",

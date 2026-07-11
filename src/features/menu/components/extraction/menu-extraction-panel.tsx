@@ -455,7 +455,11 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
               {menu ? t('extractAndMerge') : t('extractAndCreate')}
             </SecondaryButton>
             {canRetryExtraction ? (
-              <PrimaryButton onClick={() => retryMutation.mutate()} loading={retryMutation.isPending}>
+              <PrimaryButton
+                className="!rounded-3xl w-full sm:w-1/4"
+                onClick={() => retryMutation.mutate()}
+                loading={retryMutation.isPending}
+              >
                 <RefreshCw className="size-4" />
                 {t('retryExtraction')}
               </PrimaryButton>
