@@ -382,6 +382,8 @@ export type ExtractionJob = {
   maxAttempts: number;
   nextAttemptAt: string;
   lastAttemptAt: string | null;
+  retryExpiresAt: string | null;
+  cleanedUpAt: string | null;
   providerResponseId: string | null;
   rawModelResponse: string | null;
   extractedMenu: ExtractedMenu | null;

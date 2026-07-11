@@ -82,6 +82,9 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
   const canUpload =
     limits?.remainingThisMonth || (files.length > 0 && (!limits || files.length <= limits.maxImages));
   const isBusy = job?.status === 'PENDING' || job?.status === 'PROCESSING';
+  const canRetryExtraction = Boolean(
+    job && (job.status === 'FAILED' || job.status === 'REJECTED') && job.retryExpiresAt && !job.cleanedUpAt,
+  );
   const itemCount = useMemo(
     () => draft?.categories.reduce((sum, category) => sum + category.items.length, 0) ?? 0,
     [draft],
@@ -451,7 +454,7 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
               <Sparkles className="size-4" />
               {menu ? t('extractAndMerge') : t('extractAndCreate')}
             </SecondaryButton>
-            {job?.status === 'FAILED' || job?.status === 'REJECTED' ? (
+            {canRetryExtraction ? (
               <PrimaryButton onClick={() => retryMutation.mutate()} loading={retryMutation.isPending}>
                 <RefreshCw className="size-4" />
                 {t('retryExtraction')}
