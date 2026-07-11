@@ -1,8 +1,9 @@
 'use client';
 
-import { ArrowUpRight, ChevronRight } from 'lucide-react';
+import { ArrowUpRight, ChevronRight, ChevronLeft } from 'lucide-react';
 import { cx } from '@/components/ui/dashboard-ui';
 import type { LaunchpadCard } from './menu-launchpad-types';
+import { useParams } from 'next/navigation';
 
 export function MenuLaunchpadCard({
   card,
@@ -13,13 +14,15 @@ export function MenuLaunchpadCard({
   onClick: () => void;
   openLabel: string;
 }) {
+  const params = useParams<{ locale: string }>();
+  const locale = params.locale ?? 'en';
   const Icon = card.icon;
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className="group min-h-[150px] rounded-2xl border border-stone-200 bg-white p-3 text-start shadow-sm transition hover:-translate-y-1 hover:border-teal-200 hover:shadow-xl hover:shadow-teal-100/70 focus-visible:outline-primary lg:min-h-[252px] lg:p-4"
+      className="group min-h-[100px] rounded-2xl border border-stone-200 bg-white p-3 text-start shadow-sm transition hover:-translate-y-1 hover:border-teal-200 hover:shadow-xl hover:shadow-teal-100/70 focus-visible:outline-primary lg:min-h-[130px] lg:p-4"
     >
       <div className="flex items-start justify-between gap-3">
         <span
@@ -36,22 +39,22 @@ export function MenuLaunchpadCard({
       </div>
 
       <div className="mt-3 lg:mt-5">
-        <h3 className="text-base font-black text-stone-950 lg:text-lg">{card.title}</h3>
-        <p className="mt-1.5 text-xs leading-5 text-muted-foreground lg:mt-2 lg:min-h-12 lg:leading-6">
-          {card.description}
-        </p>
+        <h3 className="text-base font-black text-md text-stone-950 lg:text-lg">{card.title}</h3>
+        <p className="text-xs leading-5 text-muted-foreground lg:leading-6">{card.description}</p>
       </div>
 
-      <div className="mt-0 lg:mt-1 hidden lg:block">
-        <div className={cx('inline-flex rounded-full px-3 py-1 text-xs font-black', card.metricTone)}>
-          {card.metric}
+      {card.metric && (
+        <div className="mt-0 lg:mt-1 hidden lg:block">
+          <div className={cx('inline-flex rounded-full px-3 py-1 text-xs font-black', card.metricTone)}>
+            {card.metric}
+          </div>
+          <CardMicroVisual type={card.visual} />
         </div>
-        <CardMicroVisual type={card.visual} />
-      </div>
+      )}
 
       <span className="mt-3 items-center gap-1 text-xs font-black text-teal-700 hidden lg:inline-flex lg:mt-4">
         {openLabel}
-        <ChevronRight className="size-3.5" />
+        {locale === 'ar' ? <ChevronLeft className="size-4" /> : <ChevronRight className="size-4" />}
       </span>
     </button>
   );
