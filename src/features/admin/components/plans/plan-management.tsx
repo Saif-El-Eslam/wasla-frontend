@@ -17,6 +17,7 @@ import { useForm } from 'react-hook-form';
 import { FormInput } from '@/components/ui/form-input';
 import { AdminFormToggle } from './admin-form-toggle';
 import { UpdatePlanPayload, FeatureAssignmentPayload } from './plan-feature-management';
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 
 type PlanFormValues = {
   publicName: { en: string; ar: string };
@@ -232,17 +233,15 @@ function PlanEditorCard({
       </section>
 
       {modalOpen ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-          onMouseDown={closeModal}
-        >
-          <div
+        <Dialog open={modalOpen} onClose={closeModal} className="relative z-50">
+          <DialogBackdrop className="fixed inset-0 bg-black/40" />
+          <div className="fixed inset-0 flex items-center justify-center overflow-y-auto p-4">
+          <DialogPanel
             className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-3xl bg-white p-4 shadow-2xl sm:p-5"
-            onMouseDown={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-lg font-black text-stone-950">{displayName}</h3>
+                <DialogTitle className="text-lg font-black text-stone-950">{displayName}</DialogTitle>
                 <p className="mt-1 text-sm font-bold text-muted-foreground">{plan.code}</p>
               </div>
 
@@ -404,8 +403,9 @@ function PlanEditorCard({
                 </button>
               </div>
             </form>
+          </DialogPanel>
           </div>
-        </div>
+        </Dialog>
       ) : null}
     </>
   );

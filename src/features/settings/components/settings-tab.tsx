@@ -7,7 +7,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { SectionTitle } from '@/components/ui/dashboard-ui';
+import { QueryErrorState, SectionTitle } from '@/components/ui/dashboard-ui';
 import { TabLoader } from '@/components/ui/tab-loader';
 import { toast } from '@/components/ui/toast-store';
 import { useMe } from '@/features/auth/hooks/use-me';
@@ -26,6 +26,7 @@ import {
   type VenueSettingsFormValues,
 } from '@/features/settings/schemas/settings.schema';
 import { invalidateVenueUsersCache, setCurrentUserInCache } from '@/features/users/cache/user-cache';
+import { useUnsavedChanges } from '@/hooks/use-unsaved-changes';
 import { useBranchOptions, useUsers, useVenue } from '@/features/venue/hooks/use-venue';
 import { api } from '@/lib/api';
 import { queryKeys } from '@/lib/api/query-keys';
@@ -132,6 +133,12 @@ export function SettingsTab({
     resolver: zodResolver(venueSettingsSchema),
     defaultValues: venueDefaults(venue.data, locale),
   });
+  const hasUnsavedSettingsChanges =
+    profileForm.formState.isDirty ||
+    passwordForm.formState.isDirty ||
+    teamUserForm.formState.isDirty ||
+    venueForm.formState.isDirty;
+  useUnsavedChanges(hasUnsavedSettingsChanges);
 
   useEffect(() => {
     profileForm.reset({ name: me.data?.name ?? '', phone: me.data?.phone ?? '' });
@@ -248,6 +255,18 @@ export function SettingsTab({
     return <TabLoader label={t('loadingWorkspace')} />;
   }
 
+  if (venue.isError || branchesQuery.isError || (activeSettingsTab === 'team' && usersQuery.isError)) {
+    return (
+      <QueryErrorState
+        onRetry={() => {
+          void venue.refetch();
+          void branchesQuery.refetch();
+          if (activeSettingsTab === 'team') void usersQuery.refetch();
+        }}
+      />
+    );
+  }
+
   const activeSettingsTitle = {
     user: t('user'),
     password: t('password'),
@@ -286,7 +305,7 @@ export function SettingsTab({
     ) : null;
 
   return (
-    <div>
+    <div data-unsaved-changes={hasUnsavedSettingsChanges ? 'true' : undefined}>
       <div className="hidden space-y-5 sm:block">
         <SectionTitle eyebrow={t('account')} title={t('settings')} />
         <SettingsOverviewCard

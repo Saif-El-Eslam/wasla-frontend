@@ -2,12 +2,14 @@
 
 import { CheckCircle2, Info, X, XCircle } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { cx } from './cx';
 import { subscribeToToasts, type ToastMessage } from './toast-store';
 
 const toastLifetimeMs = 4200;
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
+  const commonT = useTranslations('common');
   const [messages, setMessages] = useState<ToastMessage[]>([]);
 
   useEffect(() => {
@@ -67,7 +69,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               <button
                 type="button"
                 className="flex size-8 shrink-0 items-center justify-center rounded-full text-stone-400 transition hover:bg-stone-50 hover:text-stone-900"
-                aria-label="Dismiss notification"
+                aria-label={commonT('dismissNotification')}
                 onClick={() => setMessages((current) => current.filter((item) => item.id !== message.id))}
               >
                 <X className="size-4" />

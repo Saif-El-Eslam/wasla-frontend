@@ -30,20 +30,18 @@ import { publicHref, withPublicParam } from '@/features/public/utils/public-url'
 type VenueLike = Venue | PublicVenue;
 type BranchLike = Branch | BranchManagement | PublicBranch;
 
-function formatTime(time?: string) {
+function formatTime(time: string | undefined, locale: string) {
   if (!time) return '';
 
   const [hours, minutes] = time.split(':').map(Number);
-
-  const period = hours >= 12 ? 'PM' : 'AM';
-  const hour12 = hours % 12 || 12;
-
-  return `${hour12}:${minutes.toString().padStart(2, '0')} ${period}`;
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return '';
+  const date = new Date(2000, 0, 1, hours, minutes);
+  return new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }).format(date);
 }
 
-function formatOpeningHours(branch?: BranchLike) {
-  const from = formatTime(branch?.openingHours?.from);
-  const to = formatTime(branch?.openingHours?.to);
+function formatOpeningHours(branch: BranchLike | undefined, locale: string) {
+  const from = formatTime(branch?.openingHours?.from, locale);
+  const to = formatTime(branch?.openingHours?.to, locale);
 
   if (from && to) {
     return `${from} - ${to}`;
@@ -145,7 +143,8 @@ export function PublicMenuExperience({
     venue.coverUrl ??
     'https://images.unsplash.com/photo-1542181961-9590d0c79dab?w=1200&h=600&fit=crop&auto=format';
   const logoUrl = branch?.logoUrl ?? venue.logoUrl;
-  const openingHours = formatOpeningHours(branch);
+  const openingHours = formatOpeningHours(branch, locale);
+  const hasOpeningHours = Boolean(branch?.openingHours?.from && branch.openingHours.to);
   const isRtl = locale === 'ar';
   const isOpen = isBranchOpen(branch);
 
@@ -238,7 +237,13 @@ export function PublicMenuExperience({
           <div className="mt-3 flex flex-wrap justify-center gap-2">
             {branchName ? <Badge tone="teal">{branchName}</Badge> : null}
             <Badge tone={isOpen ? 'green' : 'muted'}>
-              {!branch?.active ? t('inactive') : isOpen ? t('openNow') : t('closed')}
+              {!branch?.active
+                ? t('inactive')
+                : !hasOpeningHours
+                  ? t('hoursUnavailable')
+                  : isOpen
+                    ? t('openNow')
+                    : t('closed')}
             </Badge>
           </div>
           <p className="mx-auto mt-3 max-w-3xl text-sm leading-7 text-muted-foreground">{description}</p>

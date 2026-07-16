@@ -19,6 +19,7 @@ import {
   EmptyState,
   FormPanel,
   PrimaryButton,
+  QueryErrorState,
   TabLoader,
 } from '@/components/ui/dashboard-ui';
 import { readError, toLocalized, type LocalizedDraft } from '@/features/dashboard/utils/dashboard-utils';
@@ -51,6 +52,7 @@ import {
   type MenuFormValues,
 } from '@/features/menu/schemas/menu.schema';
 import { PublicPreview } from '@/features/public/components/menu/public-preview';
+import { useUnsavedChanges } from '@/hooks/use-unsaved-changes';
 import { cleanupUploadedImages, uploadImageDirect } from '@/lib/api/image-upload';
 
 const emptyLocalizedDraft: LocalizedDraft = { en: '', ar: '' };
@@ -103,16 +105,14 @@ export function MenuTab({
     source: initialBranchId,
     value: '',
   });
-  const localBranchId =
-    branchSelection.source === initialBranchId ? branchSelection.value : '';
+  const localBranchId = branchSelection.source === initialBranchId ? branchSelection.value : '';
   const effectiveBranchId = branches.some((item) => item.id === localBranchId)
     ? localBranchId
     : selectedBranchId;
-  const selectBranch = (value: string) =>
-    setBranchSelection({ source: initialBranchId, value });
+  const selectBranch = (value: string) => setBranchSelection({ source: initialBranchId, value });
   const menuQuery = useBranchMenu(effectiveBranchId);
   const branch = branches.find((item) => item.id === effectiveBranchId);
-  const menu = menuQuery.data ?? null;
+  const menu = menuQuery.data && Array.isArray(menuQuery.data.categories) ? menuQuery.data : null;
   const contentRef = useRef<HTMLDivElement>(null);
   const [formMode, setFormMode] = useState<'menu' | 'category' | 'item' | null>(null);
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
@@ -152,10 +152,11 @@ export function MenuTab({
       prices: [{ label: t('regular'), price: '' }],
     },
   });
+  const hasUnsavedMenuChanges =
+    menuForm.formState.isDirty || categoryForm.formState.isDirty || itemForm.formState.isDirty;
+  useUnsavedChanges(hasUnsavedMenuChanges);
   const selectedCategoryId = useWatch({ control: itemForm.control, name: 'categoryId' });
-  const effectiveCategoryId = menu?.categories.some(
-    (category) => category.id === selectedCategoryId,
-  )
+  const effectiveCategoryId = menu?.categories?.some((category) => category.id === selectedCategoryId)
     ? selectedCategoryId
     : (menu?.categories[0]?.id ?? '');
 
@@ -548,14 +549,20 @@ export function MenuTab({
     return <TabLoader label={t('loadingWorkspace')} />;
   }
 
+  if (branchOptions.isError) {
+    return <QueryErrorState onRetry={() => void branchOptions.refetch()} />;
+  }
+
   if (branches.length === 0) {
     return <EmptyState icon={Building2} title={t('createBranchFirst')} body={t('menuNeedsBranch')} />;
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5" data-unsaved-changes={hasUnsavedMenuChanges ? 'true' : undefined}>
       {menuQuery.isLoading ? (
         <TabLoader label={t('loadingWorkspace')} />
+      ) : menuQuery.isError ? (
+        <QueryErrorState onRetry={() => void menuQuery.refetch()} />
       ) : !menu ? (
         <>
           <Card>
@@ -698,7 +705,7 @@ export function MenuTab({
                     : 'text-stone-500 hover:text-stone-700 text-xs'
                 }`}
               >
-                Build
+                {t('build')}
               </button>
 
               <button
@@ -709,7 +716,7 @@ export function MenuTab({
                     : 'text-stone-500 hover:text-stone-700 text-xs'
                 }`}
               >
-                Preview
+                {t('preview')}
               </button>
             </div>
 

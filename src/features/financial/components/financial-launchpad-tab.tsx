@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Landmark, ListTree, PlusCircle, ReceiptText, WalletCards } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Badge, SectionTitle, TabLoader } from '@/components/ui/dashboard-ui';
+import { Badge, QueryErrorState, SectionTitle, TabLoader } from '@/components/ui/dashboard-ui';
 import { useMe } from '@/features/auth/hooks/use-me';
 import type { BranchOption } from '@/lib/api';
 import { FinanceLockedState } from './finance-locked-state';
@@ -111,6 +111,17 @@ export function FinancialLaunchpadTab({
 
   if (access.isLoading) {
     return <TabLoader label={t('loadingWorkspace')} />;
+  }
+
+  if (access.isError || (canUseFinance && dashboard.isError)) {
+    return (
+      <QueryErrorState
+        onRetry={() => {
+          void access.refetch();
+          if (canUseFinance) void dashboard.refetch();
+        }}
+      />
+    );
   }
 
   if (!canUseFinance) {

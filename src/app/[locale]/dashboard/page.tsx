@@ -5,9 +5,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { api } from '@/lib/api';
+import { api, ApiError } from '@/lib/api';
 import { BranchesTab } from '@/features/branches/components/branches-tab';
-import { Badge, Card, DashboardShell, PrimaryButton, type DashboardTab } from '@/components/ui/dashboard-ui';
+import { Badge, Card, DashboardShell, PrimaryButton, QueryErrorState, type DashboardTab } from '@/components/ui/dashboard-ui';
 import { DashboardLoading } from '@/components/ui/dashboard-loading';
 import { FinancialsTab } from '@/features/financials-tab';
 import type { FinancePanel } from '@/features/financial/components/finance-ui';
@@ -18,6 +18,7 @@ import { SettingsTab } from '@/features/settings/components/settings-tab';
 import { useMe } from '@/features/auth/hooks/use-me';
 import { useVenue } from '@/features/venue/hooks/use-venue';
 import { textForLocale } from '@/lib/localized-text';
+import { confirmDiscardChanges } from '@/lib/unsaved-changes';
 
 const dashboardTabs: DashboardTab[] = ['overview', 'branches', 'menu', 'financials', 'settings'];
 const legacyMenuPanelTabs: MenuHubPanel[] = ['qr', 'analytics', 'feedback'];
@@ -46,6 +47,7 @@ function financePanelFromUrl(panel: string | null): FinancePanel | null {
 
 export default function DashboardPage() {
   const t = useTranslations('dashboard');
+  const commonT = useTranslations('common');
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -74,6 +76,7 @@ export default function DashboardPage() {
 
   const changeDashboardTab = useCallback(
     (tab: DashboardTab) => {
+      if (!confirmDiscardChanges(commonT('unsavedChangesWarning'))) return;
       const nextParams = new URLSearchParams(searchParams.toString());
 
       if (tab === 'overview') {
@@ -90,11 +93,12 @@ export default function DashboardPage() {
       const query = nextParams.toString();
       router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
     },
-    [pathname, router, searchParams],
+    [commonT, pathname, router, searchParams],
   );
 
   const changeMenuPanel = useCallback(
     (panel: MenuHubPanel | null) => {
+      if (!confirmDiscardChanges(commonT('unsavedChangesWarning'))) return;
       const nextParams = new URLSearchParams(searchParams.toString());
       nextParams.set('tab', 'menu');
       nextParams.delete('finance');
@@ -109,11 +113,12 @@ export default function DashboardPage() {
 
       router.push(`${pathname}?${nextParams.toString()}`, { scroll: false });
     },
-    [pathname, router, searchParams],
+    [commonT, pathname, router, searchParams],
   );
 
   const changeFinancePanel = useCallback(
     (panel: FinancePanel | null) => {
+      if (!confirmDiscardChanges(commonT('unsavedChangesWarning'))) return;
       const nextParams = new URLSearchParams(searchParams.toString());
       nextParams.set('tab', 'financials');
       nextParams.delete('panel');
@@ -128,7 +133,7 @@ export default function DashboardPage() {
 
       router.push(`${pathname}?${nextParams.toString()}`, { scroll: false });
     },
-    [pathname, router, searchParams],
+    [commonT, pathname, router, searchParams],
   );
 
   const changeLocale = (nextLocale: string) => {
@@ -141,6 +146,16 @@ export default function DashboardPage() {
   }
 
   if (venue.isError) {
+    if (!(venue.error instanceof ApiError) || venue.error.status !== 404) {
+      return (
+        <main className="grid min-h-dvh place-items-center bg-[#f8fafa] px-4">
+          <div className="w-full max-w-lg">
+            <QueryErrorState onRetry={() => void venue.refetch()} />
+          </div>
+        </main>
+      );
+    }
+
     return (
       <main className="grid min-h-dvh place-items-center bg-[#f8fafa] px-4">
         <Card className="w-full max-w-md">

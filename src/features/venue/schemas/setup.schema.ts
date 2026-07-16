@@ -3,6 +3,17 @@ import { fieldValidations } from '@/components/ui/form-validation';
 
 export const setupSchema = z
   .object({
+    type: z.enum([
+      'RESTAURANT',
+      'CAFE',
+      'BAKERY',
+      'DESSERT_SHOP',
+      'FOOD_TRUCK',
+      'CLOUD_KITCHEN',
+      'CATERING',
+      'LOUNGE',
+      'OTHER',
+    ]),
     name: fieldValidations.localizedDraft(),
     branchName: fieldValidations.localizedDraft(),
     phone: fieldValidations.optionalEgyptPhone(),

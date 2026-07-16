@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Building2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { EmptyState, TabLoader } from '@/components/ui/dashboard-ui';
+import { EmptyState, QueryErrorState, TabLoader } from '@/components/ui/dashboard-ui';
 import { useAnalyticsSummary, useBranchOptions, useVenue } from '@/features/venue/hooks/use-venue';
 import {
   allowedDateRangeFromIso,
@@ -158,6 +158,18 @@ export function AnalyticsTab({
 
   if (venue.isLoading || branchOptions.isLoading || analytics.isLoading) {
     return <TabLoader label={t('loadingWorkspace')} />;
+  }
+
+  if (venue.isError || branchOptions.isError || analytics.isError) {
+    return (
+      <QueryErrorState
+        onRetry={() => {
+          void venue.refetch();
+          void branchOptions.refetch();
+          void analytics.refetch();
+        }}
+      />
+    );
   }
 
   if (branches.length === 0) {

@@ -20,6 +20,7 @@ import { queryKeys } from '@/lib/api/query-keys';
 import { textForLocale } from '@/lib/localized-text';
 import { MenuExtractionDraftForm } from './menu-extraction-draft-form';
 import { LocalizedValue } from '@/lib/api/types';
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 
 type Props = {
   branchId: string;
@@ -509,11 +510,13 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
             </button>
 
             {isDraftModalOpen ? (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-                <div className="max-h-[90vh] w-full max-w-6xl overflow-hidden rounded-[2rem] bg-white shadow-2xl">
+              <Dialog open={isDraftModalOpen} onClose={onClose} className="relative z-50">
+                <DialogBackdrop className="fixed inset-0 bg-black/40" />
+                <div className="fixed inset-0 flex items-center justify-center overflow-y-auto p-4">
+                <DialogPanel className="max-h-[90vh] w-full max-w-6xl overflow-hidden rounded-[2rem] bg-white shadow-2xl">
                   <div className="flex items-center justify-between border-b border-stone-100 py-8 px-4 sm:p-8">
                     <div>
-                      <h3 className="text-lg font-black text-stone-950">{t('reviewLastExtractedMenu')}</h3>
+                      <DialogTitle className="text-lg font-black text-stone-950">{t('reviewLastExtractedMenu')}</DialogTitle>
                       <p className="text-xs text-stone-500">
                         {t('extractedSummary', {
                           categories: draft.categories.length,
@@ -553,8 +556,9 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
                       rejectError={rejectMutation.error}
                     />
                   </div>
+                </DialogPanel>
                 </div>
-              </div>
+              </Dialog>
             ) : null}
           </>
         ) : null}

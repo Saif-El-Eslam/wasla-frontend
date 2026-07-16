@@ -16,6 +16,7 @@ import { useForm } from 'react-hook-form';
 import { FormInput } from '@/components/ui/form-input';
 import { AdminFormToggle } from './admin-form-toggle';
 import { UpdateFeaturePayload } from './plan-feature-management';
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 
 type FeatureFormValues = {
   key: string;
@@ -222,17 +223,13 @@ function FeatureEditorModal({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
-      onMouseDown={onClose}
-    >
-      <div
-        className="w-full max-w-xl rounded-3xl bg-white p-4 shadow-2xl sm:p-5"
-        onMouseDown={(event) => event.stopPropagation()}
-      >
+    <Dialog open onClose={onClose} className="relative z-[60]">
+      <DialogBackdrop className="fixed inset-0 bg-black/50" />
+      <div className="fixed inset-0 flex items-center justify-center overflow-y-auto p-4">
+      <DialogPanel className="w-full max-w-xl rounded-3xl bg-white p-4 shadow-2xl sm:p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="text-lg font-black text-stone-950">{t('plans.editFeature')}</h3>
+            <DialogTitle className="text-lg font-black text-stone-950">{t('plans.editFeature')}</DialogTitle>
             <p className="mt-1 truncate text-xs font-black uppercase tracking-[0.12em] text-stone-400">
               {feature.key} / {feature.valueType}
             </p>
@@ -350,8 +347,9 @@ function FeatureEditorModal({
             </button>
           </div>
         </form>
+      </DialogPanel>
       </div>
-    </div>
+    </Dialog>
   );
 }
 

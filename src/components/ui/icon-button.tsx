@@ -9,6 +9,7 @@ export function IconButton({
   disabled,
   loading = false,
   className,
+  ...buttonProps
 }: {
   label: string;
   children: React.ReactNode;
@@ -16,7 +17,7 @@ export function IconButton({
   disabled?: boolean;
   loading?: boolean;
   className?: string;
-}) {
+} & Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children' | 'className' | 'disabled' | 'onClick'>) {
   return (
     <button
       className={
@@ -29,6 +30,7 @@ export function IconButton({
       onClick={onClick}
       disabled={disabled || loading}
       type="button"
+      {...buttonProps}
     >
       {loading ? <LoadingSpinner /> : children}
     </button>

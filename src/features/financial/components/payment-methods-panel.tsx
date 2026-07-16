@@ -3,7 +3,8 @@
 import { Plus, ToggleLeft, ToggleRight, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { PrimaryButton, SecondaryButton, TabLoader } from '@/components/ui/dashboard-ui';
+import { PrimaryButton, QueryErrorState, SecondaryButton, TabLoader } from '@/components/ui/dashboard-ui';
+import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { toast } from '@/components/ui/toast-store';
 import { readError } from '@/features/dashboard/utils/dashboard-utils';
 import { textForLocale } from '@/lib/localized-text';
@@ -13,6 +14,7 @@ export function PaymentMethodsPanel({ locale }: { locale: string }) {
   const t = useTranslations('dashboard');
   const [nameEn, setNameEn] = useState('');
   const [nameAr, setNameAr] = useState('');
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const methods = usePaymentMethods(true);
   const createMutation = useCreatePaymentMethod();
   const updateMutation = useUpdatePaymentMethod();
@@ -20,6 +22,10 @@ export function PaymentMethodsPanel({ locale }: { locale: string }) {
 
   if (methods.isLoading) {
     return <TabLoader label={t('loadingWorkspace')} />;
+  }
+
+  if (methods.isError) {
+    return <QueryErrorState onRetry={() => void methods.refetch()} />;
   }
 
   const create = () => {
@@ -83,12 +89,7 @@ export function PaymentMethodsPanel({ locale }: { locale: string }) {
                 {transactionCount === 0 ? (
                   <SecondaryButton
                     loading={deleteMutation.isPending}
-                    onClick={() =>
-                      deleteMutation.mutate(method.id, {
-                        onSuccess: () => toast.success(t('paymentMethodDeleted')),
-                        onError: (error) => toast.error(readError(error)),
-                      })
-                    }
+                    onClick={() => setPendingDeleteId(method.id)}
                   >
                     <Trash2 className="size-4 text-red-600" />
                     {t('delete')}
@@ -100,6 +101,25 @@ export function PaymentMethodsPanel({ locale }: { locale: string }) {
           );
         })}
       </div>
+      <ConfirmationModal
+        open={Boolean(pendingDeleteId)}
+        setOpen={(open) => !open && setPendingDeleteId(null)}
+        title={t('deletePaymentMethodTitle')}
+        description={t('deletePaymentMethodWarning')}
+        confirmText={t('delete')}
+        cancelText={t('cancel')}
+        confirmLoading={deleteMutation.isPending}
+        onConfirm={() => {
+          if (!pendingDeleteId) return;
+          deleteMutation.mutate(pendingDeleteId, {
+            onSuccess: () => {
+              setPendingDeleteId(null);
+              toast.success(t('paymentMethodDeleted'));
+            },
+            onError: (error) => toast.error(readError(error)),
+          });
+        }}
+      />
     </div>
   );
 }

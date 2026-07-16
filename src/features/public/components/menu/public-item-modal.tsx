@@ -8,6 +8,7 @@ import { textForLocale } from '@/lib/localized-text';
 import { ItemPrices } from '@/components/ui/item-prices';
 import { optimizedImageUrl } from '@/lib/image-url';
 import { AppImage } from '@/components/ui/app-image';
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 
 export function PublicItemModal({
   item,
@@ -23,11 +24,10 @@ export function PublicItemModal({
   const t = useTranslations('dashboard');
 
   return (
-    <div className="fixed inset-0 z-100 grid bg-black/40 p-4 place-items-center" onClick={onClose}>
-      <div
-        className="w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl"
-        onClick={(event) => event.stopPropagation()}
-      >
+    <Dialog open onClose={onClose} className="relative z-[100]">
+      <DialogBackdrop className="fixed inset-0 bg-black/40" />
+      <div className="fixed inset-0 grid place-items-center overflow-y-auto p-4">
+      <DialogPanel className="max-h-[92dvh] w-full max-w-lg overflow-y-auto rounded-3xl bg-white shadow-2xl">
         {item.imageUrl ? (
           <div className="relative h-64 w-full">
             <AppImage
@@ -46,7 +46,7 @@ export function PublicItemModal({
         <div className="p-5">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
-              <h3 className="text-2xl font-black text-stone-950">{textForLocale(item.name, locale)}</h3>
+              <DialogTitle className="text-2xl font-black text-stone-950">{textForLocale(item.name, locale)}</DialogTitle>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
                 {textForLocale(item.description, locale) || t('noDescriptionProvided')}
               </p>
@@ -61,7 +61,8 @@ export function PublicItemModal({
           </div>
           <ItemPrices prices={item.prices} currency={currency} noPriceText={t('noPrice')} />
         </div>
+      </DialogPanel>
       </div>
-    </div>
+    </Dialog>
   );
 }

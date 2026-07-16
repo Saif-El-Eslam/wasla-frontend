@@ -2,7 +2,7 @@
 
 import { Building2, FileText, QrCode, UtensilsCrossed } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Badge, Card, SectionTitle, TabLoader, cx } from '@/components/ui/dashboard-ui';
+import { Badge, Card, QueryErrorState, SectionTitle, TabLoader, cx } from '@/components/ui/dashboard-ui';
 import { useBranchOverview } from '@/features/venue/hooks/use-venue';
 import { textForLocale } from '@/lib/localized-text';
 
@@ -12,6 +12,10 @@ export function OverviewTab({ locale }: { locale: string }) {
 
   if (overview.isLoading) {
     return <TabLoader label={t('loadingWorkspace')} />;
+  }
+
+  if (overview.isError) {
+    return <QueryErrorState onRetry={() => void overview.refetch()} />;
   }
 
   const branches = overview.data?.branches ?? [];

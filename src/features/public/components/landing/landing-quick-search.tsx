@@ -165,11 +165,15 @@ export function LandingQuickSearch({ locale }: { locale: string }) {
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 onFocus={() => setOpen(true)}
+                role="combobox"
+                aria-autocomplete="list"
+                aria-expanded={open && shouldFetchPreview}
+                aria-controls="landing-venue-search-results"
                 placeholder={t('venueSearchPlaceholder')}
                 className="h-14 w-full rounded-2xl border border-teal-200 bg-white ps-12 pe-4 text-sm font-bold shadow-lg shadow-teal-900/5 outline-none transition focus:border-teal-400 focus:bg-white focus:ring-4 focus:ring-teal-500/15"
               />
               {open && shouldFetchPreview ? (
-                <div className="absolute inset-x-0 top-[calc(100%+0.75rem)] z-[80] overflow-hidden rounded-2xl border border-teal-100 bg-white shadow-2xl shadow-teal-950/10">
+                <div id="landing-venue-search-results" role="listbox" className="absolute inset-x-0 top-[calc(100%+0.75rem)] z-[80] overflow-hidden rounded-2xl border border-teal-100 bg-white shadow-2xl shadow-teal-950/10">
                   <div className="border-b border-border px-3 py-2 text-xs font-black uppercase tracking-[0.14em] text-muted-foreground">
                     {t('quickSearchPreviewTitle')}
                   </div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { pullDownDismissableSelector, pullDownDismissEvent } from './pull-down-action';
+import { hasUnsavedChanges } from '@/lib/unsaved-changes';
 
 const refreshThreshold = 92;
 const maxPullDistance = 132;
@@ -68,6 +69,10 @@ export function PullToRefresh() {
       startYRef.current = event.touches[0]?.clientY ?? 0;
       activeRef.current = true;
       intentRef.current = document.querySelector(pullDownDismissableSelector) ? 'dismiss' : 'refresh';
+      if (intentRef.current === 'refresh' && hasUnsavedChanges()) {
+        activeRef.current = false;
+        return;
+      }
       setIntent(intentRef.current);
       scrollParentRef.current = scrollParent;
     };

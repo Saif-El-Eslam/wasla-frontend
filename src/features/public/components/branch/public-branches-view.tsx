@@ -12,6 +12,7 @@ import { optimizedImageUrl } from '@/lib/image-url';
 import { PublicBranchActions } from './public-branch-actions';
 import { LogoMark } from '@/components/ui/logo-mark';
 import { publicHref } from '@/features/public/utils/public-url';
+import { EmptyState } from '@/components/ui/empty-state';
 
 export function PublicBranchesView({
   venue,
@@ -101,7 +102,9 @@ export function PublicBranchesView({
           <GitBranch className="size-4 text-teal-600" />
           {t('branchesHeading', { count: branches.length })}
         </h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {branches.length === 0 ? (
+          <EmptyState icon={GitBranch} title={t('noBranchesTitle')} body={t('noBranchesBody')} />
+        ) : <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {branches.map((branch) => (
             <Link
               key={branch.id}
@@ -131,7 +134,7 @@ export function PublicBranchesView({
               </span>
             </Link>
           ))}
-        </div>
+        </div>}
       </section>
     </main>
   );

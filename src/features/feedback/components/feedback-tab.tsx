@@ -9,6 +9,7 @@ import {
   Card,
   EmptyState,
   PaginationControls,
+  QueryErrorState,
   SectionTitle,
   TabLoader,
 } from '@/components/ui/dashboard-ui';
@@ -66,6 +67,17 @@ export function FeedbackTab({ locale }: { locale: string }) {
 
   if (branchesQuery.isLoading || feedback.isLoading) {
     return <TabLoader label={t('loadingWorkspace')} />;
+  }
+
+  if (branchesQuery.isError || feedback.isError) {
+    return (
+      <QueryErrorState
+        onRetry={() => {
+          void branchesQuery.refetch();
+          void feedback.refetch();
+        }}
+      />
+    );
   }
 
   return (

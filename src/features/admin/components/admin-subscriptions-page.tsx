@@ -6,7 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Home, Languages, LogOut, Shield } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { Badge, Card } from '@/components/ui/dashboard-ui';
+import { Badge, Card, QueryErrorState, TabLoader } from '@/components/ui/dashboard-ui';
 import { DashboardLoading } from '@/components/ui/dashboard-loading';
 import { toast } from '@/components/ui/toast-store';
 import { publicLandingHref } from '@/features/auth/utils/pwa-public-navigation';
@@ -53,27 +53,27 @@ export function AdminSubscriptionsPage({ locale }: { locale: string }) {
   const overview = useQuery({
     queryKey: [...queryKeys.adminSubscriptionOverview, locale] as const,
     queryFn: api.adminSubscriptionOverview,
-    enabled: me.data?.role === 'SUPER_ADMIN',
+    enabled: me.data?.role === 'SUPER_ADMIN' && activeTab === 'home',
   });
   const venues = useQuery({
     queryKey: [...queryKeys.adminSubscriptionVenues(filters), locale] as const,
     queryFn: () => api.adminSubscriptionVenues(filters),
-    enabled: me.data?.role === 'SUPER_ADMIN',
+    enabled: me.data?.role === 'SUPER_ADMIN' && activeTab === 'venues',
   });
   const plans = useQuery({
     queryKey: [...queryKeys.adminPlans, locale] as const,
     queryFn: api.adminPlans,
-    enabled: me.data?.role === 'SUPER_ADMIN',
+    enabled: me.data?.role === 'SUPER_ADMIN' && (activeTab === 'matrix' || activeTab === 'plans'),
   });
   const features = useQuery({
     queryKey: [...queryKeys.adminFeatures, locale] as const,
     queryFn: api.adminFeatures,
-    enabled: me.data?.role === 'SUPER_ADMIN',
+    enabled: me.data?.role === 'SUPER_ADMIN' && (activeTab === 'matrix' || activeTab === 'plans'),
   });
   const verificationCodes = useQuery({
     queryKey: [...queryKeys.adminVerificationCodes(verificationFilters), locale] as const,
     queryFn: () => api.adminVerificationCodes(verificationFilters),
-    enabled: me.data?.role === 'SUPER_ADMIN',
+    enabled: me.data?.role === 'SUPER_ADMIN' && activeTab === 'verification',
   });
 
   const updateSubscription = useMutation({
@@ -230,11 +230,14 @@ export function AdminSubscriptionsPage({ locale }: { locale: string }) {
         <AdminSubscriptionTabs activeTab={activeTab} onChange={setActiveTab} />
 
         {activeTab === 'home' ? (
+          overview.isError ? <QueryErrorState onRetry={() => void overview.refetch()} /> :
+          overview.isLoading ? <TabLoader label={commonT('pleaseWait')} /> :
           <AdminHomeTab overview={overview.data} locale={locale} onTabChange={setActiveTab} />
         ) : null}
 
         {activeTab === 'venues' ? (
-          <VenueSubscriptionManagement
+          venues.isError ? <QueryErrorState onRetry={() => void venues.refetch()} /> :
+          venues.isLoading ? <TabLoader label={commonT('pleaseWait')} /> : <VenueSubscriptionManagement
             venues={venues.data?.venues ?? []}
             locale={locale}
             search={search}
@@ -244,7 +247,7 @@ export function AdminSubscriptionsPage({ locale }: { locale: string }) {
         ) : null}
 
         {activeTab === 'verification' ? (
-          <AdminVerificationCodes
+          verificationCodes.isError ? <QueryErrorState onRetry={() => void verificationCodes.refetch()} /> : <AdminVerificationCodes
             data={verificationCodes.data}
             locale={locale}
             search={verificationSearch}
@@ -255,7 +258,8 @@ export function AdminSubscriptionsPage({ locale }: { locale: string }) {
         ) : null}
 
         {activeTab === 'matrix' ? (
-          <PlanFeatureMatrix
+          plans.isError || features.isError ? <QueryErrorState onRetry={() => { void plans.refetch(); void features.refetch(); }} /> :
+          plans.isLoading || features.isLoading ? <TabLoader label={commonT('pleaseWait')} /> : <PlanFeatureMatrix
             plans={plans.data?.plans ?? []}
             features={features.data?.features ?? []}
             locale={locale}
@@ -264,7 +268,8 @@ export function AdminSubscriptionsPage({ locale }: { locale: string }) {
         ) : null}
 
         {activeTab === 'plans' ? (
-          <PlanFeatureManagement
+          plans.isError || features.isError ? <QueryErrorState onRetry={() => { void plans.refetch(); void features.refetch(); }} /> :
+          plans.isLoading || features.isLoading ? <TabLoader label={commonT('pleaseWait')} /> : <PlanFeatureManagement
             plans={plans.data?.plans ?? []}
             features={features.data?.features ?? []}
             locale={locale}

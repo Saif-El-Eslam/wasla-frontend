@@ -3,7 +3,8 @@
 import { Plus, ToggleLeft, ToggleRight, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { PrimaryButton, SecondaryButton, TabLoader } from '@/components/ui/dashboard-ui';
+import { PrimaryButton, QueryErrorState, SecondaryButton, TabLoader } from '@/components/ui/dashboard-ui';
+import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { toast } from '@/components/ui/toast-store';
 import { readError } from '@/features/dashboard/utils/dashboard-utils';
 import { textForLocale } from '@/lib/localized-text';
@@ -20,6 +21,7 @@ export function CategoriesPanel({ locale }: { locale: string }) {
   const [type, setType] = useState<FinancialTransactionType>('OUT');
   const [nameEn, setNameEn] = useState('');
   const [nameAr, setNameAr] = useState('');
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const categories = useTransactionCategories(undefined, true);
   const createMutation = useCreateTransactionCategory();
   const updateMutation = useUpdateTransactionCategory();
@@ -31,6 +33,10 @@ export function CategoriesPanel({ locale }: { locale: string }) {
 
   if (categories.isLoading) {
     return <TabLoader label={t('loadingWorkspace')} />;
+  }
+
+  if (categories.isError) {
+    return <QueryErrorState onRetry={() => void categories.refetch()} />;
   }
 
   const create = () => {
@@ -102,12 +108,7 @@ export function CategoriesPanel({ locale }: { locale: string }) {
                       {transactionCount === 0 ? (
                         <SecondaryButton
                           loading={deleteMutation.isPending}
-                          onClick={() =>
-                            deleteMutation.mutate(category.id, {
-                              onSuccess: () => toast.success(t('categoryDeleted')),
-                              onError: (error) => toast.error(readError(error)),
-                            })
-                          }
+                          onClick={() => setPendingDeleteId(category.id)}
                         >
                           <Trash2 className="size-4 text-red-600" />
                           {t('delete')}
@@ -121,6 +122,25 @@ export function CategoriesPanel({ locale }: { locale: string }) {
           </div>
         </section>
       ))}
+      <ConfirmationModal
+        open={Boolean(pendingDeleteId)}
+        setOpen={(open) => !open && setPendingDeleteId(null)}
+        title={t('deleteCategoryTitle')}
+        description={t('deleteCategoryWarning')}
+        confirmText={t('delete')}
+        cancelText={t('cancel')}
+        confirmLoading={deleteMutation.isPending}
+        onConfirm={() => {
+          if (!pendingDeleteId) return;
+          deleteMutation.mutate(pendingDeleteId, {
+            onSuccess: () => {
+              setPendingDeleteId(null);
+              toast.success(t('categoryDeleted'));
+            },
+            onError: (error) => toast.error(readError(error)),
+          });
+        }}
+      />
     </div>
   );
 }

@@ -5,6 +5,8 @@ import { ChevronRight, X } from 'lucide-react';
 import { cx } from '@/components/ui/dashboard-ui';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { pullDownDismissEvent } from './pull-down-action';
+import { useTranslations } from 'next-intl';
+import { confirmDiscardChanges } from '@/lib/unsaved-changes';
 
 const closeDragThreshold = 76;
 
@@ -24,6 +26,7 @@ export default function HubDrawer({
   children: React.ReactNode;
 }) {
   const isDesktop = useMediaQuery('(min-width: 1024px)');
+  const commonT = useTranslations('common');
   const sectionRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -46,9 +49,10 @@ export default function HubDrawer({
   }, []);
 
   const requestClose = useCallback(() => {
+    if (!confirmDiscardChanges(commonT('unsavedChangesWarning'))) return;
     restorePreviousFocus();
     onCloseRef.current();
-  }, [restorePreviousFocus]);
+  }, [commonT, restorePreviousFocus]);
 
   const updateDragOffset = useCallback((value: number) => {
     dragOffsetRef.current = value;
@@ -63,6 +67,25 @@ export default function HubDrawer({
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         requestClose();
+        return;
+      }
+
+      if (event.key === 'Tab' && sectionRef.current) {
+        const focusable = Array.from(
+          sectionRef.current.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+          ),
+        ).filter((element) => !element.hasAttribute('hidden'));
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (event.shiftKey && document.activeElement === first && last) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last && first) {
+          event.preventDefault();
+          first.focus();
+        }
       }
     };
 

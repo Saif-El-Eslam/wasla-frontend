@@ -46,9 +46,17 @@ export function MenuCategoryHeader({
       setOpenActionsCategoryId(null);
     };
 
-    document.addEventListener('pointerdown', closeActionsOnOutsideClick);
+    const closeActionsOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpenActionsCategoryId(null);
+    };
 
-    return () => document.removeEventListener('pointerdown', closeActionsOnOutsideClick);
+    document.addEventListener('pointerdown', closeActionsOnOutsideClick);
+    document.addEventListener('keydown', closeActionsOnEscape);
+
+    return () => {
+      document.removeEventListener('pointerdown', closeActionsOnOutsideClick);
+      document.removeEventListener('keydown', closeActionsOnEscape);
+    };
   }, [openActionsCategoryId]);
 
   return (
@@ -93,7 +101,7 @@ export function MenuCategoryHeader({
         <button
           type="button"
           className="flex size-7 items-center justify-center rounded-full text-stone-400"
-          aria-label={isOpen ? 'Collapse category' : 'Expand category'}
+          aria-label={isOpen ? t('collapseCategory') : t('expandCategory')}
         >
           {isOpen ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
         </button>
@@ -107,6 +115,8 @@ export function MenuCategoryHeader({
             className="flex size-10 items-center justify-center rounded-full text-stone-700 transition hover:bg-stone-50 hover:text-primary disabled:opacity-50"
             //  bg-white text-stone-600 '
             label={t('categoryActions')}
+            aria-haspopup="menu"
+            aria-expanded={openActionsCategoryId === category.id}
             onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
               e.preventDefault();
               setOpenActionsCategoryId((current) => (current === category.id ? null : category.id));
@@ -115,8 +125,9 @@ export function MenuCategoryHeader({
             <MoreVertical className="size-4" />
           </IconButton>
           {openActionsCategoryId === category.id ? (
-            <div className="absolute end-0 top-10 z-50 w-52 rounded-2xl border border-border bg-white p-2 shadow-2xl">
+            <div role="menu" className="absolute end-0 top-10 z-50 w-52 rounded-2xl border border-border bg-white p-2 shadow-2xl">
               <button
+                role="menuitem"
                 className="flex h-10 w-full items-center gap-2 rounded-xl px-3 text-start text-sm font-bold text-stone-700 transition hover:bg-stone-50 hover:text-primary"
                 onClick={() => {
                   setOpenActionsCategoryId(null);
@@ -127,6 +138,7 @@ export function MenuCategoryHeader({
                 {t('editCategory')}
               </button>
               <button
+                role="menuitem"
                 className="flex h-10 w-full items-center gap-2 rounded-xl px-3 text-start text-sm font-bold text-stone-700 transition hover:bg-stone-50 hover:text-primary"
                 onClick={() => {
                   setOpenActionsCategoryId(null);
@@ -138,6 +150,7 @@ export function MenuCategoryHeader({
                 {category.active ? t('deactivate') : t('activate')}
               </button>
               <button
+                role="menuitem"
                 className="flex h-10 w-full items-center gap-2 rounded-xl px-3 text-start text-sm font-bold text-stone-700 transition hover:bg-stone-50 hover:text-primary"
                 onClick={() => {
                   setOpenActionsCategoryId(null);

@@ -37,6 +37,7 @@ export function AdminSubscriptionTabs({
               active ? 'bg-primary text-white shadow-lg shadow-teal-100' : 'text-stone-500 hover:bg-teal-50 hover:text-primary',
             )}
             onClick={() => onChange(tab.id)}
+            aria-current={active ? 'page' : undefined}
           >
             <Icon className="size-4 shrink-0" />
             <span className="truncate">{tab.label}</span>

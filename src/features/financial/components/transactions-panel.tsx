@@ -3,7 +3,8 @@
 import { Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Badge, SecondaryButton, TabLoader } from '@/components/ui/dashboard-ui';
+import { Badge, QueryErrorState, SecondaryButton, TabLoader } from '@/components/ui/dashboard-ui';
+import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { toast } from '@/components/ui/toast-store';
 import { readError } from '@/features/dashboard/utils/dashboard-utils';
 import {
@@ -29,6 +30,7 @@ export function TransactionsPanel({
   timeZone?: string;
 }) {
   const t = useTranslations('dashboard');
+  const commonT = useTranslations('common');
   const access = useFinanceAccess();
   const allowedRange = allowedDateRangeFromIso(
     access.data?.allowance.allowedFrom,
@@ -46,6 +48,7 @@ export function TransactionsPanel({
   const [fromDate, setFromDate] = useState(() => currentMonthStartDateInTimeZone(timeZone));
   const [toDate, setToDate] = useState(() => dateInputValueInTimeZone(new Date(), timeZone));
   const [rangeWasClamped, setRangeWasClamped] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const effectiveDateRange = useMemo(
     () => clampDateRangeInputs(fromDate, toDate, effectiveAllowedRange.from, effectiveAllowedRange.to),
@@ -100,6 +103,17 @@ export function TransactionsPanel({
 
   if (transactions.isLoading) {
     return <TabLoader label={t('loadingWorkspace')} />;
+  }
+
+  if (access.isError || transactions.isError) {
+    return (
+      <QueryErrorState
+        onRetry={() => {
+          void access.refetch();
+          void transactions.refetch();
+        }}
+      />
+    );
   }
 
   return (
@@ -188,12 +202,7 @@ export function TransactionsPanel({
               </div>
               <SecondaryButton
                 loading={deleteMutation.isPending}
-                onClick={() =>
-                  deleteMutation.mutate(transaction.id, {
-                    onSuccess: () => toast.success(t('transactionDeleted')),
-                    onError: (error) => toast.error(readError(error)),
-                  })
-                }
+                onClick={() => setPendingDeleteId(transaction.id)}
               >
                 <Trash2 className="size-4" />
                 {t('delete')}
@@ -204,6 +213,10 @@ export function TransactionsPanel({
           <div ref={loadMoreRef} className="h-6" />
           {isFetchingNextPage ? (
             <p className="text-center text-xs font-black text-muted-foreground">{t('loadingWorkspace')}</p>
+          ) : hasNextPage ? (
+            <div className="text-center">
+              <SecondaryButton onClick={() => void fetchNextPage()}>{commonT('loadMore')}</SecondaryButton>
+            </div>
           ) : null}
         </div>
       ) : (
@@ -211,6 +224,25 @@ export function TransactionsPanel({
           {t('noTransactionsYet')}
         </p>
       )}
+      <ConfirmationModal
+        open={Boolean(pendingDeleteId)}
+        setOpen={(open) => !open && setPendingDeleteId(null)}
+        title={t('deleteTransactionTitle')}
+        description={t('deleteTransactionWarning')}
+        confirmText={t('delete')}
+        cancelText={t('cancel')}
+        confirmLoading={deleteMutation.isPending}
+        onConfirm={() => {
+          if (!pendingDeleteId) return;
+          deleteMutation.mutate(pendingDeleteId, {
+            onSuccess: () => {
+              setPendingDeleteId(null);
+              toast.success(t('transactionDeleted'));
+            },
+            onError: (error) => toast.error(readError(error)),
+          });
+        }}
+      />
     </div>
   );
 }

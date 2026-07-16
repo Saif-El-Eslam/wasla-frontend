@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Check, ChevronDown, GitBranch, Sparkles } from 'lucide-react';
 import type { BranchOption } from '@/lib/api';
 import { textForLocale } from '@/lib/localized-text';
@@ -26,7 +26,9 @@ export function BranchSelect({
   allLabel?: string;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const listboxId = useId();
   const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
   const options: BranchSelectOption[] = includeAll
     ? [{ id: 'all', name: allLabel, slug: 'all', active: true, isMain: false }, ...branches]
     : branches;
@@ -35,6 +37,11 @@ export function BranchSelect({
     selectedOption?.id === 'all'
       ? allLabel
       : textForLocale(selectedOption?.name, locale) || selectedOption?.slug || allLabel;
+
+  const openList = () => {
+    setActiveIndex(Math.max(0, options.findIndex((option) => option.id === value)));
+    setOpen(true);
+  };
 
   useEffect(() => {
     if (!open) {
@@ -80,7 +87,30 @@ export function BranchSelect({
         )}
         aria-haspopup="listbox"
         aria-expanded={open}
-        onClick={() => setOpen((current) => !current)}
+        aria-controls={listboxId}
+        aria-activedescendant={open ? `${listboxId}-option-${activeIndex}` : undefined}
+        onClick={() => (open ? setOpen(false) : openList())}
+        onKeyDown={(event) => {
+          if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            if (!open) {
+              openList();
+              return;
+            }
+            const direction = event.key === 'ArrowDown' ? 1 : -1;
+            setActiveIndex((current) => (current + direction + options.length) % options.length);
+          } else if (open && (event.key === 'Enter' || event.key === ' ')) {
+            event.preventDefault();
+            const option = options[activeIndex];
+            if (option) selectOption(option.id);
+          } else if (open && event.key === 'Home') {
+            event.preventDefault();
+            setActiveIndex(0);
+          } else if (open && event.key === 'End') {
+            event.preventDefault();
+            setActiveIndex(options.length - 1);
+          }
+        }}
       >
         <span className="flex size-9 shrink-0 items-center justify-center rounded-3xl bg-gradient-to-br from-teal-500 to-teal-700 text-white shadow-sm shadow-teal-200 transition group-active:scale-95">
           {selectedOption?.isMain ? <Sparkles className="size-4" /> : <GitBranch className="size-4" />}
@@ -106,10 +136,11 @@ export function BranchSelect({
 
       {open ? (
         <div
+          id={listboxId}
           className="absolute end-0 z-[9999] mt-2 max-h-72 w-full min-w-0 overflow-y-auto rounded-3xl border border-teal-100 bg-white p-1.5 shadow-2xl shadow-stone-200/70 sm:min-w-[260px]"
           role="listbox"
         >
-          {options.map((branch) => {
+          {options.map((branch, index) => {
             const isAll = branch.id === 'all';
             const isSelected = branch.id === value;
             const label = isAll ? allLabel : textForLocale(branch.name, locale) || branch.slug;
@@ -117,6 +148,7 @@ export function BranchSelect({
             return (
               <button
                 key={branch.id}
+                id={`${listboxId}-option-${index}`}
                 type="button"
                 role="option"
                 aria-selected={isSelected}
@@ -124,9 +156,12 @@ export function BranchSelect({
                   'flex min-h-12 w-full items-center gap-3 rounded-3xl px-2.5 py-2 text-start transition',
                   isSelected
                     ? 'bg-teal-50 text-teal-900'
-                    : 'text-stone-700 hover:bg-stone-50 hover:text-stone-950',
+                    : index === activeIndex
+                      ? 'bg-stone-50 text-stone-950'
+                      : 'text-stone-700 hover:bg-stone-50 hover:text-stone-950',
                 )}
                 onClick={() => selectOption(branch.id)}
+                onMouseEnter={() => setActiveIndex(index)}
               >
                 <span
                   className={cx(

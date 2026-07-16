@@ -17,6 +17,7 @@ export { IconButton } from './icon-button';
 export { ButtonLoadingContent, LoadingSpinner } from './loading-spinner';
 export { PaginationControls } from './pagination-controls';
 export { PrimaryButton } from './primary-button';
+export { QueryErrorState } from './query-error-state';
 export { SecondaryButton } from './secondary-button';
 
 export { QRMock } from './qr-mock';

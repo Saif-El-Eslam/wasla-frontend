@@ -4,7 +4,7 @@ import { ArrowLeft, Download, Share2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
-import { BranchSelect, SecondaryButton, TabLoader, cx } from '@/components/ui/dashboard-ui';
+import { BranchSelect, QueryErrorState, SecondaryButton, TabLoader, cx } from '@/components/ui/dashboard-ui';
 import type { BranchOption } from '@/lib/api';
 import {
   allowedDateRangeFromIso,
@@ -118,6 +118,7 @@ export function ReportsPanel({
   locale: string;
 }) {
   const t = useTranslations('dashboard');
+  const commonT = useTranslations('common');
   const queryClient = useQueryClient();
   const access = useFinanceAccess();
   const timeZone = access.data?.timeZone;
@@ -296,6 +297,18 @@ export function ReportsPanel({
 
   if (access.isLoading || overviewReport.isLoading || (groupBy !== 'all' && analytics.isLoading)) {
     return <TabLoader label={t('loadingWorkspace')} />;
+  }
+
+  if (access.isError || overviewReport.isError || (groupBy !== 'all' && analytics.isError)) {
+    return (
+      <QueryErrorState
+        onRetry={() => {
+          void access.refetch();
+          void overviewReport.refetch();
+          if (groupBy !== 'all') void analytics.refetch();
+        }}
+      />
+    );
   }
 
   if (selectedGroup) {
@@ -491,6 +504,13 @@ export function ReportsPanel({
         </p>
       ) : null}
       <div ref={loadMoreRef} className="h-6" />
+      {visibleCount < groups.length ? (
+        <div className="text-center">
+          <SecondaryButton onClick={() => setVisibleCount((count) => Math.min(count + pageSize, groups.length))}>
+            {commonT('loadMore')}
+          </SecondaryButton>
+        </div>
+      ) : null}
     </div>
   );
 }

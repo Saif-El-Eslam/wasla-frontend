@@ -15,6 +15,8 @@ import { cx } from '@/components/ui/dashboard-ui';
 import { pullDownDismissEvent } from '@/components/shared/pull-down-action';
 import { publicMenuApi } from '@/features/public/api/public-menu.api';
 import { textForLocale } from '@/lib/localized-text';
+import { useTranslations } from 'next-intl';
+import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 
 const reviewsPageSize = 8;
 
@@ -94,6 +96,7 @@ export function PublicReviewBooster({
   locale: string;
 }) {
   const labels = locale === 'ar' ? copy.ar : copy.en;
+  const publicT = useTranslations('public');
   const dialogTitleId = useId();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -237,7 +240,7 @@ export function PublicReviewBooster({
 
   return (
     <>
-      <div className="wasla-feedback-entrance pointer-events-none fixed bottom-8 end-4 z-40">
+      <div className="wasla-feedback-entrance pointer-events-none fixed bottom-[max(2rem,calc(env(safe-area-inset-bottom)+1rem))] end-4 z-40">
         <span className="wasla-feedback-halo" aria-hidden="true" />
         <button
           type="button"
@@ -252,26 +255,22 @@ export function PublicReviewBooster({
       </div>
 
       {open ? (
-        <div
-          className="wasla-feedback-backdrop fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-stone-950/25 px-3 py-4 backdrop-blur-sm"
-          onClick={() => setOpen(false)}
-          data-pull-down-dismissable="true"
-        >
+        <Dialog open={open} onClose={setOpen} className="relative z-50">
           <div
+            className="wasla-feedback-backdrop fixed inset-0 grid place-items-center overflow-y-auto bg-stone-950/25 px-3 py-4 backdrop-blur-sm"
+            data-pull-down-dismissable="true"
+          >
+          <DialogPanel
             className="wasla-feedback-dialog max-h-[calc(100dvh-20vh)] w-full max-w-md overflow-y-auto rounded-3xl border border-white/70 bg-white p-4 shadow-2xl"
-            onClick={(event) => event.stopPropagation()}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={dialogTitleId}
           >
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-black uppercase tracking-wider text-amber-600">
                   {branchName || labels.prompt}
                 </p>
-                <h2 id={dialogTitleId} className="mt-1 text-xl font-black text-stone-950">
+                <DialogTitle id={dialogTitleId} className="mt-1 text-xl font-black text-stone-950">
                   {mode === 'reviews' ? labels.reviewsTitle : labels.title}
-                </h2>
+                </DialogTitle>
                 <p className="mt-1 text-sm leading-6 text-muted-foreground">
                   {mode === 'reviews' ? labels.reviewsBody : labels.body}
                 </p>
@@ -401,7 +400,7 @@ export function PublicReviewBooster({
                           : 'border-stone-200 bg-white hover:border-amber-200',
                       )}
                       onClick={() => setRating(value)}
-                      aria-label={`${value} star`}
+                      aria-label={publicT('starLabel', { count: value })}
                     >
                       <Star className={cx('size-6', rating >= value ? 'fill-current' : '')} />
                     </button>
@@ -442,8 +441,9 @@ export function PublicReviewBooster({
                 </button>
               </div>
             )}
+          </DialogPanel>
           </div>
-        </div>
+        </Dialog>
       ) : null}
     </>
   );

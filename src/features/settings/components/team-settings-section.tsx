@@ -1,11 +1,11 @@
 'use client';
 
-import { Pencil, Search, Trash2, UserPlus, Users } from 'lucide-react';
+import { Pencil, Search, SearchX, Trash2, UserPlus, Users } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { UseMutationResult } from '@tanstack/react-query';
 import type { UseFormReturn } from 'react-hook-form';
-import { Badge, Card, FormPanel, PrimaryButton, cx } from '@/components/ui/dashboard-ui';
+import { Badge, Card, EmptyState, FormPanel, PrimaryButton, cx } from '@/components/ui/dashboard-ui';
 import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { FormInput } from '@/components/ui/form-input';
 import { readError } from '@/features/dashboard/utils/dashboard-utils';
@@ -74,7 +74,7 @@ export function TeamSettingsSection({
       </Card>
 
       {userFormOpen ? (
-        <FormPanel title={t('addTeamUser')} closeLabel={commonT('close')} onClose={() => setUserFormOpen(false)} panelClassName="sm:max-w-4xl">
+        <FormPanel title={t('addTeamUser')} closeLabel={commonT('close')} onClose={() => setUserFormOpen(false)} panelClassName="sm:max-w-4xl" dirty={form.formState.isDirty}>
           <form
             onSubmit={form.handleSubmit((values) =>
               mutation.mutate(values, {
@@ -202,6 +202,11 @@ export function TeamSettingsSection({
       ) : null}
 
       <div className="grid gap-3 xl:grid-cols-2">
+        {userSearch.trim() && filteredUsers.length === 0 ? (
+          <div className="xl:col-span-2">
+            <EmptyState icon={SearchX} title={t('noTeamSearchTitle')} body={t('noTeamSearchBody')} />
+          </div>
+        ) : null}
         {filteredUsers.map((user) => (
           <Card key={user.id} className="border-teal-100 bg-white/95 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-teal-50">
             <div className="flex flex-wrap items-start justify-between gap-3">

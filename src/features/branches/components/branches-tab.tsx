@@ -11,6 +11,7 @@ import {
   Plus,
   QrCode,
   Search,
+  SearchX,
   Star,
   ToggleLeft,
   ToggleRight,
@@ -25,9 +26,11 @@ import {
   FormPanel,
   IconButton,
   PrimaryButton,
+  QueryErrorState,
   SectionTitle,
   TabLoader,
   LoadingSpinner,
+  EmptyState,
   slugify,
 } from '@/components/ui/dashboard-ui';
 import { ConfirmationModal } from '@/components/ui/confirmation-modal';
@@ -136,9 +139,17 @@ export function BranchesTab({
       setOpenActionsBranchId(null);
     };
 
-    document.addEventListener('pointerdown', closeActionsOnOutsideClick);
+    const closeActionsOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpenActionsBranchId(null);
+    };
 
-    return () => document.removeEventListener('pointerdown', closeActionsOnOutsideClick);
+    document.addEventListener('pointerdown', closeActionsOnOutsideClick);
+    document.addEventListener('keydown', closeActionsOnEscape);
+
+    return () => {
+      document.removeEventListener('pointerdown', closeActionsOnOutsideClick);
+      document.removeEventListener('keydown', closeActionsOnEscape);
+    };
   }, [openActionsBranchId]);
 
   const resetForm = () => {
@@ -339,6 +350,10 @@ export function BranchesTab({
     return <TabLoader label={t('loadingWorkspace')} />;
   }
 
+  if (branchesQuery.isError) {
+    return <QueryErrorState onRetry={() => void branchesQuery.refetch()} />;
+  }
+
   return (
     <div className="space-y-5">
       <SectionTitle eyebrow={t('venueStructure')} title={t('branches')}>
@@ -364,6 +379,7 @@ export function BranchesTab({
           title={editingBranch ? t('editBranch') : t('addBranch')}
           closeLabel={commonT('close')}
           onClose={resetForm}
+          dirty={form.formState.isDirty}
         >
           <form
             onSubmit={handleSubmit((values) =>
@@ -541,6 +557,11 @@ export function BranchesTab({
       ) : null}
 
       <div className="grid gap-3 xl:grid-cols-2">
+        {search.trim() && filtered.length === 0 ? (
+          <div className="xl:col-span-2">
+            <EmptyState icon={SearchX} title={t('noBranchSearchTitle')} body={t('noBranchSearchBody')} />
+          </div>
+        ) : null}
         {filtered.map((branch) => {
           const stats = branch.stats;
           const branchName = textForLocale(branch.name, locale) || branch.slug;
@@ -565,6 +586,8 @@ export function BranchesTab({
                 <div data-branch-actions-root>
                   <IconButton
                     label={t('branchActions')}
+                    aria-haspopup="menu"
+                    aria-expanded={openActionsBranchId === branch.id}
                     onClick={() =>
                       setOpenActionsBranchId((current) => (current === branch.id ? null : branch.id))
                     }
@@ -572,8 +595,9 @@ export function BranchesTab({
                     <MoreVertical className="size-4" />
                   </IconButton>
                   {openActionsBranchId === branch.id ? (
-                    <div className="absolute end-4 top-14 z-20 w-52 rounded-2xl border border-border bg-white p-2 shadow-2xl">
+                    <div role="menu" className="absolute end-4 top-14 z-20 w-52 rounded-2xl border border-border bg-white p-2 shadow-2xl">
                       <button
+                        role="menuitem"
                         className="flex h-10 w-full items-center gap-2 rounded-xl px-3 text-start text-sm font-bold text-stone-700 transition hover:bg-stone-50 hover:text-primary"
                         onClick={() => openEditForm(branch)}
                       >
@@ -581,6 +605,7 @@ export function BranchesTab({
                         {t('editBranch')}
                       </button>
                       <button
+                        role="menuitem"
                         className="flex h-10 w-full items-center gap-2 rounded-xl px-3 text-start text-sm font-bold text-stone-700 transition hover:bg-stone-50 hover:text-primary"
                         onClick={() => {
                           setOpenActionsBranchId(null);
@@ -598,6 +623,7 @@ export function BranchesTab({
                         {branch.active ? t('deactivate') : t('activate')}
                       </button>
                       <button
+                        role="menuitem"
                         className="flex h-10 w-full items-center gap-2 rounded-xl px-3 text-start text-sm font-bold text-stone-700 transition hover:bg-stone-50 hover:text-primary"
                         onClick={() => {
                           setOpenActionsBranchId(null);
@@ -609,6 +635,7 @@ export function BranchesTab({
                       </button>
                       {!branch.isMain ? (
                         <button
+                          role="menuitem"
                           className="flex h-10 w-full items-center gap-2 rounded-xl px-3 text-start text-sm font-bold text-stone-700 transition hover:bg-stone-50 hover:text-primary"
                           onClick={() => {
                             setOpenActionsBranchId(null);

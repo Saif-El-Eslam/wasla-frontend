@@ -32,9 +32,21 @@ import {
   type SetupFormInput,
   type SetupFormValues,
 } from '@/features/venue/schemas/setup.schema';
+import { useUnsavedChanges } from '@/hooks/use-unsaved-changes';
 
 function slugify(value: string) {
-  return value
+  const transliteration: Record<string, string> = {
+    '\u0627': 'a', '\u0623': 'a', '\u0625': 'e', '\u0622': 'a', '\u0628': 'b', '\u062a': 't', '\u062b': 'th',
+    '\u062c': 'j', '\u062d': 'h', '\u062e': 'kh', '\u062f': 'd', '\u0630': 'z', '\u0631': 'r', '\u0632': 'z',
+    '\u0633': 's', '\u0634': 'sh', '\u0635': 's', '\u0636': 'd', '\u0637': 't', '\u0638': 'z', '\u0639': 'a',
+    '\u063a': 'gh', '\u0641': 'f', '\u0642': 'q', '\u0643': 'k', '\u0644': 'l', '\u0645': 'm', '\u0646': 'n',
+    '\u0647': 'h', '\u0648': 'w', '\u064a': 'y', '\u0649': 'a', '\u0629': 'h', '\u0624': 'w', '\u0626': 'y',
+  };
+  const latinValue = Array.from(value.normalize('NFKD'))
+    .map((character) => transliteration[character] ?? character)
+    .join('');
+
+  return latinValue
     .toLowerCase()
     .trim()
     .replace(/[^a-z0-9]+/g, '-')
@@ -53,6 +65,7 @@ export default function SetupPage() {
   const form = useForm<SetupFormInput, unknown, SetupFormValues>({
     resolver: zodResolver(setupSchema),
     defaultValues: {
+      type: 'RESTAURANT',
       name: { en: '', ar: '' },
       branchName: { en: '', ar: '' },
       phone: '',
@@ -65,6 +78,7 @@ export default function SetupPage() {
     handleSubmit,
     formState: { errors },
   } = form;
+  useUnsavedChanges(form.formState.isDirty);
 
   const setupMutation = useMutation({
     mutationFn: api.setupVenue,
@@ -83,7 +97,8 @@ export default function SetupPage() {
 
   const error = setupMutation.error instanceof ApiError ? setupMutation.error.message : null;
   const watchedName = useWatch({ control: form.control, name: 'name' }) ?? { en: '', ar: '' };
-  const generatedSlug = slugify(watchedName.en || watchedName.ar || 'venue');
+  const slugBase = slugify(watchedName.en || watchedName.ar || 'venue');
+  const generatedSlug = slugBase.length >= 3 ? slugBase : `${slugBase || 'venue'}-venue`;
   const inputClass =
     'h-12 w-full rounded-2xl border border-teal-100 bg-white px-4 text-sm font-bold text-stone-950 outline-none shadow-sm transition placeholder:text-stone-400 hover:border-teal-200 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/15';
   const previewName = watchedName.en || watchedName.ar || t('title');
@@ -105,7 +120,7 @@ export default function SetupPage() {
     };
 
     setupMutation.mutate({
-      type: 'RESTAURANT',
+      type: values.type,
       name: values.name,
       slug: generatedSlug,
       defaultLocale: locale === 'ar' ? 'ar' : 'en',
@@ -229,6 +244,7 @@ export default function SetupPage() {
 
         <div className="wasla-fade-up wasla-delay-1 flex h-full min-h-0 items-center overflow-hidden">
           <form
+            data-unsaved-changes={form.formState.isDirty ? 'true' : undefined}
             className="max-h-full w-full overflow-y-auto rounded-[2rem] border border-teal-100 bg-white shadow-2xl shadow-teal-950/12"
             onSubmit={handleSubmit(onSubmit)}
           >
@@ -253,6 +269,26 @@ export default function SetupPage() {
             </div>
 
             <div className="grid gap-4 p-5 sm:grid-cols-2 sm:p-6">
+              <label className="flex min-w-0 flex-col gap-1.5 sm:col-span-2">
+                <span className="text-sm font-bold text-muted-foreground">{t('venueType')}</span>
+                <select className={inputClass} {...register('type')}>
+                  {[
+                    'RESTAURANT',
+                    'CAFE',
+                    'BAKERY',
+                    'DESSERT_SHOP',
+                    'FOOD_TRUCK',
+                    'CLOUD_KITCHEN',
+                    'CATERING',
+                    'LOUNGE',
+                    'OTHER',
+                  ].map((type) => (
+                    <option key={type} value={type}>
+                      {t(`venueTypes.${type}`)}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <FormInput
                 label={t('nameEn')}
                 name="name.en"

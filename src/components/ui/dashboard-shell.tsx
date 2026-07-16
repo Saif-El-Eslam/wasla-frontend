@@ -80,6 +80,7 @@ export function DashboardShell({
                   )}
                   onClick={() => onTabChange(item.id)}
                   type="button"
+                  aria-current={active ? 'page' : undefined}
                 >
                   <Icon className="size-5" />
                   <span>{t(item.labelKey)}</span>
@@ -174,6 +175,7 @@ export function DashboardShell({
                   )}
                   onClick={() => onTabChange(item.id)}
                   type="button"
+                  aria-current={active ? 'page' : undefined}
                 >
                   <span className="relative">
                     <Icon className={cx('size-5', active ? 'stroke-[2.5]' : '')} />

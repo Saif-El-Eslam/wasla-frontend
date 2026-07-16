@@ -20,6 +20,7 @@ import {
   Card,
   EmptyState,
   IconButton,
+  QueryErrorState,
   SectionTitle,
   TabLoader,
   cx,
@@ -176,6 +177,10 @@ export function QrTab({ initialBranchId, locale }: { initialBranchId: string; lo
     return <TabLoader label={t('loadingWorkspace')} />;
   }
 
+  if (branchOptions.isError) {
+    return <QueryErrorState onRetry={() => void branchOptions.refetch()} />;
+  }
+
   if (branches.length === 0) {
     return <EmptyState icon={Building2} title={t('createBranchFirst')} body={t('menuNeedsBranch')} />;
   }
@@ -192,6 +197,8 @@ export function QrTab({ initialBranchId, locale }: { initialBranchId: string; lo
       </SectionTitle>
       {qrQuery.isLoading ? (
         <TabLoader label={t('loadingWorkspace')} />
+      ) : qrQuery.isError ? (
+        <QueryErrorState onRetry={() => void qrQuery.refetch()} />
       ) : !menu ? (
         <EmptyState icon={QrCode} title={t('qrNeedsMenu')} body={t('qrNeedsMenuBody')} />
       ) : (

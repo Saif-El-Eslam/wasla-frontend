@@ -101,6 +101,7 @@ export function SettingsTabs({
                   : 'text-stone-500 hover:bg-teal-50 hover:text-primary',
               )}
               onClick={() => onChange(tab.id)}
+              aria-current={activeTab === tab.id ? 'page' : undefined}
             >
               <Icon className="size-4 shrink-0" />
               <span className="truncate">{tab.label}</span>

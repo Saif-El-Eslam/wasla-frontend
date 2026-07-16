@@ -1,10 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Filter, GitBranch, MapPin, Search, Star } from 'lucide-react';
+import { Filter, GitBranch, MapPin, Search, SearchX } from 'lucide-react';
 import type { PublicVenue, PublicVenueListResponse } from '@/lib/api';
 import { publicMenuApi } from '@/features/public/api/public-menu.api';
 import { textForLocale } from '@/lib/localized-text';
@@ -14,6 +14,7 @@ import { useThrottle } from '@/hooks/use-throttle';
 import { LogoMark } from '@/components/ui/logo-mark';
 import { AppImage } from '@/components/ui/app-image';
 import { publicHref } from '@/features/public/utils/public-url';
+import { EmptyState } from '@/components/ui/empty-state';
 
 const venueTypes = [
   'ALL',
@@ -68,10 +69,6 @@ function VenueCard({ venue, locale }: { venue: PublicVenue; locale: string }) {
               {description || t('fallbackVenueDescription')}
             </p>
           </div>
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-amber-50 px-2 py-1 text-xs font-black text-amber-600">
-            <Star className="size-3" fill="currentColor" />
-            4.8
-          </span>
         </div>
         <div className="mt-3 flex items-center gap-3 text-xs font-bold text-muted-foreground">
           <span className="inline-flex items-center gap-1">
@@ -143,6 +140,7 @@ export function PublicVenuesBrowser({
   const [search, setSearch] = useState(initialSearch);
   const [pageState, setPageState] = useState({ source: initialData, pages: [initialData] });
   const [loadingMore, setLoadingMore] = useState(false);
+  const [loadMoreFailed, setLoadMoreFailed] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -155,6 +153,30 @@ export function PublicVenuesBrowser({
   const searchIsSettling = search.trim() !== throttledSearch;
   const effectiveSearchLoading = searchLoading && pageState.source === initialData;
   const showSearchActivity = searchIsSettling || effectiveSearchLoading;
+
+  const loadNextPage = useCallback(async () => {
+    if (!lastPage.pagination.hasNextPage || loadingMore) return;
+
+    setLoadingMore(true);
+    setLoadMoreFailed(false);
+    try {
+      const nextPage = await publicMenuApi.venues({
+        page: lastPage.pagination.page + 1,
+        limit: lastPage.pagination.limit,
+        search: initialSearch,
+        type: initialType,
+        locale,
+      });
+      setPageState((current) => ({
+        source: initialData,
+        pages: current.source === initialData ? [...current.pages, nextPage] : [initialData, nextPage],
+      }));
+    } catch {
+      setLoadMoreFailed(true);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [initialData, initialSearch, initialType, lastPage.pagination, loadingMore, locale]);
 
   useEffect(() => {
     const nextType = initialType || 'ALL';
@@ -189,30 +211,12 @@ export function PublicVenuesBrowser({
         return;
       }
 
-      setLoadingMore(true);
-      publicMenuApi
-        .venues({
-          page: lastPage.pagination.page + 1,
-          limit: lastPage.pagination.limit,
-          search: initialSearch,
-          type: initialType,
-          locale,
-        })
-        .then((nextPage) =>
-          setPageState((current) => ({
-            source: initialData,
-            pages:
-              current.source === initialData
-                ? [...current.pages, nextPage]
-                : [initialData, nextPage],
-          })),
-        )
-        .finally(() => setLoadingMore(false));
+      void loadNextPage();
     });
 
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [initialData, initialSearch, initialType, lastPage.pagination, loadingMore, locale]);
+  }, [lastPage.pagination.hasNextPage, loadNextPage, loadingMore]);
 
   const submitSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -301,11 +305,15 @@ export function PublicVenuesBrowser({
           <div className="text-xs font-black uppercase tracking-[0.18em] text-muted-foreground">
             {t('venuesCount', { count: lastPage.pagination.total })}
           </div>
-          <div className="mt-3 grid gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+          {!effectiveSearchLoading && venues.length === 0 ? (
+            <div className="mt-3">
+              <EmptyState icon={SearchX} title={t('noVenuesTitle')} body={t('noVenuesBody')} />
+            </div>
+          ) : <div className="mt-3 grid gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
             {effectiveSearchLoading
               ? Array.from({ length: 6 }).map((_, index) => <VenueCardSkeleton key={index} />)
               : venues.map((venue) => <VenueCard key={venue.id} venue={venue} locale={locale} />)}
-          </div>
+          </div>}
 
           <div ref={sentinelRef} className="h-16 py-6 text-center text-sm font-bold text-muted-foreground">
             {loadingMore ? (
@@ -315,7 +323,13 @@ export function PublicVenuesBrowser({
                 ))}
               </div>
             ) : lastPage.pagination.hasNextPage ? (
-              ''
+              <button
+                type="button"
+                onClick={() => void loadNextPage()}
+                className="inline-flex h-11 items-center justify-center rounded-2xl border border-teal-200 bg-white px-5 text-sm font-black text-teal-700 shadow-sm transition hover:bg-teal-50"
+              >
+                {loadMoreFailed ? commonT('retry') : commonT('loadMore')}
+              </button>
             ) : (
               t('endOfVenues')
             )}
