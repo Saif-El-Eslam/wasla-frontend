@@ -46,7 +46,7 @@ import {
   updateBranchCaches,
 } from '@/features/branches/cache/branch-cache';
 import { textForLocale } from '@/lib/localized-text';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   branchSchema,
@@ -107,6 +107,8 @@ export function BranchesTab({
       openingHours: { from: '', to: '' },
     },
   });
+  const logoUrl = useWatch({ control: form.control, name: 'logoUrl' });
+  const coverUrl = useWatch({ control: form.control, name: 'coverUrl' });
   const [openActionsBranchId, setOpenActionsBranchId] = useState<string | null>(null);
   const [deleteBranchId, setDeleteBranchId] = useState<string | null>(null);
   const filtered = branches.filter((branch) =>
@@ -434,7 +436,7 @@ export function BranchesTab({
 
               <ImageUploadField
                 label={t('logoUrl')}
-                value={(form.watch('logoUrl') as string) ?? ''}
+                value={typeof logoUrl === 'string' ? logoUrl : ''}
                 file={logoFile}
                 onFileChange={setLogoFile}
                 onChange={(value) =>
@@ -447,7 +449,7 @@ export function BranchesTab({
 
               <ImageUploadField
                 label={t('coverUrl')}
-                value={(form.watch('coverUrl') as string) ?? ''}
+                value={typeof coverUrl === 'string' ? coverUrl : ''}
                 file={coverFile}
                 onFileChange={setCoverFile}
                 onChange={(value) =>

@@ -1,6 +1,16 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+import { defaultLocale, supportedLocales, type AppLocale } from './lib/constants';
 
-import { defaultLocale, supportedLocales, type AppLocale } from '@/lib/constants';
+const localeCookie = {
+  maxAge: 60 * 60 * 24 * 365,
+  path: '/',
+  sameSite: 'lax' as const,
+};
+
+function isSupportedLocale(value: string | undefined): value is AppLocale {
+  return supportedLocales.includes(value as AppLocale);
+}
 
 function parseAcceptLanguage(value: string | null): AppLocale {
   if (!value) {
@@ -18,38 +28,35 @@ function parseAcceptLanguage(value: string | null): AppLocale {
     })
     .sort((a, b) => b.q - a.q);
 
-  const match = locales.find((item) => supportedLocales.includes(item.locale as AppLocale));
-  return (match?.locale as AppLocale | undefined) ?? defaultLocale;
+  const match = locales.find((item) => isSupportedLocale(item.locale));
+  return match ? (match.locale as AppLocale) : defaultLocale;
 }
 
 function firstPathSegment(pathname: string) {
   return pathname.split('/').filter(Boolean)[0];
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const firstSegment = firstPathSegment(pathname);
-  const detectedLocale = parseAcceptLanguage(request.headers.get('accept-language'));
 
-  if (supportedLocales.includes(firstSegment as AppLocale)) {
+  if (isSupportedLocale(firstSegment)) {
     const response = NextResponse.next();
-    response.cookies.set('NEXT_LOCALE', firstSegment, { sameSite: 'lax' });
+    response.cookies.set('NEXT_LOCALE', firstSegment, localeCookie);
     return response;
   }
 
-  if (pathname === '/') {
-    const response = NextResponse.redirect(new URL(`/${detectedLocale}`, request.url));
-    response.cookies.set('NEXT_LOCALE', detectedLocale, { sameSite: 'lax' });
-    return response;
-  }
-
+  const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value;
+  const detectedLocale = isSupportedLocale(cookieLocale)
+    ? cookieLocale
+    : parseAcceptLanguage(request.headers.get('accept-language'));
   const pathWithoutUnsupportedLocale =
     firstSegment && /^[a-z]{2}$/i.test(firstSegment)
       ? `/${pathname.split('/').filter(Boolean).slice(1).join('/')}`
       : pathname;
   const targetPath = pathWithoutUnsupportedLocale === '/' ? '' : pathWithoutUnsupportedLocale;
   const response = NextResponse.redirect(new URL(`/${detectedLocale}${targetPath}`, request.url));
-  response.cookies.set('NEXT_LOCALE', detectedLocale, { sameSite: 'lax' });
+  response.cookies.set('NEXT_LOCALE', detectedLocale, localeCookie);
   return response;
 }
 

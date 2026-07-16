@@ -27,7 +27,7 @@ function needsPassthrough(src: ImageProps['src']) {
   }
 }
 
-export function AppImage({ className, loader, onLoad, unoptimized, src, ...props }: ImageProps) {
+export function AppImage({ alt, className, loader, onLoad, unoptimized, src, ...props }: ImageProps) {
   const [loaded, setLoaded] = useState(false);
   const passthrough = needsPassthrough(src);
 
@@ -48,6 +48,7 @@ export function AppImage({ className, loader, onLoad, unoptimized, src, ...props
       </span>
       <Image
         {...props}
+        alt={alt}
         src={src}
         loader={passthrough ? passthroughLoader : loader}
         unoptimized={unoptimized ?? passthrough}

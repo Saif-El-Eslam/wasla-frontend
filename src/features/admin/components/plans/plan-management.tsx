@@ -2,14 +2,13 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Badge, Card, LoadingSpinner, cx } from '@/components/ui/dashboard-ui';
+import { Badge, LoadingSpinner, cx } from '@/components/ui/dashboard-ui';
 import type {
   AdminFeaturesResponse,
   AdminPlansResponse,
   LocalizedValue,
   Plan,
   PlanFeature,
-  UpdatePlanInput,
 } from '@/lib/api/types';
 import { textForLocale } from '@/lib/localized-text';
 import { formatAdminMoney } from '../../utils/admin-subscriptions';

@@ -28,7 +28,6 @@ export function PublicBranchInfo({
   locale: string;
 }) {
   const t = useTranslations('dashboard');
-  const commonT = useTranslations('common');
   const address = textForLocale(branch?.address, locale);
   const openingHours = formatOpeningHours(branch);
 

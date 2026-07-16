@@ -4,6 +4,7 @@ import type {
   AdminVerificationUser,
   CurrentUser,
   UpdateMeInput,
+  UpdateMeResponse,
   UpdatePasswordInput,
 } from '@/lib/api/types';
 
@@ -29,7 +30,7 @@ export const authService = {
     }),
   me: () => apiClient<{ user: CurrentUser }>('/auth/me').then((data) => data.user),
   updateMe: (input: UpdateMeInput) =>
-    apiClient<{ user: CurrentUser }>('/auth/me', {
+    apiClient<UpdateMeResponse>('/auth/me', {
       method: 'PATCH',
       body: JSON.stringify(input),
     }),

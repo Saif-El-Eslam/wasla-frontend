@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useEffect, useRef } from 'react';
+import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Sparkles, ImagePlus, RefreshCw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -79,6 +79,7 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
 
   const hasPendingCompletedExtraction = Boolean(draft && job?.status === 'COMPLETED');
   const shouldAutoOpenDraft = hasPendingCompletedExtraction && dismissedJobId !== job?.id;
+  const isDraftModalOpen = draftModalOpen || shouldAutoOpenDraft;
   const canUpload =
     limits?.remainingThisMonth || (files.length > 0 && (!limits || files.length <= limits.maxImages));
   const isBusy = job?.status === 'PENDING' || job?.status === 'PROCESSING';
@@ -349,18 +350,12 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
     });
   };
 
-  useEffect(() => {
-    if (shouldAutoOpenDraft) {
-      setDraftModalOpen(true);
-    }
-  }, [shouldAutoOpenDraft]);
-
-  const onClose = () => {
+  const onClose = useCallback(() => {
     setDraftModalOpen(false);
     if (job) {
       setDismissedJobId(job.id);
     }
-  };
+  }, [job]);
 
   useEffect(() => {
     const handleOutsideClick = (event: PointerEvent) => {
@@ -513,7 +508,7 @@ export function MenuExtractionPanel({ branchId, menu, locale, branchName }: Prop
               </Badge>
             </button>
 
-            {draftModalOpen ? (
+            {isDraftModalOpen ? (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
                 <div className="max-h-[90vh] w-full max-w-6xl overflow-hidden rounded-[2rem] bg-white shadow-2xl">
                   <div className="flex items-center justify-between border-b border-stone-100 py-8 px-4 sm:p-8">

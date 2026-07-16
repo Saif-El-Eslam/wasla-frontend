@@ -2,11 +2,9 @@
 
 import {
   ChevronRight,
-  CreditCard,
   LifeBuoy,
   LockKeyhole,
   LogOut,
-  Smartphone,
   Store,
   UserRound,
   Users,

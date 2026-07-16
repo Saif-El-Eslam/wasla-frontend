@@ -9,14 +9,6 @@ import { queryKeys } from '@/lib/api/query-keys';
 import type { Plan, PlanFeatureMapping, TenantSubscriptionResponse } from '@/lib/api/types';
 import { textForLocale } from '@/lib/localized-text';
 
-function displayLimit(value: number | null, unlimited: boolean, suffix = '') {
-  if (unlimited) {
-    return 'Unlimited';
-  }
-
-  return `${value ?? 0}${suffix}`;
-}
-
 function featureValue(mapping: PlanFeatureMapping | undefined) {
   if (!mapping || !mapping.enabled) {
     return 'Not included';

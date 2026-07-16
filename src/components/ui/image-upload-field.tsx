@@ -1,7 +1,7 @@
 'use client';
 
 import { ImageIcon, Loader2, Upload, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { DEFAULT_MAX_IMAGE_UPLOAD_BYTES, formatImageUploadLimit } from '@/lib/api/image-upload';
 import { optimizedImageUrl } from '@/lib/image-url';
 import { AppImage } from './app-image';
@@ -29,22 +29,18 @@ export function ImageUploadField({
   maxBytes?: number;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const previewUrl = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
   const imageSource = previewUrl ?? (value ? optimizedImageUrl(value, { width: 640, height: 360, crop: 'fill' }) : '');
   const hasImage = Boolean(file || value);
 
   useEffect(() => {
-    if (!file) {
-      setPreviewUrl(null);
-      return;
-    }
-
-    const objectUrl = URL.createObjectURL(file);
-    setPreviewUrl(objectUrl);
-
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [file]);
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   const selectFile = (nextFile: File | undefined) => {
     if (!nextFile) {

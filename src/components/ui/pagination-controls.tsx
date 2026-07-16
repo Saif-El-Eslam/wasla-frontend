@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cx } from './cx';
 
@@ -35,15 +35,12 @@ export function PaginationControls({
   className?: string;
 }) {
   const listId = useId();
-  const [draftPage, setDraftPage] = useState(String(pagination.page));
+  const [draft, setDraft] = useState({ sourcePage: pagination.page, value: String(pagination.page) });
+  const draftPage = draft.sourcePage === pagination.page ? draft.value : String(pagination.page);
   const pageOptions = useMemo(
     () => Array.from({ length: Math.min(pagination.totalPages, 500) }, (_, index) => index + 1),
     [pagination.totalPages],
   );
-
-  useEffect(() => {
-    setDraftPage(String(pagination.page));
-  }, [pagination.page]);
 
   // if (pagination.totalPages <= 1) {
   //   return null;
@@ -53,12 +50,12 @@ export function PaginationControls({
     const parsed = Number.parseInt(draftPage, 10);
 
     if (Number.isNaN(parsed)) {
-      setDraftPage(String(pagination.page));
+      setDraft({ sourcePage: pagination.page, value: String(pagination.page) });
       return;
     }
 
     const nextPage = clampPage(parsed, pagination.totalPages);
-    setDraftPage(String(nextPage));
+    setDraft({ sourcePage: pagination.page, value: String(nextPage) });
 
     if (nextPage !== pagination.page) {
       onPageChange(nextPage);
@@ -91,7 +88,9 @@ export function PaginationControls({
             max={pagination.totalPages}
             list={listId}
             value={draftPage}
-            onChange={(event) => setDraftPage(event.target.value)}
+            onChange={(event) =>
+              setDraft({ sourcePage: pagination.page, value: event.target.value })
+            }
             onBlur={commitPage}
             onKeyDown={(event) => {
               if (event.key === 'Enter') {

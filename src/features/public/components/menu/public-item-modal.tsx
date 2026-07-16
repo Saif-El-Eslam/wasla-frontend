@@ -3,7 +3,7 @@
 import { ImageIcon, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { MenuItem } from '@/lib/api';
-import { IconButton, itemPriceText } from '@/components/ui/dashboard-ui';
+import { IconButton } from '@/components/ui/dashboard-ui';
 import { textForLocale } from '@/lib/localized-text';
 import { ItemPrices } from '@/components/ui/item-prices';
 import { optimizedImageUrl } from '@/lib/image-url';

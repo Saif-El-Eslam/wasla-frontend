@@ -39,14 +39,26 @@ export function AuthSessionRedirect({
   const me = useMe({ enabled });
 
   useEffect(() => {
-    if (standaloneOnly && !isStandaloneApp()) {
-      setEnabled(false);
-      return;
-    }
+    let cancelled = false;
 
-    markPublicNavigationFromUrl(searchParams);
-    setEnabled(!launchOnly || !isIntentionalPublicNavigation());
-  }, [launchOnly, standaloneOnly]);
+    queueMicrotask(() => {
+      if (cancelled) {
+        return;
+      }
+
+      if (standaloneOnly && !isStandaloneApp()) {
+        setEnabled(false);
+        return;
+      }
+
+      markPublicNavigationFromUrl(searchParams);
+      setEnabled(!launchOnly || !isIntentionalPublicNavigation());
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [launchOnly, searchParams, standaloneOnly]);
 
   useEffect(() => {
     if (!enabled || !me.data) {

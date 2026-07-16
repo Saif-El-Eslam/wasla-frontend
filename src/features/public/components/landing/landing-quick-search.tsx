@@ -56,24 +56,25 @@ export function LandingQuickSearch({ locale }: { locale: string }) {
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [type, setType] = useState('ALL');
-  const [results, setResults] = useState<PublicVenue[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [preview, setPreview] = useState<{ key: string; results: PublicVenue[] }>({
+    key: '',
+    results: [],
+  });
   const [open, setOpen] = useState(false);
   const debouncedSearch = useDebounce(search.trim(), 300);
   const throttledSearch = useThrottle(debouncedSearch, 550);
   const debouncedType = useDebounce(type, 150);
   const throttledType = useThrottle(debouncedType, 350);
   const shouldFetchPreview = throttledSearch.length >= 2 || throttledType !== 'ALL';
+  const requestKey = `${locale}|${throttledSearch}|${throttledType}`;
+  const loading = shouldFetchPreview && preview.key !== requestKey;
 
   useEffect(() => {
     if (!shouldFetchPreview) {
-      setResults([]);
-      setLoading(false);
       return;
     }
 
     let active = true;
-    setLoading(true);
 
     publicMenuApi
       .venues({
@@ -85,36 +86,34 @@ export function LandingQuickSearch({ locale }: { locale: string }) {
       })
       .then((data) => {
         if (active) {
-          setResults(data.venues);
+          setPreview({ key: requestKey, results: data.venues });
         }
       })
       .catch(() => {
         if (active) {
-          setResults([]);
-        }
-      })
-      .finally(() => {
-        if (active) {
-          setLoading(false);
+          setPreview({ key: requestKey, results: [] });
         }
       });
 
     return () => {
       active = false;
     };
-  }, [locale, shouldFetchPreview, throttledSearch, throttledType]);
+  }, [locale, requestKey, shouldFetchPreview, throttledSearch, throttledType]);
 
   const groupedResults = useMemo(
-    () =>
-      results.slice(0, 5).map((venue) => {
+    () => {
+      const results = shouldFetchPreview && preview.key === requestKey ? preview.results : [];
+
+      return results.slice(0, 5).map((venue) => {
         const matchingBranches = venue.branches.filter((branch) =>
           branchMatchesSearch(branch, throttledSearch),
         );
         const branches = (matchingBranches.length ? matchingBranches : venue.branches).slice(0, 3);
 
         return { venue, branches };
-      }),
-    [results, throttledSearch],
+      });
+    },
+    [preview, requestKey, shouldFetchPreview, throttledSearch],
   );
 
   const closeIfFocusLeaves = (event: FocusEvent<HTMLFormElement>) => {

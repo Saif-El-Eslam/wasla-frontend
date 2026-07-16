@@ -327,7 +327,7 @@ export function MenuItemsSection({
           );
         })
       ) : (
-        <EmptyState title={t('addFirstCategory')} body={t('categoryNeeded')} icon={undefined as any} />
+        <EmptyState title={t('addFirstCategory')} body={t('categoryNeeded')} icon={ImageIcon} />
       )}
     </section>
   );

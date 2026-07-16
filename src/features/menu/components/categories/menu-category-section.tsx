@@ -166,6 +166,7 @@ export function MenuCategorySection({
                             setOpenActionsCategoryId(null);
                             onDeleteCategory(category.id);
                           }}
+                          disabled={deleteCategoryPending}
                         >
                           <Trash2 className="size-4 text-red-600" />
                           {t('deleteCategory')}

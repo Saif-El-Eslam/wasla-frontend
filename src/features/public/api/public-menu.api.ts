@@ -10,7 +10,14 @@
 } from '@/lib/api';
 import { toQueryString } from '@/lib/api';
 
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
+const serverApiBaseUrl =
+  process.env.API_PROXY_TARGET ??
+  process.env.NEXT_PUBLIC_API_URL ??
+  'http://localhost:4000/api/v1';
+
+function apiBaseUrl() {
+  return typeof window === 'undefined' ? serverApiBaseUrl.replace(/\/$/, '') : '/api/v1';
+}
 
 function resolvedLocaleParam(locale?: string) {
   return locale === 'ar' || locale === 'en' ? locale : undefined;
@@ -46,7 +53,7 @@ async function publicApi<T>(path: string, init?: RequestInit, locale?: string): 
     next: isRead ? { revalidate: 30 } : undefined,
   };
 
-  const response = await fetch(`${apiBaseUrl}${path}`, requestInit);
+  const response = await fetch(`${apiBaseUrl()}${path}`, requestInit);
 
   if (!response.ok) {
     throw new Error(`Public API request failed: ${response.status}`);

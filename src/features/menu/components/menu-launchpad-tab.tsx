@@ -44,9 +44,6 @@ export function MenuLaunchpadTab({
 
   const totals = overview.data?.totals ?? { menus: 0, items: 0, views: 0, scans: 0 };
   const branches = overview.data?.branches ?? [];
-  const activeItems = totals.items;
-  const qrScans = totals.scans;
-  const overallViews = totals.views;
   const readyMenus = totals.menus || branches.filter((branch) => branch.hasMenu).length;
 
   const cards: LaunchpadCard[] = [

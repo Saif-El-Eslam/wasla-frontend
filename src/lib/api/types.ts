@@ -64,6 +64,12 @@ export type UpdateMeInput = {
   phone?: string;
 };
 
+export type UpdateMeResponse = {
+  user: CurrentUser;
+  verificationRequired: boolean;
+  devOtp?: string;
+};
+
 export type UpdatePasswordInput = {
   currentPassword: string;
   newPassword: string;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { UseMutationResult } from '@tanstack/react-query';
 import { PlusCircle, Save, Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -153,12 +153,6 @@ function VenueSubscriptionRow({
     venue.subscription?.currentPeriodEnds?.slice(0, 10) ?? '',
   );
 
-  useEffect(() => {
-    setPlan(venue.subscription?.plan ?? 'FREE');
-    setStatus(venue.subscription?.status ?? 'ACTIVE');
-    setCurrentPeriodEnds(venue.subscription?.currentPeriodEnds?.slice(0, 10) ?? '');
-  }, [venue.subscription?.currentPeriodEnds, venue.subscription?.plan, venue.subscription?.status]);
-
   return (
     <tr className="align-middle">
       <td className="py-3 pe-4">
@@ -270,7 +264,12 @@ export function VenueSubscriptionManagement({
           </thead>
           <tbody className="divide-y divide-teal-50">
             {venues.map((venue) => (
-              <VenueSubscriptionRow key={venue.id} venue={venue} locale={locale} mutation={mutation} />
+              <VenueSubscriptionRow
+                key={`${venue.id}:${venue.subscription?.plan}:${venue.subscription?.status}:${venue.subscription?.currentPeriodEnds}`}
+                venue={venue}
+                locale={locale}
+                mutation={mutation}
+              />
             ))}
           </tbody>
         </table>

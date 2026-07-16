@@ -123,23 +123,6 @@ export function AuthPanel({ mode }: { mode: Mode }) {
   const pending = loginMutation.isPending || registerMutation.isPending || verifyMutation.isPending;
   const modeHref = (targetMode: Mode) =>
     `/${locale}/${targetMode}${phoneParam ? `?phone=${encodeURIComponent(phoneParam)}` : ''}`;
-  const formStats: Array<[string, string]> = isRegister
-    ? [
-        [dashboardT('branches'), dashboardT('branchHealth')],
-        [dashboardT('menu'), dashboardT('menusReady')],
-        [dashboardT('qr'), dashboardT('qrHub')],
-      ]
-    : isVerify
-      ? [
-          [t('verificationCode'), dashboardT('accountVerified')],
-          [dashboardT('settings'), dashboardT('support')],
-          [dashboardT('publicPreview'), dashboardT('previewDashboard')],
-        ]
-      : [
-          [dashboardT('views'), dashboardT('analytics')],
-          [dashboardT('qrScans'), dashboardT('qrHub')],
-          [dashboardT('branches'), dashboardT('allBranches')],
-        ];
   const dashboardMetrics: Array<[string, string, ReactNode]> = [
     [dashboardT('views'), '12.8k', <BarChart3 key="views" className="size-4 text-primary" />],
     [dashboardT('qrScans'), '4.2k', <QrCode key="scans" className="size-4 text-primary" />],

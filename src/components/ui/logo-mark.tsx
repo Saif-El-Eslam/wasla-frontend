@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { cx } from './cx';
 
 const loadedLogoSources = new Set<string>();
@@ -13,7 +13,6 @@ export function LogoMark({
   shape = 'rounded',
   sizes = '48px',
   src,
-  variant = 'mark',
 }: {
   className?: string;
   imageClassName?: string;
@@ -23,13 +22,14 @@ export function LogoMark({
   variant?: 'mark' | 'wordmark';
 }) {
   const resolvedSrc = src ?? '/favicon.svg'; // (variant === 'wordmark' ? '/wasla-wordmark.svg' : '/wasla-mark.svg');
-  const [loaded, setLoaded] = useState(() => loadedLogoSources.has(resolvedSrc));
-  const [failed, setFailed] = useState(() => failedLogoSources.has(resolvedSrc));
-
-  useEffect(() => {
-    setLoaded(loadedLogoSources.has(resolvedSrc));
-    setFailed(failedLogoSources.has(resolvedSrc));
-  }, [resolvedSrc]);
+  const [loadedSrc, setLoadedSrc] = useState<string | null>(() =>
+    loadedLogoSources.has(resolvedSrc) ? resolvedSrc : null,
+  );
+  const [failedSrc, setFailedSrc] = useState<string | null>(() =>
+    failedLogoSources.has(resolvedSrc) ? resolvedSrc : null,
+  );
+  const loaded = loadedLogoSources.has(resolvedSrc) || loadedSrc === resolvedSrc;
+  const failed = failedLogoSources.has(resolvedSrc) || failedSrc === resolvedSrc;
 
   return (
     <span
@@ -51,11 +51,11 @@ export function LogoMark({
           className={cx('object-contain', imageClassName)}
           onLoad={() => {
             loadedLogoSources.add(resolvedSrc);
-            setLoaded(true);
+            setLoadedSrc(resolvedSrc);
           }}
           onError={() => {
             failedLogoSources.add(resolvedSrc);
-            setFailed(true);
+            setFailedSrc(resolvedSrc);
           }}
         />
       )}

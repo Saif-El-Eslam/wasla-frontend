@@ -1,6 +1,7 @@
 'use client';
 
 import type { FieldErrors, FieldValues, Path, UseFormRegister } from 'react-hook-form';
+import { resolveFieldError } from './form-error';
 
 type FormTextareaProps<T extends FieldValues> = {
   name: Path<T>;
@@ -21,7 +22,7 @@ export function FormTextarea<T extends FieldValues>({
   label,
   dir,
 }: FormTextareaProps<T>) {
-  const error = name.split('.').reduce<any>((acc, key) => acc?.[key], errors);
+  const error = resolveFieldError(errors, name);
 
   return (
     <div className="min-w-0">

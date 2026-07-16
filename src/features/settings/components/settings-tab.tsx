@@ -181,7 +181,13 @@ export function SettingsTab({
 
   const updateMeMutation = useMutation({
     mutationFn: (values: ProfileFormValues) => api.updateMe(values),
-    onSuccess: ({ user }) => {
+    onSuccess: ({ user, verificationRequired }) => {
+      if (verificationRequired) {
+        queryClient.removeQueries({ queryKey: queryKeys.me });
+        router.replace(`/${locale}/verify?phone=${encodeURIComponent(user.phone)}`);
+        return;
+      }
+
       setCurrentUserInCache(queryClient, user);
       toast.success(t('profileSaved'));
     },

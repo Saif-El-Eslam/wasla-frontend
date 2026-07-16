@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { ImageIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { MenuItem } from '@/lib/api';
@@ -21,11 +20,6 @@ export function PublicMenuItemCard({
   onSelect: (item: MenuItem) => void;
 }) {
   const t = useTranslations('dashboard');
-  const [selectedPriceIndex, setSelectedPriceIndex] = useState(0);
-
-  const prices = item.prices ?? [];
-  const selectedPrice = prices[selectedPriceIndex];
-
   return (
     <article
       role="button"

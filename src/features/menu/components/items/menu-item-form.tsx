@@ -8,7 +8,7 @@ import { FormInput } from '@/components/ui/form-input';
 import { ImageUploadField } from '@/components/ui/image-upload-field';
 import { FormListbox } from '@/components/ui/form-select';
 import { FormTextarea } from '@/components/ui/form-textarea';
-import type { UseFormReturn, UseFieldArrayRemove, UseFieldArrayAppend } from 'react-hook-form';
+import type { UseFormReturn } from 'react-hook-form';
 import { useFieldArray } from 'react-hook-form';
 import type { ItemFormInput, ItemFormValues } from '@/features/menu/schemas/menu.schema';
 import { textForLocale } from '@/lib/localized-text';

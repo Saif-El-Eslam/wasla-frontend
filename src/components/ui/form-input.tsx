@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { FieldValues, Path, UseFormRegister, FieldErrors } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react';
+import { resolveFieldError } from './form-error';
 
 type FormInputProps<T extends FieldValues> = {
   name: Path<T>;
@@ -30,7 +31,7 @@ export function FormInput<T extends FieldValues>({
   inputMode,
 }: FormInputProps<T>) {
   const [showPassword, setShowPassword] = useState(false);
-  const error = name.split('.').reduce<any>((acc, key) => acc?.[key], errors);
+  const error = resolveFieldError(errors, name);
 
   const isPassword = type === 'password';
   const inputType = isPassword && showPassword ? 'text' : type;

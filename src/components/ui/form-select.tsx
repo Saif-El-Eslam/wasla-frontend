@@ -4,6 +4,7 @@ import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headless
 import { Check, ChevronDown } from 'lucide-react';
 import type { Control, FieldErrors, FieldValues, Path } from 'react-hook-form';
 import { Controller } from 'react-hook-form';
+import { resolveFieldError } from './form-error';
 
 type Option = {
   value: string;
@@ -29,7 +30,7 @@ export function FormListbox<T extends FieldValues>({
   className,
   disabled,
 }: FormListboxProps<T>) {
-  const error = name.split('.').reduce<any>((acc, key) => acc?.[key], errors);
+  const error = resolveFieldError(errors, name);
 
   return (
     <div className="min-w-0">

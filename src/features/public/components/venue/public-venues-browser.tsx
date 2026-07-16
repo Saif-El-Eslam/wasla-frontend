@@ -141,7 +141,7 @@ export function PublicVenuesBrowser({
   const commonT = useTranslations('common');
   const router = useRouter();
   const [search, setSearch] = useState(initialSearch);
-  const [pages, setPages] = useState([initialData]);
+  const [pageState, setPageState] = useState({ source: initialData, pages: [initialData] });
   const [loadingMore, setLoadingMore] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -149,19 +149,12 @@ export function PublicVenuesBrowser({
   const debouncedSearch = useDebounce(search.trim(), 350);
   const throttledSearch = useThrottle(debouncedSearch, 600);
   const lastRequestedRef = useRef(`${initialSearch.trim()}|${initialType || 'ALL'}`);
+  const pages = pageState.source === initialData ? pageState.pages : [initialData];
   const venues = pages.flatMap((page) => page.venues);
   const lastPage = pages[pages.length - 1];
   const searchIsSettling = search.trim() !== throttledSearch;
-  const showSearchActivity = searchIsSettling || searchLoading;
-
-  useEffect(() => {
-    if (document.activeElement !== searchInputRef.current) {
-      setSearch(initialSearch);
-    }
-    setPages([initialData]);
-    setSearchLoading(false);
-    lastRequestedRef.current = `${initialSearch.trim()}|${initialType || 'ALL'}`;
-  }, [initialData, initialSearch, initialType]);
+  const effectiveSearchLoading = searchLoading && pageState.source === initialData;
+  const showSearchActivity = searchIsSettling || effectiveSearchLoading;
 
   useEffect(() => {
     const nextType = initialType || 'ALL';
@@ -205,13 +198,21 @@ export function PublicVenuesBrowser({
           type: initialType,
           locale,
         })
-        .then((nextPage) => setPages((current) => [...current, nextPage]))
+        .then((nextPage) =>
+          setPageState((current) => ({
+            source: initialData,
+            pages:
+              current.source === initialData
+                ? [...current.pages, nextPage]
+                : [initialData, nextPage],
+          })),
+        )
         .finally(() => setLoadingMore(false));
     });
 
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [initialSearch, initialType, lastPage.pagination, loadingMore, locale]);
+  }, [initialData, initialSearch, initialType, lastPage.pagination, loadingMore, locale]);
 
   const submitSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -301,7 +302,7 @@ export function PublicVenuesBrowser({
             {t('venuesCount', { count: lastPage.pagination.total })}
           </div>
           <div className="mt-3 grid gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-            {searchLoading
+            {effectiveSearchLoading
               ? Array.from({ length: 6 }).map((_, index) => <VenueCardSkeleton key={index} />)
               : venues.map((venue) => <VenueCard key={venue.id} venue={venue} locale={locale} />)}
           </div>

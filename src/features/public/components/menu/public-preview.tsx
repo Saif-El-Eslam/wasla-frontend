@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { PublicBranchSwitcher } from '../branch/public-branch-switcher';
 import { PublicMenuExperience } from './public-menu-experience';
@@ -23,17 +23,14 @@ export function PublicPreview({
   const branchManagement = useBranchManagement();
   const branches = branchManagement.data?.branches ?? [];
   const defaultBranchId = branches.find((item) => item.active)?.id ?? branches[0]?.id ?? '';
-  const [selectedBranchId, setSelectedBranchId] = useState(branchId);
+  const [selection, setSelection] = useState({ sourceBranchId: branchId, value: branchId });
+  const selectedBranchId = selection.sourceBranchId === branchId ? selection.value : branchId;
   const effectiveBranchId = branches.some((item) => item.id === selectedBranchId)
     ? selectedBranchId
     : defaultBranchId;
   const menuQuery = useBranchMenu(effectiveBranchId);
   const branch = branches.find((item) => item.id === effectiveBranchId);
   const menu = menuQuery.data;
-
-  useEffect(() => {
-    setSelectedBranchId(branchId);
-  }, [branchId]);
 
   return (
     <div>
@@ -74,7 +71,7 @@ export function PublicPreview({
                 branches={branches}
                 value={effectiveBranchId}
                 locale={locale}
-                onChange={setSelectedBranchId}
+                onChange={(value) => setSelection({ sourceBranchId: branchId, value })}
               />
             </div>
           }

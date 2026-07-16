@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Inbox } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -13,7 +13,6 @@ import {
   TabLoader,
 } from '@/components/ui/dashboard-ui';
 import { api, type GuestFeedbackStatus } from '@/lib/api';
-import { queryKeys } from '@/lib/api/query-keys';
 import { useBranchOptions } from '@/features/venue/hooks/use-venue';
 import { useFeedbackDashboard } from '../hooks/use-feedback';
 import { FeedbackCard } from './feedback-card';
@@ -54,12 +53,6 @@ export function FeedbackTab({ locale }: { locale: string }) {
       void queryClient.invalidateQueries({ queryKey: ['feedback', 'dashboard'] });
     },
   });
-
-  useEffect(() => {
-    if (pagination && page > pagination.totalPages) {
-      setPage(pagination.totalPages);
-    }
-  }, [page, pagination]);
 
   const changeBranch = (nextBranchId: string) => {
     setBranchId(nextBranchId);

@@ -2,14 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Building2, Menu as MenuIcon, CheckCircle2, GitBranch, Plus, UtensilsCrossed } from 'lucide-react';
+import { Building2, CheckCircle2, GitBranch, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   api,
   type CreateCategoryInput,
   type CreateItemInput,
-  type Menu,
   type MenuCategory,
   type MenuItem,
 } from '@/lib/api';
@@ -21,10 +20,8 @@ import {
   FormPanel,
   PrimaryButton,
   TabLoader,
-  LoadingSpinner,
 } from '@/components/ui/dashboard-ui';
 import { readError, toLocalized, type LocalizedDraft } from '@/features/dashboard/utils/dashboard-utils';
-import { FormInput } from '@/components/ui/form-input';
 import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { MenuExtractionPanel } from './extraction/menu-extraction-panel';
 import { MenuItemsSection } from './items/menu-items-section';
@@ -41,7 +38,7 @@ import {
 } from '@/features/menu/cache/menu-cache';
 import { textForLocale } from '@/lib/localized-text';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import {
   categoryFormSchema,
   itemFormSchema,
@@ -102,10 +99,17 @@ export function MenuTab({
   const selectedBranchId = branches.some((item) => item.id === initialBranchId)
     ? initialBranchId
     : defaultBranchId;
-  const [localBranchId, setLocalBranchId] = useState('');
+  const [branchSelection, setBranchSelection] = useState({
+    source: initialBranchId,
+    value: '',
+  });
+  const localBranchId =
+    branchSelection.source === initialBranchId ? branchSelection.value : '';
   const effectiveBranchId = branches.some((item) => item.id === localBranchId)
     ? localBranchId
     : selectedBranchId;
+  const selectBranch = (value: string) =>
+    setBranchSelection({ source: initialBranchId, value });
   const menuQuery = useBranchMenu(effectiveBranchId);
   const branch = branches.find((item) => item.id === effectiveBranchId);
   const menu = menuQuery.data ?? null;
@@ -148,10 +152,11 @@ export function MenuTab({
       prices: [{ label: t('regular'), price: '' }],
     },
   });
+  const selectedCategoryId = useWatch({ control: itemForm.control, name: 'categoryId' });
   const effectiveCategoryId = menu?.categories.some(
-    (category) => category.id === itemForm.watch('categoryId'),
+    (category) => category.id === selectedCategoryId,
   )
-    ? itemForm.watch('categoryId')
+    ? selectedCategoryId
     : (menu?.categories[0]?.id ?? '');
 
   const handleTabChange = (tab: 'build' | 'preview') => {
@@ -389,12 +394,6 @@ export function MenuTab({
   });
 
   useEffect(() => {
-    if (initialBranchId) {
-      setLocalBranchId(initialBranchId);
-    }
-  }, [initialBranchId]);
-
-  useEffect(() => {
     if (effectiveCategoryId && itemForm.getValues('categoryId') !== effectiveCategoryId) {
       itemForm.setValue('categoryId', effectiveCategoryId);
     }
@@ -575,7 +574,7 @@ export function MenuTab({
                 <BranchSelect
                   branches={branches}
                   value={effectiveBranchId}
-                  onChange={setLocalBranchId}
+                  onChange={selectBranch}
                   locale={locale}
                 />
 
@@ -663,7 +662,7 @@ export function MenuTab({
                 <BranchSelect
                   branches={branches}
                   value={effectiveBranchId}
-                  onChange={setLocalBranchId}
+                  onChange={selectBranch}
                   locale={locale}
                 />
 

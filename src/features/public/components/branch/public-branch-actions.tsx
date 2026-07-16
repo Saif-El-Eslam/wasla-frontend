@@ -3,9 +3,8 @@
 import { useTranslations } from 'next-intl';
 import type { PublicAnalyticsEventType } from '@/lib/api';
 import { cx } from '@/components/ui/dashboard-ui';
-import { FaWhatsapp, FaInstagram, FaFacebook, FaPhone, FaEnvelope } from 'react-icons/fa';
+import { FaWhatsapp, FaInstagram, FaFacebook, FaPhone } from 'react-icons/fa';
 import { SiGooglemaps } from 'react-icons/si';
-import { MdShare } from 'react-icons/md';
 import type { IconType } from 'react-icons';
 
 type ContactTarget = {

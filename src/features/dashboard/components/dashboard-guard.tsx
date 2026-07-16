@@ -35,7 +35,7 @@ export function DashboardGuard({ children }: { children: React.ReactNode }) {
     if (hasVenue && isSetupPage) {
       router.replace(`/${locale}/dashboard`);
     }
-  }, [isLoading, me, pathname, router]);
+  }, [isLoading, isSetupPage, me, pathname, router]);
 
   if (isLoading) {
     return null; // or a full-page loader

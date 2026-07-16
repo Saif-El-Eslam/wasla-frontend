@@ -7,7 +7,7 @@ import type { UseFormReturn } from 'react-hook-form';
 import { Badge, Card, PrimaryButton } from '@/components/ui/dashboard-ui';
 import { FormInput } from '@/components/ui/form-input';
 import { readError } from '@/features/dashboard/utils/dashboard-utils';
-import type { CurrentUser } from '@/lib/api';
+import type { CurrentUser, UpdateMeResponse } from '@/lib/api';
 import type { ProfileFormInput, ProfileFormValues } from '@/features/settings/schemas/settings.schema';
 import { SettingsPanelHeader, settingsInputClassName } from './settings-ui';
 
@@ -18,7 +18,7 @@ export function UserSettingsSection({
 }: {
   me?: CurrentUser;
   form: UseFormReturn<ProfileFormInput, unknown, ProfileFormValues>;
-  mutation: UseMutationResult<{ user: CurrentUser }, Error, ProfileFormValues>;
+  mutation: UseMutationResult<UpdateMeResponse, Error, ProfileFormValues>;
 }) {
   const t = useTranslations('dashboard');
 

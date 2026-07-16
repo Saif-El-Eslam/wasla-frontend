@@ -79,6 +79,7 @@ export type {
   UpdateCategoryInput,
   UpdateItemInput,
   UpdateMeInput,
+  UpdateMeResponse,
   UpdateUserBranchesInput,
   UpdatePasswordInput,
   UpdateVenueSubscriptionInput,
