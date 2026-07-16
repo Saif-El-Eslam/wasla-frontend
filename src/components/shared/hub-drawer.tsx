@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronRight, X } from 'lucide-react';
 import { cx } from '@/components/ui/dashboard-ui';
 import { useMediaQuery } from '@/hooks/use-media-query';
+import { pullDownDismissEvent } from './pull-down-action';
 
 const closeDragThreshold = 76;
 
@@ -25,11 +26,29 @@ export default function HubDrawer({
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   const sectionRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
   const dragStartY = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
   const touchDragging = useRef(false);
   const dragOffsetRef = useRef(0);
   const [dragOffset, setDragOffset] = useState(0);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  const restorePreviousFocus = useCallback(() => {
+    if (previousFocusRef.current && document.contains(previousFocusRef.current)) {
+      previousFocusRef.current.focus({ preventScroll: true });
+    }
+  }, []);
+
+  const requestClose = useCallback(() => {
+    restorePreviousFocus();
+    onCloseRef.current();
+  }, [restorePreviousFocus]);
 
   const updateDragOffset = useCallback((value: number) => {
     dragOffsetRef.current = value;
@@ -43,19 +62,31 @@ export default function HubDrawer({
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        onClose();
+        requestClose();
       }
     };
 
+    const onPullDownDismiss = (event: Event) => {
+      event.preventDefault();
+      requestClose();
+    };
+
+    previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const focusFrame = window.requestAnimationFrame(() => closeButtonRef.current?.focus());
     document.addEventListener('keydown', onKeyDown);
+    window.addEventListener(pullDownDismissEvent, onPullDownDismiss);
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
     return () => {
+      window.cancelAnimationFrame(focusFrame);
       document.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener(pullDownDismissEvent, onPullDownDismiss);
       document.body.style.overflow = originalOverflow;
+
+      restorePreviousFocus();
     };
-  }, [onClose, open]);
+  }, [open, requestClose, restorePreviousFocus]);
 
   const canDragSheet = useCallback(
     (target: EventTarget | null) => {
@@ -74,14 +105,14 @@ export default function HubDrawer({
 
   const finishDrag = useCallback(() => {
     if (dragOffsetRef.current > closeDragThreshold) {
-      onClose();
+      requestClose();
     }
 
     dragStartY.current = null;
     touchStartY.current = null;
     touchDragging.current = false;
     updateDragOffset(0);
-  }, [onClose, updateDragOffset]);
+  }, [requestClose, updateDragOffset]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -112,7 +143,9 @@ export default function HubDrawer({
       if (nextOffset > 8 && canDragSheet(event.target)) {
         touchDragging.current = true;
         updateDragOffset(nextOffset);
-        event.preventDefault();
+        if (event.cancelable) {
+          event.preventDefault();
+        }
       }
     };
 
@@ -158,18 +191,20 @@ export default function HubDrawer({
   return (
     <div
       className={cx(
-        'fixed inset-0 z-50 overscroll-none bg-stone-950/25 opacity-0 backdrop-blur-[2px] transition-opacity duration-200 ease-out',
-        open && 'opacity-100',
+        'fixed inset-0 z-50 overscroll-none bg-stone-950/25 backdrop-blur-[2px] transition-opacity duration-200 ease-out',
+        open ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0',
       )}
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
-          onClose();
+          requestClose();
         }
       }}
       role="presentation"
+      inert={!open}
     >
       <section
         ref={sectionRef}
+        data-pull-down-dismissable={open ? 'true' : undefined}
         className="fixed inset-x-0 bottom-0 flex h-[90dvh] flex-col overflow-hidden overscroll-none rounded-t-[1.5rem] border border-stone-200 bg-[#f8fafa] shadow-2xl shadow-stone-950/20 transition-transform duration-300 ease-out will-change-transform lg:inset-x-auto lg:inset-y-0 lg:end-0 lg:h-full lg:max-h-none lg:w-[80dvw] lg:rounded-none lg:border-y-0 lg:border-e-0"
         style={{ transform: drawerTransform }}
         onMouseDown={(event) => event.stopPropagation()}
@@ -190,14 +225,15 @@ export default function HubDrawer({
             <div className="min-w-0">
               <div className="flex min-w-0 items-center gap-1.5 text-xs font-black text-stone-500">
                 <span className="truncate">{hubLabel}</span>
-                <ChevronRight className="size-3.5 shrink-0" />
+                <ChevronRight className="size-3.5 shrink-0 rtl:rotate-180" />
                 <span className="truncate text-teal-700">{title}</span>
               </div>
               <h2 className="mt-1 truncate text-lg font-black text-stone-950">{title}</h2>
             </div>
             <button
+              ref={closeButtonRef}
               type="button"
-              onClick={onClose}
+              onClick={requestClose}
               className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-600 shadow-sm transition hover:border-teal-200 hover:text-teal-700"
               aria-label={closeLabel}
               title={closeLabel}

@@ -471,6 +471,141 @@ textarea:disabled,
   }
 }
 
+@keyframes wasla-feedback-arrive {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, calc(-100dvh + 7rem), 0) scale(0.84) rotate(-6deg);
+  }
+
+  12% {
+    opacity: 1;
+  }
+
+  58% {
+    opacity: 1;
+    transform: translate3d(-10px, -10px, 0) scale(1.05) rotate(1.5deg);
+  }
+
+  73% {
+    transform: translate3d(0, 6px, 0) scale(0.98) rotate(-0.8deg);
+  }
+
+  87% {
+    transform: translate3d(0, -2px, 0) scale(1.015) rotate(0.35deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1) rotate(0);
+  }
+}
+
+@keyframes wasla-feedback-halo {
+  0%,
+  18% {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+
+  34% {
+    opacity: 0.86;
+    transform: scale(0.94);
+  }
+
+  57% {
+    opacity: 0;
+    transform: scale(1.28);
+  }
+
+  58% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  72% {
+    opacity: 0.58;
+    transform: scale(0.98);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.38);
+  }
+}
+
+@keyframes wasla-feedback-icon-wiggle {
+  0%,
+  40%,
+  100% {
+    transform: scale(1) rotate(0);
+  }
+
+  52% {
+    transform: scale(1.28) rotate(-16deg);
+  }
+
+  64% {
+    transform: scale(1.18) rotate(14deg);
+  }
+
+  75% {
+    transform: scale(1.12) rotate(-8deg);
+  }
+
+  86% {
+    transform: scale(1.05) rotate(4deg);
+  }
+}
+
+@keyframes wasla-feedback-backdrop {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes wasla-feedback-dialog {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.wasla-feedback-entrance {
+  animation: wasla-feedback-arrive 1.25s cubic-bezier(0.16, 1, 0.3, 1) 280ms both;
+  isolation: isolate;
+}
+
+.wasla-feedback-halo {
+  position: absolute;
+  inset: -6px;
+  z-index: -1;
+  border: 2px solid rgba(251, 191, 36, 0.72);
+  border-radius: 999px;
+  animation: wasla-feedback-halo 1.65s cubic-bezier(0.16, 1, 0.3, 1) 1.05s both;
+}
+
+.wasla-feedback-icon {
+  animation: wasla-feedback-icon-wiggle 1.25s cubic-bezier(0.16, 1, 0.3, 1) 880ms both;
+  transform-origin: center;
+}
+
+.wasla-feedback-backdrop {
+  animation: wasla-feedback-backdrop 160ms ease-out both;
+}
+
+.wasla-feedback-dialog {
+  animation: wasla-feedback-dialog 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 .wasla-public-loader::after {
   content: '';
   position: absolute;
@@ -833,7 +968,12 @@ textarea:disabled,
   .wasla-scan-line,
   .wasla-action-chip-1,
   .wasla-action-chip-2,
-  .wasla-action-chip-3 {
+  .wasla-action-chip-3,
+  .wasla-feedback-entrance,
+  .wasla-feedback-halo,
+  .wasla-feedback-icon,
+  .wasla-feedback-backdrop,
+  .wasla-feedback-dialog {
     animation: none;
   }
 

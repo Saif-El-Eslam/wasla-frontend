@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { ExternalLink, MessageSquareHeart, Send, Star, X } from 'lucide-react';
 import type {
   Branch,
@@ -12,6 +12,7 @@ import type {
   Venue,
 } from '@/lib/api';
 import { cx } from '@/components/ui/dashboard-ui';
+import { pullDownDismissEvent } from '@/components/shared/pull-down-action';
 import { publicMenuApi } from '@/features/public/api/public-menu.api';
 import { textForLocale } from '@/lib/localized-text';
 
@@ -93,6 +94,9 @@ export function PublicReviewBooster({
   locale: string;
 }) {
   const labels = locale === 'ar' ? copy.ar : copy.en;
+  const dialogTitleId = useId();
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<ReviewMode>('rate');
   const [rating, setRating] = useState(0);
@@ -108,6 +112,41 @@ export function PublicReviewBooster({
   const [reviewsPage, setReviewsPage] = useState(1);
   const branchName = useMemo(() => textForLocale(branch?.name, locale), [branch?.name, locale]);
   const canSubmit = Boolean(branch?.id && rating && !submitting);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const closeDialog = () => setOpen(false);
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeDialog();
+      }
+    };
+    const onPullDownDismiss = (event: Event) => {
+      event.preventDefault();
+      closeDialog();
+    };
+
+    previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const focusFrame = window.requestAnimationFrame(() => closeButtonRef.current?.focus());
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', onKeyDown);
+    window.addEventListener(pullDownDismissEvent, onPullDownDismiss);
+
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      document.body.style.overflow = originalOverflow;
+      document.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener(pullDownDismissEvent, onPullDownDismiss);
+
+      if (previousFocusRef.current && document.contains(previousFocusRef.current)) {
+        previousFocusRef.current.focus();
+      }
+    };
+  }, [open]);
 
   if (!branch?.id) {
     return null;
@@ -198,30 +237,39 @@ export function PublicReviewBooster({
 
   return (
     <>
-      <button
-        type="button"
-        className="fixed bottom-8 end-4 z-40 inline-flex min-h-11 items-center gap-2 rounded-full border border-amber-200 bg-white/95 px-4 text-sm font-black text-stone-900 shadow-2xl shadow-stone-900/10 backdrop-blur transition hover:-translate-y-0.5 hover:border-amber-300"
-        onClick={() => setOpen(true)}
-      >
-        <MessageSquareHeart className="size-4 text-amber-500" />
-        {labels.prompt}
-      </button>
+      <div className="wasla-feedback-entrance pointer-events-none fixed bottom-8 end-4 z-40">
+        <span className="wasla-feedback-halo" aria-hidden="true" />
+        <button
+          type="button"
+          className="pointer-events-auto relative inline-flex min-h-11 items-center gap-2 rounded-full border border-amber-200 bg-white/95 px-4 text-sm font-black text-stone-900 shadow-2xl shadow-stone-900/10 backdrop-blur transition hover:-translate-y-0.5 hover:border-amber-300"
+          onClick={() => setOpen(true)}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+        >
+          <MessageSquareHeart className="wasla-feedback-icon size-4 text-amber-500" />
+          {labels.prompt}
+        </button>
+      </div>
 
       {open ? (
         <div
-          className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-stone-950/20 px-3 py-4 backdrop-blur-sm"
+          className="wasla-feedback-backdrop fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-stone-950/25 px-3 py-4 backdrop-blur-sm"
           onClick={() => setOpen(false)}
+          data-pull-down-dismissable="true"
         >
           <div
-            className="max-h-[calc(100dvh-20vh)] w-full max-w-md overflow-y-auto rounded-3xl border border-white/70 bg-white p-4 shadow-2xl"
+            className="wasla-feedback-dialog max-h-[calc(100dvh-20vh)] w-full max-w-md overflow-y-auto rounded-3xl border border-white/70 bg-white p-4 shadow-2xl"
             onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={dialogTitleId}
           >
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-black uppercase tracking-wider text-amber-600">
                   {branchName || labels.prompt}
                 </p>
-                <h2 className="mt-1 text-xl font-black text-stone-950">
+                <h2 id={dialogTitleId} className="mt-1 text-xl font-black text-stone-950">
                   {mode === 'reviews' ? labels.reviewsTitle : labels.title}
                 </h2>
                 <p className="mt-1 text-sm leading-6 text-muted-foreground">
@@ -229,6 +277,7 @@ export function PublicReviewBooster({
                 </p>
               </div>
               <button
+                ref={closeButtonRef}
                 type="button"
                 className="flex size-9 shrink-0 items-center justify-center rounded-full bg-stone-100 text-stone-500"
                 onClick={() => setOpen(false)}
