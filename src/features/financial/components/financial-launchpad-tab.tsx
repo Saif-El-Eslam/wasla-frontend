@@ -181,7 +181,12 @@ export function FinancialLaunchpadTab({
             />
           ) : null}
           {renderedPanel === 'transactions' ? (
-            <TransactionsPanel locale={locale} currency={currency} timeZone={timeZone} />
+            <TransactionsPanel
+              branches={branches}
+              locale={locale}
+              currency={currency}
+              timeZone={timeZone}
+            />
           ) : null}
           {renderedPanel === 'reports' ? (
             <ReportsPanel branches={branches} locale={locale} currency={currency} />

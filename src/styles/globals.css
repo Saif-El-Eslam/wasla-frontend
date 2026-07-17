@@ -29,6 +29,23 @@
   box-sizing: border-box;
 }
 
+input:is([type='date'], [type='datetime-local'], [type='month'], [type='time'], [type='week']) {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+}
+
+label:has(> input:is([type='date'], [type='datetime-local'], [type='month'], [type='time'], [type='week'])) {
+  min-inline-size: 0;
+}
+
+input:is([type='date'], [type='datetime-local'], [type='month'], [type='time'], [type='week'])::-webkit-date-and-time-value,
+input:is([type='date'], [type='datetime-local'], [type='month'], [type='time'], [type='week'])::-webkit-datetime-edit {
+  min-inline-size: 0;
+  text-align: start;
+}
+
 html,
 body {
   min-height: 100%;

@@ -1,9 +1,16 @@
 'use client';
 
-import { Trash2 } from 'lucide-react';
+import { BarChart3, List, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Badge, QueryErrorState, SecondaryButton, TabLoader } from '@/components/ui/dashboard-ui';
+import {
+  Badge,
+  BranchSelect,
+  QueryErrorState,
+  SecondaryButton,
+  TabLoader,
+  cx,
+} from '@/components/ui/dashboard-ui';
 import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { toast } from '@/components/ui/toast-store';
 import { readError } from '@/features/dashboard/utils/dashboard-utils';
@@ -17,14 +24,19 @@ import {
   startOfDateInputInTimeZone,
 } from '@/lib/date';
 import { textForLocale } from '@/lib/localized-text';
+import type { BranchOption } from '@/lib/api';
 import { useDeleteFinancialTransaction, useFinanceAccess, useInfiniteFinancialTransactions } from '../hooks/use-financial';
+import type { FinancialFilters } from '../types/financial.types';
 import { formatFinanceAmount } from '../utils/financial-format';
+import { FinancialInsightsPanel } from './financial-insights-panel';
 
 export function TransactionsPanel({
+  branches,
   currency,
   locale,
   timeZone,
 }: {
+  branches: BranchOption[];
   currency: string;
   locale: string;
   timeZone?: string;
@@ -44,6 +56,8 @@ export function TransactionsPanel({
     from: allowedRange.from ?? fallbackAllowedRange.from,
     to: allowedRange.to ?? fallbackAllowedRange.to,
   };
+  const [view, setView] = useState<'transactions' | 'insights'>('transactions');
+  const [branchId, setBranchId] = useState('all');
   const [type, setType] = useState<'IN' | 'OUT' | ''>('');
   const [fromDate, setFromDate] = useState(() => currentMonthStartDateInTimeZone(timeZone));
   const [toDate, setToDate] = useState(() => dateInputValueInTimeZone(new Date(), timeZone));
@@ -54,16 +68,17 @@ export function TransactionsPanel({
     () => clampDateRangeInputs(fromDate, toDate, effectiveAllowedRange.from, effectiveAllowedRange.to),
     [effectiveAllowedRange.from, effectiveAllowedRange.to, fromDate, toDate],
   );
-  const filters = useMemo(
+  const baseFilters = useMemo<FinancialFilters>(
     () => ({
+      branchId: branchId === 'all' ? undefined : branchId,
       type: type || undefined,
       from: startOfDateInputInTimeZone(effectiveDateRange.from, timeZone),
       to: endOfDateInputInTimeZone(effectiveDateRange.to, timeZone),
-      limit: 10,
     }),
-    [effectiveDateRange.from, effectiveDateRange.to, timeZone, type],
+    [branchId, effectiveDateRange.from, effectiveDateRange.to, timeZone, type],
   );
-  const transactions = useInfiniteFinancialTransactions(filters);
+  const transactionFilters = useMemo(() => ({ ...baseFilters, limit: 10 }), [baseFilters]);
+  const transactions = useInfiniteFinancialTransactions(transactionFilters, view === 'transactions');
   const deleteMutation = useDeleteFinancialTransaction();
   const { fetchNextPage, hasNextPage, isFetchingNextPage } = transactions;
   const rows = useMemo(
@@ -81,6 +96,10 @@ export function TransactionsPanel({
   };
 
   useEffect(() => {
+    if (view !== 'transactions') {
+      return undefined;
+    }
+
     const node = loadMoreRef.current;
 
     if (!node) {
@@ -99,18 +118,18 @@ export function TransactionsPanel({
     observer.observe(node);
 
     return () => observer.disconnect();
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage, view]);
 
-  if (transactions.isLoading) {
+  if (access.isLoading || (view === 'transactions' && transactions.isLoading)) {
     return <TabLoader label={t('loadingWorkspace')} />;
   }
 
-  if (access.isError || transactions.isError) {
+  if (access.isError || (view === 'transactions' && transactions.isError)) {
     return (
       <QueryErrorState
         onRetry={() => {
           void access.refetch();
-          void transactions.refetch();
+          if (view === 'transactions') void transactions.refetch();
         }}
       />
     );
@@ -118,26 +137,77 @@ export function TransactionsPanel({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-base font-black text-stone-950">{t('transactions')}</h3>
-        <Badge tone="teal">{t('transactionsCount', { count: totalCount })}</Badge>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div
+          className="inline-flex rounded-2xl border border-stone-200 bg-stone-100 p-1"
+          role="tablist"
+          aria-label={t('financialActivityViews')}
+        >
+          <button
+            type="button"
+            role="tab"
+            aria-selected={view === 'transactions'}
+            className={cx(
+              'inline-flex h-10 items-center gap-2 rounded-xl px-3 text-sm font-black',
+              view === 'transactions'
+                ? 'bg-white text-stone-950 shadow-sm'
+                : 'text-stone-500 hover:text-stone-950',
+            )}
+            onClick={() => setView('transactions')}
+          >
+            <List className="size-4" aria-hidden="true" />
+            {t('transactions')}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={view === 'insights'}
+            className={cx(
+              'inline-flex h-10 items-center gap-2 rounded-xl px-3 text-sm font-black',
+              view === 'insights'
+                ? 'bg-white text-primary shadow-sm'
+                : 'text-stone-500 hover:text-stone-950',
+            )}
+            onClick={() => setView('insights')}
+          >
+            <BarChart3 className="size-4" aria-hidden="true" />
+            {t('insights')}
+          </button>
+        </div>
+        {view === 'transactions' ? (
+          <Badge tone="teal">{t('transactionsCount', { count: totalCount })}</Badge>
+        ) : null}
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {[
-          ['', t('all')],
-          ['IN', t('income')],
-          ['OUT', t('expense')],
-        ].map(([value, label]) => (
-          <button
-            key={value}
-            type="button"
-            className={`h-9 rounded-xl border px-3 text-sm font-black ${type === value ? 'border-primary bg-teal-50 text-primary' : 'border-stone-200 bg-white text-stone-600'}`}
-            onClick={() => setType(value as 'IN' | 'OUT' | '')}
-          >
-            {label}
-          </button>
-        ))}
+      <div className="grid min-w-0 gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+        <div className="min-w-0 space-y-1.5">
+          <span className="text-sm font-black text-stone-700">{t('branchFilter')}</span>
+          <BranchSelect
+            branches={branches}
+            value={branchId}
+            onChange={setBranchId}
+            locale={locale}
+            includeAll
+            allLabel={t('allBranches')}
+          />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {[
+            ['', t('all')],
+            ['IN', t('income')],
+            ['OUT', t('expense')],
+          ].map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={type === value}
+              className={`h-10 rounded-xl border px-3 text-sm font-black ${type === value ? 'border-primary bg-teal-50 text-primary' : 'border-stone-200 bg-white text-stone-600'}`}
+              onClick={() => setType(value as 'IN' | 'OUT' | '')}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -170,7 +240,9 @@ export function TransactionsPanel({
         })}
       </p>
 
-      {rows.length ? (
+      {view === 'insights' ? (
+        <FinancialInsightsPanel filters={baseFilters} currency={currency} locale={locale} />
+      ) : rows.length ? (
         <div className="space-y-2">
           {rows.map((transaction) => (
           <div key={transaction.id} className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
