@@ -185,7 +185,7 @@ export function AddTransactionPanel({
             placeholder="0.00"
           />
         </label>
-        <label className="space-y-1.5">
+        <label className="min-w-0 space-y-1.5">
           <span className="text-sm font-black text-stone-700">{t('date')}</span>
           <input
             className="h-11 w-full min-w-0 rounded-xl border border-border bg-white px-3 text-sm font-bold"

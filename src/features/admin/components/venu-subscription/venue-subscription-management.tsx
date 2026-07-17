@@ -110,7 +110,7 @@ function AssignSubscriptionPanel({
           </select>
         </label>
 
-        <label className="space-y-1">
+        <label className="min-w-0 space-y-1">
           <span className="text-xs font-black text-stone-500">{t('venueCrm.expires')}</span>
           <input
             className="h-11 w-full rounded-xl border border-teal-100 bg-white px-3 text-sm font-black text-stone-700"

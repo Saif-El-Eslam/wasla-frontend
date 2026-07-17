@@ -50,7 +50,7 @@ export function FormInput<T extends FieldValues>({
         {label ?? placeholder ?? String(name)}
       </label>
 
-      <div className="relative">
+      <div className="relative min-w-0">
         <input
           id={inputId}
           type={inputType}

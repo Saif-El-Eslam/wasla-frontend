@@ -30,20 +30,82 @@
 }
 
 input:is([type='date'], [type='datetime-local'], [type='month'], [type='time'], [type='week']) {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  overflow: hidden;
+  padding-block: 0 !important;
+  padding-inline: 0 !important;
+  direction: ltr;
+  line-height: normal;
+  text-align: start;
+  font-variant-numeric: tabular-nums;
+}
+
+label:has(> input:is([type='date'], [type='datetime-local'], [type='month'], [type='time'], [type='week'])) {
   inline-size: 100%;
   max-inline-size: 100%;
   min-inline-size: 0;
 }
 
-label:has(> input:is([type='date'], [type='datetime-local'], [type='month'], [type='time'], [type='week'])) {
+input:is(
+    [type='date'],
+    [type='datetime-local'],
+    [type='month'],
+    [type='time'],
+    [type='week']
+  )::-webkit-date-and-time-value {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  block-size: 100%;
+  inline-size: 100%;
   min-inline-size: 0;
+  margin: 0;
+  padding-inline: 0.75rem;
+  text-align: start;
 }
 
-input:is([type='date'], [type='datetime-local'], [type='month'], [type='time'], [type='week'])::-webkit-date-and-time-value,
-input:is([type='date'], [type='datetime-local'], [type='month'], [type='time'], [type='week'])::-webkit-datetime-edit {
+input:is(
+    [type='date'],
+    [type='datetime-local'],
+    [type='month'],
+    [type='time'],
+    [type='week']
+  )::-webkit-datetime-edit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  inline-size: 100%;
   min-inline-size: 0;
+  margin: 0;
+  padding-inline: 0.75rem;
   text-align: start;
+}
+
+input:is(
+    [type='date'],
+    [type='datetime-local'],
+    [type='month'],
+    [type='time'],
+    [type='week']
+  )::-webkit-datetime-edit-fields-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 0;
+  padding: 0;
+}
+
+@media (max-width: 767px) {
+  input:is([type='date'], [type='datetime-local'], [type='month'], [type='time'], [type='week']) {
+    font-size: 16px;
+  }
 }
 
 html,
