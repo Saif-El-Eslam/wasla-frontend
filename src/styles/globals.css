@@ -51,6 +51,26 @@ body {
   min-height: 100%;
 }
 
+.skip-link {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline-start: 1rem;
+  z-index: 1000;
+  padding: 0.75rem 1rem;
+  border-radius: 0 0 0.75rem 0.75rem;
+  background: #0c0a09;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 700;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.2);
+  transform: translateY(-110%);
+  transition: transform 150ms ease-out;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
 body {
   margin: 0;
   background:
@@ -791,6 +811,11 @@ textarea:disabled,
 
 .wasla-search-surface {
   isolation: isolate;
+}
+
+.wasla-below-fold {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
 }
 
 .wasla-search-surface::before {

@@ -52,7 +52,7 @@ export function AppImage({ alt, className, loader, onLoad, unoptimized, src, ...
         src={src}
         loader={passthrough ? passthroughLoader : loader}
         unoptimized={unoptimized ?? passthrough}
-        className={cx('transition-opacity duration-300', loaded ? 'opacity-100' : 'opacity-0', className)}
+        className={className}
         onLoad={(event) => {
           setLoaded(true);
           onLoad?.(event);

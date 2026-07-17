@@ -24,6 +24,7 @@ export function PublicBranchesView({
   locale: string;
 }) {
   const t = useTranslations('public');
+  const commonT = useTranslations('common');
   const isRtl = locale === 'ar';
   const venueName = textForLocale(venue.name, locale) || venue.slug;
   const venueDescription = textForLocale(venue.description, locale);
@@ -43,6 +44,7 @@ export function PublicBranchesView({
           alt=""
           fill
           priority
+          fetchPriority="high"
           sizes="100vw"
           className="object-cover"
         />
@@ -63,7 +65,11 @@ export function PublicBranchesView({
             >
               {locale === 'ar' ? 'EN' : 'AR'}
             </Link>
-            <Link href={publicHref(locale)} className="flex w-fit items-center gap-2">
+            <Link
+              href={publicHref(locale)}
+              aria-label={commonT('goHome')}
+              className="flex w-fit items-center gap-2"
+            >
               <LogoMark className="flex size-8 items-center justify-center text-sm font-black text-white" />
             </Link>
           </div>

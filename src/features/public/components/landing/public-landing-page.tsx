@@ -53,12 +53,13 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
         </div>
       </header>
 
-      <section className="wasla-fade-up relative h-dvh w-full overflow-hidden bg-stone-950 px-4 pb-8 pt-24 text-white sm:px-8 lg:px-14 xl:px-20">
+      <section className="relative h-dvh w-full overflow-hidden bg-stone-950 px-4 pb-8 pt-24 text-white sm:px-8 lg:px-14 xl:px-20">
         <AppImage
           src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600&h=1100&fit=crop&auto=format"
           alt=""
           fill
           priority
+          fetchPriority="high"
           sizes="100vw"
           className="object-cover opacity-70"
         />
@@ -146,11 +147,11 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
         </div>
       </section>
 
-      <section className="w-full bg-[#ecfdf8]">
+      <div className="wasla-below-fold w-full bg-[#ecfdf8]">
         <LandingQuickSearch locale={locale} />
-      </section>
+      </div>
 
-      <section className="wasla-fade-up wasla-delay-1 relative grid min-h-dvh w-full items-center gap-10 overflow-hidden bg-[#062f2d] px-4 py-16 text-white sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:px-14 xl:px-20">
+      <section className="wasla-below-fold wasla-fade-up wasla-delay-1 relative grid min-h-dvh w-full items-center gap-10 overflow-hidden bg-[#062f2d] px-4 py-16 text-white sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:px-14 xl:px-20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(251,191,36,0.22),transparent_24%),radial-gradient(circle_at_82%_72%,rgba(45,212,191,0.22),transparent_28%)]" />
         <div>
           <div className="relative mb-3 inline-flex items-center gap-2 rounded-full bg-amber-300 px-3 py-1.5 text-xs font-black text-stone-950">
@@ -258,7 +259,7 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
         </div>
       </section>
 
-      <section className="wasla-fade-up wasla-delay-1 relative grid min-h-dvh w-full items-center gap-10 overflow-hidden bg-[#f8fafa] px-4 py-16 text-stone-950 sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:px-14 xl:px-20">
+      <section className="wasla-below-fold wasla-fade-up wasla-delay-1 relative grid min-h-dvh w-full items-center gap-10 overflow-hidden bg-[#f8fafa] px-4 py-16 text-stone-950 sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:px-14 xl:px-20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(251,191,36,0.22),transparent_24%),radial-gradient(circle_at_82%_72%,rgba(20,184,166,0.16),transparent_28%)]" />
 
         <div>
@@ -407,7 +408,7 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
 
       <PwaInstallSection variant="landing" />
 
-      <section className="wasla-fade-up wasla-delay-2 w-full overflow-hidden bg-white px-4 py-20 text-stone-950 sm:px-8 lg:px-14 xl:px-20">
+      <section className="wasla-below-fold wasla-fade-up wasla-delay-2 w-full overflow-hidden bg-white px-4 py-20 text-stone-950 sm:px-8 lg:px-14 xl:px-20">
         <div className="grid items-center gap-8 lg:grid-cols-[1fr_0.9fr]">
           <div>
             <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-teal-50 px-3 py-1.5 text-xs font-black text-teal-700">
@@ -465,7 +466,10 @@ export async function PublicLandingPage({ locale }: { locale: string }) {
             <LogoMark className="flex size-8 items-center justify-center text-sm font-black text-white" />
             <span className="text-base font-black text-teal-700">{commonT('wasla')}</span>
           </Link>
-          <nav className="flex flex-wrap gap-3 text-sm font-bold text-muted-foreground">
+          <nav
+            aria-label={t('footerCompany')}
+            className="flex flex-wrap gap-3 text-sm font-bold text-muted-foreground"
+          >
             {[
               ['about', t('footerAbout')],
               ['contact', t('footerContact')],

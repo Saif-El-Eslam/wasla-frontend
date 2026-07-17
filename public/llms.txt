@@ -1,0 +1,28 @@
+# Wasla
+
+> Wasla is a bilingual Arabic and English platform for discovering digital restaurant and cafe menus in Egypt. Venue teams use Wasla to publish branch-specific menus, create QR access, manage venue information, and review menu and financial management and analytics.
+
+Public venue and menu pages can be browsed without an account. Dashboard, venue-management, and financial features require authentication. English pages use the `/en` prefix and Arabic pages use the `/ar` prefix.
+
+## Public pages
+
+- [Wasla in English](https://wasla.app/en): English landing page with venue discovery and product overview.
+- [Wasla in Arabic](https://wasla.app/ar): Arabic landing page with venue discovery and product overview.
+- [Browse venues](https://wasla.app/en/venues): Search published venues, choose a branch, and open its public menu.
+- [About Wasla](https://wasla.app/en/about): Overview of Wasla's public-menu and venue-management service.
+- [Contact Wasla](https://wasla.app/en/contact): Information for venue onboarding, questions, and menu issue reports.
+
+## Account actions
+
+- [Create a venue account](https://wasla.app/en/register): Register a venue-management account.
+- [Sign in](https://wasla.app/en/login): Access the authenticated Wasla dashboard.
+
+## Policies
+
+- [Privacy](https://wasla.app/en/privacy): How Wasla handles public menu browsing and analytics events.
+- [Terms](https://wasla.app/en/terms): Responsibilities for venue, branch, menu, price, and contact information.
+
+## Optional
+
+- [XML sitemap](https://wasla.app/sitemap.xml): Index of public, localized Wasla pages.
+- [Web app manifest](https://wasla.app/manifest.webmanifest): Installable web app metadata.

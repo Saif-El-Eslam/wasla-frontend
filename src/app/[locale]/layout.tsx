@@ -168,9 +168,14 @@ export default async function LocaleLayout({
         <NextIntlClientProvider locale={resolvedLocale} messages={messages}>
           <ToastProvider>
             <QueryProvider>
+              <a href="#main-content" className="skip-link">
+                {resolvedLocale === 'ar' ? 'انتقل إلى المحتوى الرئيسي' : 'Skip to main content'}
+              </a>
               <PwaRegister />
               <PullToRefresh />
-              {children}
+              <div id="main-content" tabIndex={-1}>
+                {children}
+              </div>
             </QueryProvider>
           </ToastProvider>
         </NextIntlClientProvider>

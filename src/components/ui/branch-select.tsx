@@ -80,6 +80,7 @@ export function BranchSelect({
     <div ref={rootRef} className="relative w-full min-w-0 sm:w-auto">
       <button
         type="button"
+        role="combobox"
         className={cx(
           'group flex h-12 w-full min-w-0 items-center gap-3 rounded-3xl border border-teal-100 bg-white/95 ps-1.5 pe-3 text-start shadow-sm shadow-teal-50 outline-none ring-1 ring-transparent backdrop-blur transition sm:min-w-[230px]',
           'hover:-translate-y-0.5 hover:border-teal-200 hover:shadow-md focus:border-primary focus:ring-primary/15',

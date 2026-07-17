@@ -159,21 +159,28 @@ export function LandingQuickSearch({ locale }: { locale: string }) {
               {t('venueName')}
             </span>
             <div className="relative">
-              <Search className="absolute start-4 top-1/2 size-5 -translate-y-1/2 text-teal-700" />
+              <Search
+                className="absolute start-4 top-1/2 size-5 -translate-y-1/2 text-teal-700"
+                aria-hidden="true"
+              />
               <input
+                type="search"
                 name="search"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 onFocus={() => setOpen(true)}
-                role="combobox"
-                aria-autocomplete="list"
-                aria-expanded={open && shouldFetchPreview}
-                aria-controls="landing-venue-search-results"
+                aria-controls={open && shouldFetchPreview ? 'landing-venue-search-results' : undefined}
                 placeholder={t('venueSearchPlaceholder')}
                 className="h-14 w-full rounded-2xl border border-teal-200 bg-white ps-12 pe-4 text-sm font-bold shadow-lg shadow-teal-900/5 outline-none transition focus:border-teal-400 focus:bg-white focus:ring-4 focus:ring-teal-500/15"
               />
               {open && shouldFetchPreview ? (
-                <div id="landing-venue-search-results" role="listbox" className="absolute inset-x-0 top-[calc(100%+0.75rem)] z-[80] overflow-hidden rounded-2xl border border-teal-100 bg-white shadow-2xl shadow-teal-950/10">
+                <div
+                  id="landing-venue-search-results"
+                  role="region"
+                  aria-label={t('quickSearchPreviewTitle')}
+                  aria-live="polite"
+                  className="absolute inset-x-0 top-[calc(100%+0.75rem)] z-[80] overflow-hidden rounded-2xl border border-teal-100 bg-white shadow-2xl shadow-teal-950/10"
+                >
                   <div className="border-b border-border px-3 py-2 text-xs font-black uppercase tracking-[0.14em] text-muted-foreground">
                     {t('quickSearchPreviewTitle')}
                   </div>
@@ -286,9 +293,12 @@ export function LandingQuickSearch({ locale }: { locale: string }) {
               ))}
             </select>
           </label>
-          <button className="wasla-shimmer inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#042f2e] text-sm font-black text-white shadow-xl shadow-teal-950/15 md:col-span-2">
+          <button
+            type="submit"
+            className="wasla-shimmer inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#042f2e] text-sm font-black text-white shadow-xl shadow-teal-950/15 md:col-span-2"
+          >
             {t('searchVenues')}
-            <Store className="size-4" />
+            <Store className="size-4" aria-hidden="true" />
           </button>
         </form>
       </div>
